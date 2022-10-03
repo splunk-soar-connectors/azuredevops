@@ -4,26 +4,25 @@
     "description": "Azure DevOps",
     "type": "ticketing",
     "product_vendor": "Microsoft",
-    "logo": "azuredevops.png",
-    "logo_dark": "azuredevops_dark.png",
+    "logo": "logo_azuredevops.svg",
+    "logo_dark": "logo_azuredevops_dark.svg",
     "product_name": "Azure DevOps",
     "python_version": "3",
     "product_version_regex": ".*",
     "publisher": "Person",
     "license": "Copyright (c) Person, 2022",
-    "app_version": "5.1.0",
+    "app_version": "1.0.0",
     "utctime_updated": "2022-09-26T15:51:41.001686Z",
     "package_name": "phantom_azuredevops",
     "main_module": "azuredevops_connector.py",
-    "min_phantom_version": "4.10.1",
+    "min_phantom_version": "5.3.3",
     "app_wizard_version": "1.0.0",
+    "fips_compliant": false,
     "configuration": {
         "organization": {
-            "description": "The name of the Azure DevOps organization.",
+            "description": "The name of the Azure DevOps organization",
             "data_type": "string",
             "required": true,
-            "value_list": [],
-            "default": "",
             "order": 0,
             "name": "organization",
             "id": 0
@@ -32,14 +31,12 @@
             "description": "Project ID or project name",
             "data_type": "string",
             "required": true,
-            "value_list": [],
-            "default": "",
             "order": 1,
             "name": "project",
             "id": 1
         },
         "api version": {
-            "description": "Version of the API to use.",
+            "description": "Version of the API to use",
             "data_type": "string",
             "required": true,
             "value_list": [
@@ -50,7 +47,6 @@
                 "7.0",
                 "7.1"
             ],
-            "default": "",
             "order": 2,
             "name": "api version",
             "id": 2
@@ -59,8 +55,6 @@
             "description": "User name for the access token",
             "data_type": "string",
             "required": true,
-            "value_list": [],
-            "default": "",
             "order": 3,
             "name": "username",
             "id": 3
@@ -79,7 +73,6 @@
             "action": "test connectivity",
             "identifier": "test_connectivity",
             "description": "Validate the asset configuration for connectivity using supplied configuration",
-            "verbose": "",
             "type": "test",
             "read_only": true,
             "parameters": {},
@@ -89,30 +82,23 @@
         {
             "action": "get work item",
             "identifier": "get_work_item",
-            "description": "Get information about a single work item.",
-            "verbose": "",
-            "type": "generic",
+            "description": "Get information about a single work item",
+            "type": "investigate",
             "read_only": true,
             "parameters": {
                 "id": {
                     "description": "The work item id",
                     "data_type": "numeric",
                     "required": true,
-                    "primary": true,
-                    "contains": [],
-                    "value_list": [],
-                    "default": "",
                     "order": 0,
                     "name": "id",
                     "id": 1,
                     "param_name": "id"
                 },
                 "expand": {
-                    "description": "The expand parameters for work item attributes. Possible options are { None, Relations, Fields, Links, All }.",
+                    "description": "The expand parameters for work item attributes (Possible options are { None, Relations, Fields, Links, All })",
                     "data_type": "string",
                     "required": true,
-                    "primary": false,
-                    "contains": [],
                     "value_list": [
                         "None",
                         "Relations",
@@ -129,11 +115,6 @@
                 "asof": {
                     "description": "AsOf UTC date time string",
                     "data_type": "string",
-                    "required": false,
-                    "primary": false,
-                    "contains": [],
-                    "value_list": [],
-                    "default": "",
                     "order": 2,
                     "name": "asof",
                     "id": 3,
@@ -142,11 +123,6 @@
                 "fields": {
                     "description": "Comma-separated list of requested fields",
                     "data_type": "string",
-                    "required": false,
-                    "primary": false,
-                    "contains": [],
-                    "value_list": [],
-                    "default": "",
                     "order": 3,
                     "name": "fields",
                     "id": 4,
@@ -155,38 +131,46 @@
             },
             "output": [
                 {
-                    "data_path": "action_result.parameter.id",
-                    "data_type": "numeric",
-                    "contains": [],
-                    "column_name": "id",
-                    "column_order": 0
-                },
-                {
-                    "data_path": "action_result.parameter.expand",
+                    "data_path": "action_result.status",
                     "data_type": "string",
-                    "contains": [],
-                    "column_name": "expand",
-                    "column_order": 1
+                    "column_name": "Status",
+                    "column_order": 4,
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
                 },
                 {
                     "data_path": "action_result.parameter.asof",
                     "data_type": "string",
-                    "contains": [],
-                    "column_name": "asof",
+                    "column_name": "Asof",
                     "column_order": 2
+                },
+                {
+                    "data_path": "action_result.parameter.expand",
+                    "data_type": "string",
+                    "column_name": "Expand",
+                    "column_order": 1
                 },
                 {
                     "data_path": "action_result.parameter.fields",
                     "data_type": "string",
-                    "contains": [],
-                    "column_name": "fields",
+                    "column_name": "Fields",
                     "column_order": 3
                 },
                 {
-                    "data_path": "action_result.status",
-                    "data_type": "string",
-                    "column_name": "status",
-                    "column_order": 4
+                    "data_path": "action_result.parameter.id",
+                    "data_type": "numeric",
+                    "column_name": "ID",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.data",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary",
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.message",
@@ -194,11 +178,17 @@
                 },
                 {
                     "data_path": "summary.total_objects",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects_successful",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 }
             ],
             "render": {
@@ -209,8 +199,7 @@
         {
             "action": "add work item",
             "identifier": "add_work_item",
-            "description": "Creates a single work item.",
-            "verbose": "",
+            "description": "Creates a single work item",
             "type": "generic",
             "read_only": false,
             "parameters": {
@@ -218,21 +207,14 @@
                     "description": "The work item type of the work item to create",
                     "data_type": "string",
                     "required": true,
-                    "primary": false,
-                    "contains": [],
-                    "value_list": [],
-                    "default": "",
                     "order": 0,
                     "name": "work_item_type",
                     "id": 1,
                     "param_name": "work_item_type"
                 },
                 "expand": {
-                    "description": "The expand parameters for work item attributes. Possible options are { None, Relations, Fields, Links, All }.",
+                    "description": "The expand parameters for work item attributes (Possible options are { None, Relations, Fields, Links, All })",
                     "data_type": "string",
-                    "required": false,
-                    "primary": false,
-                    "contains": [],
                     "value_list": [
                         "None",
                         "Relations",
@@ -249,10 +231,6 @@
                 "bypassrules": {
                     "description": "Do not enforce the work item type rules on this update",
                     "data_type": "boolean",
-                    "required": false,
-                    "primary": false,
-                    "contains": [],
-                    "default": "",
                     "order": 2,
                     "name": "bypassrules",
                     "id": 3,
@@ -261,10 +239,6 @@
                 "suppressnotifications": {
                     "description": "Do not fire any notifications for this change",
                     "data_type": "boolean",
-                    "required": false,
-                    "primary": false,
-                    "contains": [],
-                    "default": "",
                     "order": 3,
                     "name": "suppressnotifications",
                     "id": 4,
@@ -273,10 +247,6 @@
                 "validateonly": {
                     "description": "Indicate if you only want to validate the changes without saving the work item",
                     "data_type": "boolean",
-                    "required": false,
-                    "primary": false,
-                    "contains": [],
-                    "default": "",
                     "order": 4,
                     "name": "validateonly",
                     "id": 5,
@@ -286,10 +256,6 @@
                     "description": "Payload to be sent to be created",
                     "data_type": "string",
                     "required": true,
-                    "primary": false,
-                    "contains": [],
-                    "value_list": [],
-                    "default": "",
                     "order": 5,
                     "name": "post_body",
                     "id": 6,
@@ -298,52 +264,70 @@
             },
             "output": [
                 {
-                    "data_path": "action_result.parameter.work_item_type",
+                    "data_path": "action_result.status",
                     "data_type": "string",
-                    "contains": [],
-                    "column_name": "work_item_type",
-                    "column_order": 0
-                },
-                {
-                    "data_path": "action_result.parameter.expand",
-                    "data_type": "string",
-                    "contains": [],
-                    "column_name": "expand",
-                    "column_order": 1
+                    "column_name": "Status",
+                    "column_order": 6,
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
                 },
                 {
                     "data_path": "action_result.parameter.bypassrules",
                     "data_type": "boolean",
-                    "contains": [],
-                    "column_name": "bypassrules",
-                    "column_order": 2
+                    "column_name": "Bypassrules",
+                    "column_order": 2,
+                    "example_values": [
+                        true,
+                        false
+                    ]
                 },
                 {
-                    "data_path": "action_result.parameter.suppressnotifications",
-                    "data_type": "boolean",
-                    "contains": [],
-                    "column_name": "suppressnotifications",
-                    "column_order": 3
-                },
-                {
-                    "data_path": "action_result.parameter.validateonly",
-                    "data_type": "boolean",
-                    "contains": [],
-                    "column_name": "validateonly",
-                    "column_order": 4
+                    "data_path": "action_result.parameter.expand",
+                    "data_type": "string",
+                    "column_name": "Expand",
+                    "column_order": 1
                 },
                 {
                     "data_path": "action_result.parameter.post_body",
                     "data_type": "string",
-                    "contains": [],
-                    "column_name": "post_body",
+                    "column_name": "Post Body",
                     "column_order": 5
                 },
                 {
-                    "data_path": "action_result.status",
+                    "data_path": "action_result.parameter.suppressnotifications",
+                    "data_type": "boolean",
+                    "column_name": "Suppressnotifications",
+                    "column_order": 3,
+                    "example_values": [
+                        true,
+                        false
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.validateonly",
+                    "data_type": "boolean",
+                    "column_name": "Validateonly",
+                    "column_order": 4,
+                    "example_values": [
+                        true,
+                        false
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.work_item_type",
                     "data_type": "string",
-                    "column_name": "status",
-                    "column_order": 6
+                    "column_name": "Work Item Type",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.data",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary",
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.message",
@@ -351,11 +335,17 @@
                 },
                 {
                     "data_path": "summary.total_objects",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects_successful",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 }
             ],
             "render": {
@@ -367,53 +357,52 @@
             "action": "list iterations",
             "identifier": "list_iterations",
             "description": "Get team's iteration",
-            "verbose": "",
-            "type": "generic",
+            "type": "investigate",
             "read_only": true,
             "parameters": {
                 "team": {
                     "description": "Team ID or team name",
                     "data_type": "string",
-                    "required": false,
-                    "primary": false,
-                    "contains": [],
-                    "value_list": [],
-                    "default": "",
                     "order": 0,
                     "name": "team"
                 },
                 "timeframe": {
-                    "description": "A filter for which iterations are returned based on relative time. Only Current is supported currently.",
+                    "description": "A filter for which iterations are returned based on relative time (Only Current is supported currently)",
                     "data_type": "string",
-                    "required": false,
-                    "primary": false,
-                    "contains": [],
-                    "value_list": [],
-                    "default": "",
                     "order": 1,
                     "name": "timeframe"
                 }
             },
             "output": [
                 {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "Status",
+                    "column_order": 2,
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
+                },
+                {
                     "data_path": "action_result.parameter.team",
                     "data_type": "string",
-                    "contains": [],
-                    "column_name": "team",
+                    "column_name": "Team",
                     "column_order": 0
                 },
                 {
                     "data_path": "action_result.parameter.timeframe",
                     "data_type": "string",
-                    "contains": [],
-                    "column_name": "timeframe",
+                    "column_name": "Timeframe",
                     "column_order": 1
                 },
                 {
-                    "data_path": "action_result.status",
-                    "data_type": "string",
-                    "column_name": "status",
-                    "column_order": 2
+                    "data_path": "action_result.data",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary",
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.message",
@@ -421,11 +410,17 @@
                 },
                 {
                     "data_path": "summary.total_objects",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects_successful",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 }
             ],
             "render": {
@@ -436,54 +431,55 @@
         {
             "action": "add comment",
             "identifier": "add_comment",
-            "description": "Add a comment on a work item.",
-            "verbose": "",
+            "description": "Add a comment on a work item",
             "type": "generic",
             "read_only": false,
             "parameters": {
                 "work_item_id": {
-                    "description": "Id of a work item.",
+                    "description": "Id of a work item",
                     "data_type": "string",
                     "required": true,
-                    "primary": true,
-                    "contains": [],
-                    "value_list": [],
-                    "default": "",
                     "order": 0,
                     "name": "work_item_id"
                 },
                 "comment": {
-                    "description": "The text of the comment.",
+                    "description": "The text of the comment",
                     "data_type": "string",
                     "required": true,
-                    "primary": true,
-                    "contains": [],
-                    "value_list": [],
-                    "default": "",
                     "order": 1,
                     "name": "comment"
                 }
             },
             "output": [
                 {
-                    "data_path": "action_result.parameter.work_item_id",
+                    "data_path": "action_result.status",
                     "data_type": "string",
-                    "contains": [],
-                    "column_name": "work_item_id",
-                    "column_order": 0
+                    "column_name": "Status",
+                    "column_order": 2,
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
                 },
                 {
                     "data_path": "action_result.parameter.comment",
                     "data_type": "string",
-                    "contains": [],
-                    "column_name": "comment",
+                    "column_name": "Comment",
                     "column_order": 1
                 },
                 {
-                    "data_path": "action_result.status",
+                    "data_path": "action_result.parameter.work_item_id",
                     "data_type": "string",
-                    "column_name": "status",
-                    "column_order": 2
+                    "column_name": "Work Item ID",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.data",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary",
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.message",
@@ -491,11 +487,17 @@
                 },
                 {
                     "data_path": "summary.total_objects",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects_successful",
-                    "data_type": "numeric"
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 }
             ],
             "render": {
@@ -511,5 +513,37 @@
     "executable": "spawn3",
     "disabled": false,
     "copied_from_id": 222,
-    "copied_from_version": "5.0.0"
+    "copied_from_version": "5.0.0",
+    "pip_dependencies": {
+        "wheel": [
+            {
+                "module": "beautifulsoup4",
+                "input_file": "wheels/py3/beautifulsoup4-4.9.1-py3-none-any.whl"
+            },
+            {
+                "module": "certifi",
+                "input_file": "wheels/py3/certifi-2022.9.24-py3-none-any.whl"
+            },
+            {
+                "module": "chardet",
+                "input_file": "wheels/shared/chardet-3.0.4-py2.py3-none-any.whl"
+            },
+            {
+                "module": "idna",
+                "input_file": "wheels/shared/idna-2.10-py2.py3-none-any.whl"
+            },
+            {
+                "module": "requests",
+                "input_file": "wheels/shared/requests-2.25.0-py2.py3-none-any.whl"
+            },
+            {
+                "module": "soupsieve",
+                "input_file": "wheels/py3/soupsieve-2.3.2.post1-py3-none-any.whl"
+            },
+            {
+                "module": "urllib3",
+                "input_file": "wheels/shared/urllib3-1.26.12-py2.py3-none-any.whl"
+            }
+        ]
+    }
 }

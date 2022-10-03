@@ -1,22 +1,14 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-# -----------------------------------------
-# Phantom sample App Connector python file
-# -----------------------------------------
 
-# Python 3 Compatibility imports
 from __future__ import print_function, unicode_literals
 
-# Phantom App imports
-import phantom.app as phantom
-from phantom.base_connector import BaseConnector
-from phantom.action_result import ActionResult
-
-# Usage of the consts file is recommended
-# from azuredevops_consts import *
-import requests
 import json
+import sys
+
+import phantom.app as phantom
+import requests
 from bs4 import BeautifulSoup
+from phantom.action_result import ActionResult
+from phantom.base_connector import BaseConnector
 
 
 class RetVal(tuple):
@@ -209,7 +201,7 @@ class AzureDevopsConnector(BaseConnector):
         # Optional values should use the .get() function
         asof = param.get('asof', '')
         fields = param.get('fields', '')
-        
+
         params = {"$expand": expand}
         if asof:
             params["asOf"] = asof
@@ -233,7 +225,7 @@ class AzureDevopsConnector(BaseConnector):
         action_result.add_data(response)
 
         # Add a dictionary that is made up of the most important values from data into the summary
-        summary = action_result.update_summary({})
+        # summary = action_result.update_summary({})
         # summary['num_data'] = len(action_result['data'])
 
         # Return success, no need to set the message, only the status
@@ -261,7 +253,7 @@ class AzureDevopsConnector(BaseConnector):
         bypassrules = param.get('bypassrules', '')
         suppressnotifications = param.get('suppressnotifications', '')
         validateonly = param.get('validateonly', '')
-        
+
         params = {"$expand": expand}
         if bypassrules:
             params["bypassrules"] = bypassrules
@@ -269,11 +261,11 @@ class AzureDevopsConnector(BaseConnector):
             params["suppressnotifications"] = suppressnotifications
         if validateonly:
             params["validateonly"] = validateonly
-            
+
         headers = {
             "Content-Type": "application/json-patch+json"
         }
-        
+
         try:
             post_body_json = json.loads(param["post_body"], strict=False)
         except:
@@ -281,7 +273,8 @@ class AzureDevopsConnector(BaseConnector):
 
         # make rest call
         ret_val, response = self._make_rest_call(
-            '/_apis/wit/workitems/${}'.format(work_item_type), action_result, params=params, headers=headers, method="post", data=json.dumps(post_body_json)
+            '/_apis/wit/workitems/${}'.format(work_item_type), action_result, params=params, headers=headers, method="post",
+            data=json.dumps(post_body_json)
         )
 
         if phantom.is_fail(ret_val):
@@ -296,7 +289,7 @@ class AzureDevopsConnector(BaseConnector):
         action_result.add_data(response)
 
         # Add a dictionary that is made up of the most important values from data into the summary
-        summary = action_result.update_summary({})
+        # summary = action_result.update_summary({})
         # summary['num_data'] = len(action_result['data'])
 
         # Return success, no need to set the message, only the status
@@ -322,14 +315,14 @@ class AzureDevopsConnector(BaseConnector):
         # Optional values should use the .get() function
         team = param.get('team', '')
         timeframe = param.get('timeframe', '')
-        
+
         if timeframe:
             params = {
                 "$timeframe": timeframe
             }
         else:
             params = {}
-            
+
         if team:
             endpoint = '/{}/_apis/work/teamsettings/iterations'.format(team)
         else:
@@ -352,7 +345,7 @@ class AzureDevopsConnector(BaseConnector):
         action_result.add_data(response)
 
         # Add a dictionary that is made up of the most important values from data into the summary
-        summary = action_result.update_summary({})
+        # summary = action_result.update_summary({})
         # summary['num_data'] = len(action_result['data'])
 
         # Return success, no need to set the message, only the status
@@ -375,11 +368,11 @@ class AzureDevopsConnector(BaseConnector):
         # Required values can be accessed directly
         work_item_id = param['work_item_id']
         comment = param['comment']
-        
+
         post_body = {
             "text": comment
         }
-        
+
         params = {
             "api-version": "7.1-preview.3"
         }
@@ -392,7 +385,8 @@ class AzureDevopsConnector(BaseConnector):
 
         # make rest call
         ret_val, response = self._make_rest_call(
-            '/_apis/wit/workItems/{}/comments'.format(work_item_id), action_result, params=params, headers=headers, method="post", data=json.dumps(post_body)
+            '/_apis/wit/workItems/{}/comments'.format(work_item_id), action_result, params=params, headers=headers, method="post",
+            data=json.dumps(post_body)
         )
 
         if phantom.is_fail(ret_val):
@@ -407,7 +401,7 @@ class AzureDevopsConnector(BaseConnector):
         action_result.add_data(response)
 
         # Add a dictionary that is made up of the most important values from data into the summary
-        summary = action_result.update_summary({})
+        # summary = action_result.update_summary({})
         # summary['num_data'] = len(action_result['data'])
 
         # Return success, no need to set the message, only the status
@@ -458,12 +452,12 @@ class AzureDevopsConnector(BaseConnector):
         # Optional values should use the .get() function
         optional_config_name = config.get('optional_config_name')
         """
-         
+
         self._organization = config["organization"]
         self._project = config["project"]
         self._api_version = config["api version"]
         self._base_url = "https://dev.azure.com/{}/{}".format(self._organization, self._project)
-        
+
         return phantom.APP_SUCCESS
 
     def finalize(self):
@@ -480,9 +474,11 @@ def main():
     argparser.add_argument('input_test_json', help='Input Test JSON file')
     argparser.add_argument('-u', '--username', help='username', required=False)
     argparser.add_argument('-p', '--password', help='password', required=False)
+    argparser.add_argument('-v', '--verify', action='store_true', help='verify', required=False, default=False)
 
     args = argparser.parse_args()
     session_id = None
+    verify = args.verify
 
     username = args.username
     password = args.password
@@ -498,7 +494,7 @@ def main():
             login_url = AzureDevopsConnector._get_phantom_base_url() + '/login'
 
             print("Accessing the Login page")
-            r = requests.get(login_url, verify=False)
+            r = requests.get(login_url, verify=verify, timeout=30)
             csrftoken = r.cookies['csrftoken']
 
             data = dict()
@@ -511,11 +507,11 @@ def main():
             headers['Referer'] = login_url
 
             print("Logging into Platform to get the session id")
-            r2 = requests.post(login_url, verify=False, data=data, headers=headers)
+            r2 = requests.post(login_url, verify=verify, data=data, headers=headers, timeout=30)
             session_id = r2.cookies['sessionid']
         except Exception as e:
             print("Unable to get session id from the platform. Error: " + str(e))
-            exit(1)
+            sys.exit(1)
 
     with open(args.input_test_json) as f:
         in_json = f.read()
@@ -532,7 +528,7 @@ def main():
         ret_val = connector._handle_action(json.dumps(in_json), None)
         print(json.dumps(json.loads(ret_val), indent=4))
 
-    exit(0)
+    sys.exit(0)
 
 
 if __name__ == '__main__':
