@@ -1,2 +1,2 @@
 **Unreleased**
-* Initial Realase with Python3 supoort
+* Initial Release with Python3 support
