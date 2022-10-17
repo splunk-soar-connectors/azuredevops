@@ -1,7 +1,7 @@
 {
     "appid": "35cb5076-08b1-4165-a433-e0544664ce95",
     "name": "Azure DevOps",
-    "description": "This app integreates Azure DevOps functionalities on SOAR",
+    "description": "This app integrates with Azure DevOps to perform investigative and generic actions",
     "type": "ticketing",
     "product_vendor": "Microsoft",
     "logo": "logo_azuredevops.svg",
