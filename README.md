@@ -2,13 +2,13 @@
 # Azure DevOps
 
 Publisher: Splunk Community  
-Connector Version: 1\.0\.1  
+Connector Version: 1\.0\.2  
 Product Vendor: Microsoft  
 Product Name: Azure DevOps  
 Product Version Supported (regex): "\.\*"  
 Minimum Product Version: 5\.3\.4  
 
-Azure DevOps
+This app integrates with Azure DevOps to perform investigative and generic actions
 
 ### Configuration Variables
 The below configuration variables are required for this Connector to operate.  These variables are specified when configuring a Azure DevOps asset in SOAR.
