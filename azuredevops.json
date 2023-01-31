@@ -99,14 +99,14 @@
             "type": "investigate",
             "read_only": true,
             "parameters": {
-                "id": {
+                "work_item_id": {
                     "description": "The work item id",
                     "data_type": "numeric",
                     "required": true,
                     "order": 0,
-                    "name": "id",
+                    "name": "work_item_id",
                     "id": 1,
-                    "param_name": "id"
+                    "param_name": "work_item_id"
                 },
                 "expand": {
                     "description": "The expand parameters for work item attributes (Possible options are { None, Relations, Fields, Links, All })",

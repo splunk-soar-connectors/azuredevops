@@ -320,7 +320,7 @@ class AzureDevopsConnector(BaseConnector):
             return decrypt_var
 
     def _process_empty_response(self, response, action_result):
-        if response.status_code == 200:
+        if response.status_code in [200, 204]:
             return RetVal(phantom.APP_SUCCESS, {})
 
         return RetVal(
@@ -619,9 +619,7 @@ class AzureDevopsConnector(BaseConnector):
                     ),
                     None,
                 )
-            url = base_url + endpoint
-
-        self.debug_print(f"final URL: {url}")
+            url = f"{base_url}{endpoint}"
 
         # TODO: check authentication method, Basic or Oauth
         try:
@@ -656,7 +654,7 @@ class AzureDevopsConnector(BaseConnector):
             rest_endpoint,
         )
         ret_val, resp_json = self._make_rest_call(
-            action_result=action_result, endpoint=url, verify=False
+            endpoint=url, action_result=action_result, verify=False, skip_base_url=True
         )  # nosemgrep
 
         if phantom.is_fail(ret_val):
@@ -688,7 +686,7 @@ class AzureDevopsConnector(BaseConnector):
         )
 
         ret_val, resp_json = self._make_rest_call(
-            endpoint=url, action_result=action_result, verify=False
+            endpoint=url, action_result=action_result, verify=False, skip_base_url=True
         )  # nosemgrep
 
         if phantom.is_fail(ret_val):
@@ -741,14 +739,15 @@ class AzureDevopsConnector(BaseConnector):
         # Get the URL to the app's REST Endpoint, this is the url that the TC dialog
         # box will ask the user to connect to
 
-        # TODO: create REST url using methods
-        app_rest_url = "https://10.1.66.30/rest/handler/azuredevops_35cb5076-08b1-4165-a433-e0544664ce95/azure_devops_oauth"
+        ret_val, app_rest_url = self._get_app_rest_url(action_result)
 
-        # ret_val, app_rest_url = self._get_app_rest_url(action_result)
-
-        # if phantom.is_fail(ret_val):
-        #    self.save_progress(consts.MS_AZURE_REST_URL_NOT_AVAILABLE_MSG.format(error=action_result.get_status()))
-        #    return action_result.set_status(phantom.APP_ERROR)
+        if phantom.is_fail(ret_val):
+            self.save_progress(
+                consts.MS_AZURE_REST_URL_NOT_AVAILABLE_MSG.format(
+                    error=action_result.get_status()
+                )
+            )
+            return action_result.set_status(phantom.APP_ERROR)
 
         # create the url that the oauth server should re-direct to after the auth is completed
         # (success and failure), this is added to the state so that the request handler will access
@@ -862,7 +861,7 @@ class AzureDevopsConnector(BaseConnector):
 
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        qid = param["id"]
+        work_item_id = param["work_item_id"]
         expand = param["expand"]
 
         # Optional values should use the .get() function
@@ -876,22 +875,19 @@ class AzureDevopsConnector(BaseConnector):
             params["fields"] = fields
 
         # make rest call
-        ret_val, response = self._make_rest_call(
-            f"{consts.endpoints.WORK_ITEMS}/{0:n}",
+        ret_val, response = self._make_rest_call_helper(
+            f"{consts.endpoints.WORK_ITEMS}/{work_item_id}",
             action_result,
             params=params,
-            headers=None,
         )
 
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
-        # Add the response into the data section
         action_result.add_data(response)
 
-        # Add a dictionary that is made up of the most important values from data into the summary
-        # summary = action_result.update_summary({})
-        # summary["num_data"] = len(action_result[0]["data"])
+        summary = action_result.update_summary({})
+        summary["message"] = f"Work item {work_item_id} retrieved successfully!"
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -929,9 +925,8 @@ class AzureDevopsConnector(BaseConnector):
 
         action_result.add_data(response)
 
-        # Add a dictionary that is made up of the most important values from data into the summary
-        # summary = action_result.update_summary({})
-        # summary["num_data"] = len(action_result[0]["data"])
+        summary = action_result.update_summary({})
+        summary["message"] = "Work item added successfully!"
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -980,9 +975,9 @@ class AzureDevopsConnector(BaseConnector):
 
         action_result.add_data(response)
 
-        # Add a dictionary that is made up of the most important values from data into the summary
-        # summary = action_result.update_summary({})
-        # summary["num_data"] = len(action_result[0]["data"])
+        summary = action_result.update_summary({})
+        summary["num_data"] = len(action_result.get_data()[0])
+        summary["message"] = "Data retrieved successfully!"
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
