@@ -1097,7 +1097,7 @@ class AzureDevopsConnector(BaseConnector):
 
         summary = action_result.update_summary({})
         summary["status"] = "User deleted successfully"
- 
+        
         return action_result.set_status(phantom.APP_SUCCESS)
 
     def _handle_add_user(self, param: dict):
