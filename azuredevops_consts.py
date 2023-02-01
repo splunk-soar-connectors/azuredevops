@@ -19,39 +19,38 @@ TC_FILE = "oauth_task.out"
 AZURE_DEVOPS_PHANTOM_BASE_URL = "{phantom_base_url}rest"
 AZURE_DEVOPS_PHANTOM_ASSET_INFO_URL = "/asset/{asset_id}"
 AZURE_DEVOPS_PHANTOM_SYS_INFO_URL = "/system_info"
-AZURE_DEVOPS_BASE_URL_NOT_FOUND_MSG = "Phantom Base URL not found in System Settings. Please specify this value in System Settings."
+AZURE_DEVOPS_BASE_URL_NOT_FOUND_MESSAGE = "Phantom Base URL not found in System Settings. Please specify this value in System Settings."
 AZURE_DEVOPS_ERROR_MESSAGE_UNAVAILABLE = "Error message unavailable. Please check the asset configuration and|or action parameters."
-AZURE_DEVOPS_STATE_FILE_CORRUPT_ERR = (
+AZURE_DEVOPS_STATE_FILE_CORRUPT_ERROR = (
     "Error occurred while loading the state file due to its unexpected format."
 )
 
-AZURE_DEVOPS_AUTHORIZE_TROUBLESHOOT_MSG = (
+AZURE_DEVOPS_AUTHORIZE_TROUBLESHOOT_MESSAGE = (
     "If authorization URL fails to communicate with your Phantom instance, check whether you have:  "
     " 1. Specified the Web Redirect URL of your App -- The Redirect URL should be <POST URL>/result . "
     " 2. Configured the base URL of your Phantom Instance at Administration -> Company Settings -> Info"
 )
-AZURE_DEVOPS_DEVOPS_DECRYPTION_ERR = "Error occurred while decrypting the state file"
-AZURE_DEVOPS_REST_URL_NOT_AVAILABLE_MSG = "Rest URL not available. Error: {error}"
-MS_GENERATING_ACCESS_TOKEN_MSG = "Generating access token"
-AZURE_DEVOPS_OAUTH_URL_MSG = "Using OAuth URL:\n"
+AZURE_DEVOPS_DEVOPS_DECRYPTION_ERROR = "Error occurred while decrypting the state file"
+AZURE_DEVOPS_REST_URL_NOT_AVAILABLE_MESSAGE = "Rest URL not available. Error: {error}"
+AZURE_DEVOPS_GENERATING_ACCESS_TOKEN_MESSAGE = "Generating access token"
+AZURE_DEVOPS_OAUTH_URL_MESSAGE = "Using OAuth URL:\n"
 AZURE_DEVOPS_CODE_GENERATION_SCOPE = (
     "vso.entitlements vso.memberentitlementmanagement_write vso.work_full"
 )
 PERMISSION_CODE = "0664"
-MS_TC_STATUS_SLEEP = 2
+AZURE_DEVOPS_TC_STATUS_SLEEP = 2
 
 
 # For encryption and decryption
 AZURE_DEVOPS_ENCRYPT_TOKEN = "Encrypting the {} token"
 AZURE_DEVOPS_DECRYPT_TOKEN = "Decrypting the {} token"
-AZURE_DEVOPS_ENCRYPTION_ERR = "Error occurred while encrypting the state file"
-AZURE_DEVOPS_DECRYPTION_ERR = "Error occurred while decrypting the state file"
+AZURE_DEVOPS_ENCRYPTION_ERROR = "Error occurred while encrypting the state file"
+AZURE_DEVOPS_DECRYPTION_ERROR = "Error occurred while decrypting the state file"
 AZURE_DEVOPS_STATE_IS_ENCRYPTED = "is_encrypted"
 
 
 AZURE_DEVOPS_TOKEN_STRING = "token"
 AZURE_DEVOPS_ACCESS_TOKEN_STRING = "access_token"
-AZURE_DEVOPS_REFRESH_TOKEN_STRING = "refresh_token"
 
 AUTH_FAILURE_MESSAGES = (
     "token is invalid",
@@ -60,8 +59,24 @@ AUTH_FAILURE_MESSAGES = (
     "AuthenticationFailed",
 )
 
-JWT_BEARER_TOKEN = "urn:ietf:params:oauth:grant-type:jwt-bearer"
-CLIENT_ASSERTION = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+GrantTypeNamespace = namedtuple(
+    "GrantTypeNamespace",
+    ["JWT_BEARER_TOKEN", "REFRESH_TOKEN"]
+)
+
+grant_types = GrantTypeNamespace(
+    "urn:ietf:params:oauth:grant-type:jwt-bearer",
+    "refresh_token"
+)
+
+AssertionTypeNamespace = namedtuple(
+    "AssertionTypeNamespace",
+    ["CLIENT_ASSERTION"]
+)
+
+assertion_types = AssertionTypeNamespace(
+    "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+)
 
 ContentTypeNamespace = namedtuple(
     "ContentTypeNamespace",

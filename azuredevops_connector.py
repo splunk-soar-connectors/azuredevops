@@ -202,7 +202,7 @@ def _handle_login_response(request):
         state["is_encrypted"] = True
     except Exception as e:
         return HttpResponseBadRequest(
-            "{}: {}".format(consts.AZURE_DEVOPS_DECRYPTION_ERR, str(e)),
+            "{}: {}".format(consts.AZURE_DEVOPS_DECRYPTION_ERROR, str(e)),
             content_type=consts.content_types.TEXT_PLAIN,
         )
 
@@ -416,7 +416,7 @@ class AzureDevopsConnector(BaseConnector):
         app_state = _load_app_state(self.get_asset_id(), self)
 
         data = {
-            "client_assertion_type": consts.CLIENT_ASSERTION,
+            "client_assertion_type": consts.assertion_types.CLIENT_ASSERTION,
             "client_assertion": self._client_secret,
             "redirect_uri": self._state.get("redirect_uri"),
         }
@@ -426,7 +426,7 @@ class AzureDevopsConnector(BaseConnector):
         if from_action or self._refresh_token:
             data.update(
                 {
-                    "grant_type": consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING,
+                    "grant_type": consts.grant_types.REFRESH_TOKEN,
                     "assertion": self._refresh_token,
                 }
             )
@@ -436,15 +436,16 @@ class AzureDevopsConnector(BaseConnector):
             except Exception as e:
                 self.error_print(
                     "{}: {}".format(
-                        consts.AZURE_DEVOPS_DECRYPTION_ERR,
+                        consts.AZURE_DEVOPS_DECRYPTION_ERROR,
                         self._get_error_message_from_exception(e),
                     )
                 )
                 return action_result.set_status(
-                    phantom.APP_ERROR, consts.AZURE_DEVOPS_DECRYPTION_ERR
+                    phantom.APP_ERROR, consts.AZURE_DEVOPS_DECRYPTION_ERROR
                 )
 
-            data.update({"grant_type": consts.JWT_BEARER_TOKEN, "assertion": code})
+            data.update({
+                "grant_type": consts.grant_types.JWT_BEARER_TOKEN, "assertion": code})
 
         req_url = consts.base_urls.TOKEN_URL
         headers = {"Content-Type": consts.content_types.FORM_URLENCODED}
@@ -699,7 +700,7 @@ class AzureDevopsConnector(BaseConnector):
         if not phantom_base_url:
             return (
                 action_result.set_status(
-                    phantom.APP_ERROR, consts.AZURE_DEVOPS_BASE_URL_NOT_FOUND_MSG
+                    phantom.APP_ERROR, consts.AZURE_DEVOPS_BASE_URL_NOT_FOUND_MESSAGE
                 ),
                 None,
             )
@@ -744,7 +745,7 @@ class AzureDevopsConnector(BaseConnector):
 
         if phantom.is_fail(ret_val):
             self.save_progress(
-                consts.AZURE_DEVOPS_REST_URL_NOT_AVAILABLE_MSG.format(
+                consts.AZURE_DEVOPS_REST_URL_NOT_AVAILABLE_MESSAGE.format(
                     error=action_result.get_status()
                 )
             )
@@ -756,7 +757,7 @@ class AzureDevopsConnector(BaseConnector):
         redirect_uri = "{0}/result".format(app_rest_url)
         app_state["redirect_uri"] = redirect_uri
 
-        self.save_progress(consts.AZURE_DEVOPS_OAUTH_URL_MSG)
+        self.save_progress(consts.AZURE_DEVOPS_OAUTH_URL_MESSAGE)
         self.save_progress(redirect_uri)
 
         app_authorization_base_url = consts.base_urls.AUTHORIZATION_URL
@@ -813,7 +814,7 @@ class AzureDevopsConnector(BaseConnector):
             self.save_progress("Test Connectivity Failed")
             return action_result.set_status(phantom.APP_ERROR)
 
-        self.save_progress(consts.MS_GENERATING_ACCESS_TOKEN_MSG)
+        self.save_progress(consts.AZURE_DEVOPS_GENERATING_ACCESS_TOKEN_MESSAGE)
         ret_val = self._get_token(action_result)
 
         if phantom.is_fail(ret_val):
@@ -850,7 +851,7 @@ class AzureDevopsConnector(BaseConnector):
                 os.unlink(auth_status_file_path)
                 break
 
-            time.sleep(consts.MS_TC_STATUS_SLEEP)
+            time.sleep(consts.AZURE_DEVOPS_TC_STATUS_SLEEP)
         return completed
 
     def _handle_get_work_item(self, param: dict):
@@ -885,6 +886,8 @@ class AzureDevopsConnector(BaseConnector):
 
         summary = action_result.update_summary({})
         summary["status"] = "Work item {work_item_id} retrieved successfully"
+
+        self.debug_print("Work item {work_item_id} retrieved successfully")
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -924,6 +927,8 @@ class AzureDevopsConnector(BaseConnector):
 
         summary = action_result.update_summary({})
         summary["status"] = "Work item added successfully"
+
+        self.debug_print("Work item added successfully")
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -976,6 +981,8 @@ class AzureDevopsConnector(BaseConnector):
         summary["num_data"] = len(action_result.get_data()[0])
         summary["status"] = "Data retrieved successfully"
 
+        self.debug_print("Data retrieved successfully")
+
         return action_result.set_status(phantom.APP_SUCCESS)
 
     def _handle_add_comment(self, param: dict):
@@ -1007,6 +1014,8 @@ class AzureDevopsConnector(BaseConnector):
 
         summary = action_result.update_summary({})
         summary["status"] = "Comment added successfully"
+
+        self.debug_print("Comment added successfully")
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -1063,6 +1072,8 @@ class AzureDevopsConnector(BaseConnector):
         summary["total_users"] = len(action_result.get_data()[0]["items"])
         summary["status"] = "Data retrieved successfully"
 
+        self.debug_print("Data retrieved successfully")
+
         return action_result.set_status(phantom.APP_SUCCESS)
 
     def _handle_delete_user(self, param: dict):
@@ -1075,7 +1086,7 @@ class AzureDevopsConnector(BaseConnector):
 
         user_id = param["user_id"]
 
-        ret_val, response = self._make_rest_call_helper(
+        ret_val, _ = self._make_rest_call_helper(
             f"{consts.endpoints.USER_ENTITLEMENTS}/{user_id}",
             action_result,
             method="delete",
@@ -1084,9 +1095,10 @@ class AzureDevopsConnector(BaseConnector):
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
-        return action_result.set_status(
-            phantom.APP_SUCCESS, "User deleted successfully"
-        )
+        summary = action_result.update_summary({})
+        summary["status"] = "User deleted successfully"
+ 
+        return action_result.set_status(phantom.APP_SUCCESS)
 
     def _handle_add_user(self, param: dict):
 
@@ -1126,6 +1138,8 @@ class AzureDevopsConnector(BaseConnector):
         summary = action_result.update_summary({})
         summary["status"] = "User with given data added successfully"
 
+        self.debug_print("User with given data added successfully")
+
         return action_result.set_status(phantom.APP_SUCCESS)
 
     def _get_error_message_from_exception(self, e):
@@ -1134,7 +1148,7 @@ class AzureDevopsConnector(BaseConnector):
         :return: error message
         """
         error_code = None
-        error_msg = consts.ERR_MSG_UNAVAILABLE
+        error_msg = consts.ERR_MESSAGE_UNAVAILABLE
 
         try:
             if hasattr(e, "args"):
@@ -1224,7 +1238,7 @@ class AzureDevopsConnector(BaseConnector):
             self.debug_print("Resetting the state file with the default format")
             self._state = {"app_version": self.get_app_json().get("app_version")}
             return self.set_status(
-                phantom.APP_ERROR, consts.AZURE_DEVOPS_STATE_FILE_CORRUPT_ERR
+                phantom.APP_ERROR, consts.AZURE_DEVOPS_STATE_FILE_CORRUPT_ERROR
             )
 
         # get the asset config
@@ -1253,12 +1267,12 @@ class AzureDevopsConnector(BaseConnector):
             except Exception as e:
                 self.error_print(
                     "{}: {}".format(
-                        consts.AZURE_DEVOPS_DECRYPTION_ERR,
+                        consts.AZURE_DEVOPS_DECRYPTION_ERROR,
                         self._get_error_message_from_exception(e),
                     )
                 )
                 return self.set_status(
-                    phantom.APP_ERROR, consts.AZURE_DEVOPS_DECRYPTION_ERR
+                    phantom.APP_ERROR, consts.AZURE_DEVOPS_DECRYPTION_ERROR
                 )
 
         self._refresh_token = self._state.get(consts.AZURE_DEVOPS_TOKEN_STRING, {}).get(
@@ -1270,12 +1284,12 @@ class AzureDevopsConnector(BaseConnector):
             except Exception as e:
                 self.error_print(
                     "{}: {}".format(
-                        consts.AZURE_DEVOPS_DECRYPTION_ERR,
+                        consts.AZURE_DEVOPS_DECRYPTION_ERROR,
                         self._get_error_message_from_exception(e),
                     )
                 )
                 return self.set_status(
-                    phantom.APP_ERROR, consts.AZURE_DEVOPS_DECRYPTION_ERR
+                    phantom.APP_ERROR, consts.AZURE_DEVOPS_DECRYPTION_ERROR
                 )
 
         return phantom.APP_SUCCESS
@@ -1291,12 +1305,12 @@ class AzureDevopsConnector(BaseConnector):
         except Exception as e:
             self.error_print(
                 "{}: {}".format(
-                    consts.AZURE_DEVOPS_ENCRYPTION_ERR,
+                    consts.AZURE_DEVOPS_ENCRYPTION_ERROR,
                     self._get_error_message_from_exception(e),
                 )
             )
             return self.set_status(
-                phantom.APP_ERROR, consts.AZURE_DEVOPS_ENCRYPTION_ERR
+                phantom.APP_ERROR, consts.AZURE_DEVOPS_ENCRYPTION_ERROR
             )
 
         try:
@@ -1309,12 +1323,12 @@ class AzureDevopsConnector(BaseConnector):
         except Exception as e:
             self.error_print(
                 "{}: {}".format(
-                    consts.AZURE_DEVOPS_ENCRYPTION_ERR,
+                    consts.AZURE_DEVOPS_ENCRYPTION_ERROR,
                     self._get_error_message_from_exception(e),
                 )
             )
             return self.set_status(
-                phantom.APP_ERROR, consts.AZURE_DEVOPS_ENCRYPTION_ERR
+                phantom.APP_ERROR, consts.AZURE_DEVOPS_ENCRYPTION_ERROR
             )
 
         if not self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED):
@@ -1326,12 +1340,12 @@ class AzureDevopsConnector(BaseConnector):
             except Exception as e:
                 self.error_print(
                     "{}: {}".format(
-                        consts.AZURE_DEVOPS_ENCRYPTION_ERR,
+                        consts.AZURE_DEVOPS_ENCRYPTION_ERROR,
                         self._get_error_message_from_exception(e),
                     )
                 )
                 return self.set_status(
-                    phantom.APP_ERROR, consts.AZURE_DEVOPS_ENCRYPTION_ERR
+                    phantom.APP_ERROR, consts.AZURE_DEVOPS_ENCRYPTION_ERROR
                 )
 
         # Save the state, this data is saved across actions and app upgrades
