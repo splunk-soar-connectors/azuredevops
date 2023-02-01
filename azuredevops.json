@@ -973,9 +973,9 @@
             "versions": "EQ(*)"
         },
         {
-            "action": "search user",
-            "identifier": "search_user",
-            "description": "Search a user",
+            "action": "search users",
+            "identifier": "search_users",
+            "description": "Search user(s)",
             "type": "investigate",
             "read_only": true,
             "parameters": {

@@ -34,11 +34,7 @@ import phantom.app as phantom
 from phantom.action_result import ActionResult
 from phantom.base_connector import BaseConnector
 import encryption_helper
-
-try:
-    import urllib.parse as urlparse
-except ImportError:
-    import urllib
+import urllib.parse as urlparse
 
 
 def _save_app_state(state, asset_id, app_connector):
@@ -305,7 +301,9 @@ class AzureDevopsConnector(BaseConnector):
         :param encrypt_var: Variable needs to be encrypted
         :return: encrypted variable
         """
-        self.debug_print(consts.AZURE_DEVOPS_ENCRYPT_TOKEN.format(token_name))  # nosemgrep
+        self.debug_print(
+            consts.AZURE_DEVOPS_ENCRYPT_TOKEN.format(token_name)
+        )  # nosemgrep
         return encryption_helper.encrypt(encrypt_var, self._asset_id)
 
     def decrypt_state(self, decrypt_var, token_name):
@@ -313,13 +311,16 @@ class AzureDevopsConnector(BaseConnector):
         :param decrypt_var: Variable needs to be decrypted
         :return: decrypted variable
         """
-        self.debug_print(consts.AZURE_DEVOPS_DECRYPT_TOKEN.format(token_name))  # nosemgrep
+        self.debug_print(
+            consts.AZURE_DEVOPS_DECRYPT_TOKEN.format(token_name)
+        )  # nosemgrep
         if self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED):
             return encryption_helper.decrypt(decrypt_var, self._asset_id)
         else:
             return decrypt_var
 
     def _process_empty_response(self, response, action_result):
+        # status_code 204 to handle empty response in case of a `DELETE` request
         if response.status_code in [200, 204]:
             return RetVal(phantom.APP_SUCCESS, {})
 
@@ -420,7 +421,7 @@ class AzureDevopsConnector(BaseConnector):
             "redirect_uri": self._state.get("redirect_uri"),
         }
 
-        # If refresh_token is available, then use it to get new access_token, refresh_token pair
+        # If refresh_token is available, then use it to get new <access_token, refresh_token> pair
         # Else use code to get the same
         if from_action or self._refresh_token:
             data.update(
@@ -646,7 +647,9 @@ class AzureDevopsConnector(BaseConnector):
         """
 
         asset_id = self.get_asset_id()
-        rest_endpoint = consts.AZURE_DEVOPS_PHANTOM_ASSET_INFO_URL.format(asset_id=asset_id)
+        rest_endpoint = consts.AZURE_DEVOPS_PHANTOM_ASSET_INFO_URL.format(
+            asset_id=asset_id
+        )
         url = "{}{}".format(
             consts.AZURE_DEVOPS_PHANTOM_BASE_URL.format(
                 phantom_base_url=self._get_phantom_base_url()
@@ -728,7 +731,7 @@ class AzureDevopsConnector(BaseConnector):
         )
         return phantom.APP_SUCCESS, url_to_app_rest
 
-    def _handle_test_connectivity(self, param):
+    def _handle_test_connectivity(self, param: dict):
         # Add an action result object to self (BaseConnector) to represent the action for this param
         # Progress
         # self.save_progress("Generating Authentication URL")
@@ -736,8 +739,6 @@ class AzureDevopsConnector(BaseConnector):
         action_result = self.add_action_result(ActionResult(dict(param)))
 
         self.save_progress("Getting App REST endpoint URL")
-        # Get the URL to the app's REST Endpoint, this is the url that the TC dialog
-        # box will ask the user to connect to
 
         ret_val, app_rest_url = self._get_app_rest_url(action_result)
 
@@ -783,7 +784,7 @@ class AzureDevopsConnector(BaseConnector):
 
         self.save_progress("==" * 40)
         self.save_progress(
-            "Please connect to the following Url from a different tab to continue the connectivity process...\n"
+            "\nPlease connect to the following Url from a different tab to continue the connectivity process...\n"
         )
         self.save_progress(url_to_show)
         self.save_progress("==" * 40)
@@ -818,7 +819,6 @@ class AzureDevopsConnector(BaseConnector):
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
-        # make rest call
         ret_val, response = self._make_rest_call_helper(
             endpoint=consts.endpoints.ITERATIONS,
             action_result=action_result,
@@ -828,7 +828,6 @@ class AzureDevopsConnector(BaseConnector):
             self.save_progress("Test Connectivity Failed")
             return action_result.get_status()
 
-        # Return success
         self.save_progress("Test Connectivity Passed")
         action_result.add_data(response)
         return action_result.set_status(phantom.APP_SUCCESS)
@@ -854,7 +853,7 @@ class AzureDevopsConnector(BaseConnector):
             time.sleep(consts.MS_TC_STATUS_SLEEP)
         return completed
 
-    def _handle_get_work_item(self, param):
+    def _handle_get_work_item(self, param: dict):
         self.save_progress(
             "In action handler for: {0}".format(self.get_action_identifier())
         )
@@ -864,7 +863,6 @@ class AzureDevopsConnector(BaseConnector):
         work_item_id = param["work_item_id"]
         expand = param["expand"]
 
-        # Optional values should use the .get() function
         asof = param.get("asof", "")
         fields = param.get("fields", "")
 
@@ -874,7 +872,6 @@ class AzureDevopsConnector(BaseConnector):
         if fields:
             params["fields"] = fields
 
-        # make rest call
         ret_val, response = self._make_rest_call_helper(
             f"{consts.endpoints.WORK_ITEMS}/{work_item_id}",
             action_result,
@@ -887,12 +884,11 @@ class AzureDevopsConnector(BaseConnector):
         action_result.add_data(response)
 
         summary = action_result.update_summary({})
+        summary["status"] = "Work item {work_item_id} retrieved successfully"
 
-        return action_result.set_status(
-            phantom.APP_SUCCESS, f"Work item {work_item_id} retrieved successfully"
-        )
+        return action_result.set_status(phantom.APP_SUCCESS)
 
-    def _handle_add_work_item(self, param):
+    def _handle_add_work_item(self, param: dict):
 
         self.save_progress(
             "In action handler for: {0}".format(self.get_action_identifier())
@@ -926,11 +922,12 @@ class AzureDevopsConnector(BaseConnector):
 
         action_result.add_data(response)
 
-        return action_result.set_status(
-            phantom.APP_SUCCESS, "Work item added successfully"
-        )
+        summary = action_result.update_summary({})
+        summary["status"] = "Work item added successfully"
 
-    def get_work_item_optional_params(self, param):
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def get_work_item_optional_params(self, param: dict):
         expand = param.get("expand", "")
         bypassrules = param.get("bypassrules", "")
         suppressnotifications = param.get("suppressnotifications", "")
@@ -945,7 +942,7 @@ class AzureDevopsConnector(BaseConnector):
             params["validateonly"] = validateonly
         return params
 
-    def _handle_list_iterations(self, param):
+    def _handle_list_iterations(self, param: dict):
 
         self.save_progress(
             "In action handler for: {0}".format(self.get_action_identifier())
@@ -977,12 +974,11 @@ class AzureDevopsConnector(BaseConnector):
 
         summary = action_result.update_summary({})
         summary["num_data"] = len(action_result.get_data()[0])
+        summary["status"] = "Data retrieved successfully"
 
-        return action_result.set_status(
-            phantom.APP_SUCCESS, "Data retrieved successfully"
-        )
+        return action_result.set_status(phantom.APP_SUCCESS)
 
-    def _handle_add_comment(self, param):
+    def _handle_add_comment(self, param: dict):
 
         self.save_progress(
             "In action handler for: {0}".format(self.get_action_identifier())
@@ -1009,13 +1005,12 @@ class AzureDevopsConnector(BaseConnector):
         # Add the response into the data section
         action_result.add_data(response)
 
-        # Add a dictionary that is made up of the most important values from data into the summary
-        # summary = action_result.update_summary({})
-        # summary["num_data"] = len(action_result[0]["data"])
+        summary = action_result.update_summary({})
+        summary["status"] = "Comment added successfully"
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
-    def _handle_search_user(self, param):
+    def _handle_search_users(self, param: dict):
 
         self.save_progress(
             "In action handler for: {0}".format(self.get_action_identifier())
@@ -1066,12 +1061,11 @@ class AzureDevopsConnector(BaseConnector):
 
         summary = action_result.update_summary({})
         summary["total_users"] = len(action_result.get_data()[0]["items"])
+        summary["status"] = "Data retrieved successfully"
 
-        return action_result.set_status(
-            phantom.APP_SUCCESS, "Data retrieved successfully"
-        )
+        return action_result.set_status(phantom.APP_SUCCESS)
 
-    def _handle_delete_user(self, param):
+    def _handle_delete_user(self, param: dict):
 
         self.save_progress(
             "In action handler for: {0}".format(self.get_action_identifier())
@@ -1094,7 +1088,7 @@ class AzureDevopsConnector(BaseConnector):
             phantom.APP_SUCCESS, "User deleted successfully"
         )
 
-    def _handle_add_user(self, param):
+    def _handle_add_user(self, param: dict):
 
         self.save_progress(
             "In action handler for: {0}".format(self.get_action_identifier())
@@ -1130,10 +1124,9 @@ class AzureDevopsConnector(BaseConnector):
         action_result.add_data(response)
 
         summary = action_result.update_summary({})
+        summary["status"] = "User with given data added successfully"
 
-        return action_result.set_status(
-            phantom.APP_SUCCESS, "User with given data added successfully"
-        )
+        return action_result.set_status(phantom.APP_SUCCESS)
 
     def _get_error_message_from_exception(self, e):
         """This function is used to get appropriate error message from the exception.
@@ -1177,7 +1170,7 @@ class AzureDevopsConnector(BaseConnector):
         """
         action_to_url_mapping_dict = {
             "delete_user": self._user_entitlement_base_url,
-            "search_user": self._user_entitlement_base_url,
+            "search_users": self._user_entitlement_base_url,
             "add_user": self._user_entitlement_base_url,
             "get_work_item": self._base_url,
             "add_work_item": self._base_url,
@@ -1208,8 +1201,8 @@ class AzureDevopsConnector(BaseConnector):
         if action_id == "add_comment":
             ret_val = self._handle_add_comment(param)
 
-        if action_id == "search_user":
-            ret_val = self._handle_search_user(param)
+        if action_id == "search_users":
+            ret_val = self._handle_search_users(param)
 
         if action_id == "delete_user":
             ret_val = self._handle_delete_user(param)
@@ -1254,7 +1247,10 @@ class AzureDevopsConnector(BaseConnector):
         self._access_token = self._state.get(consts.AZURE_DEVOPS_TOKEN_STRING, {}).get(
             consts.AZURE_DEVOPS_ACCESS_TOKEN_STRING, None
         )
-        if self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED) and self._access_token:
+        if (
+            self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED)
+            and self._access_token
+        ):
             try:
                 self._access_token = self.decrypt_state(self._access_token, "access")
             except Exception as e:
@@ -1271,7 +1267,10 @@ class AzureDevopsConnector(BaseConnector):
         self._refresh_token = self._state.get(consts.AZURE_DEVOPS_TOKEN_STRING, {}).get(
             consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING, None
         )
-        if self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED) and self._refresh_token:
+        if (
+            self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED)
+            and self._refresh_token
+        ):
             try:
                 self._refresh_token = self.decrypt_state(self._refresh_token, "refresh")
             except Exception as e:
@@ -1302,7 +1301,9 @@ class AzureDevopsConnector(BaseConnector):
                     self._get_error_message_from_exception(e),
                 )
             )
-            return self.set_status(phantom.APP_ERROR, consts.AZURE_DEVOPS_ENCRYPTION_ERR)
+            return self.set_status(
+                phantom.APP_ERROR, consts.AZURE_DEVOPS_ENCRYPTION_ERR
+            )
 
         try:
             if self._state.get(consts.AZURE_DEVOPS_TOKEN_STRING, {}).get(
@@ -1318,7 +1319,9 @@ class AzureDevopsConnector(BaseConnector):
                     self._get_error_message_from_exception(e),
                 )
             )
-            return self.set_status(phantom.APP_ERROR, consts.AZURE_DEVOPS_ENCRYPTION_ERR)
+            return self.set_status(
+                phantom.APP_ERROR, consts.AZURE_DEVOPS_ENCRYPTION_ERR
+            )
 
         if not self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED):
             try:
