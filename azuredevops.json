@@ -172,9 +172,9 @@
                     "column_order": 3
                 },
                 {
-                    "data_path": "action_result.parameter.id",
+                    "data_path": "action_result.parameter.work_item_id",
                     "data_type": "numeric",
-                    "column_name": "ID",
+                    "column_name": "Work Item ID",
                     "column_order": 0
                 },
                 {
