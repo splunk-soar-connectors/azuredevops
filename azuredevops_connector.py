@@ -156,7 +156,7 @@ def _handle_login_redirect(request, key):
     url = state.get(key)
     if not url:
         return HttpResponseBadRequest(
-            "App state is invalid, {key} not found.".format(key=key),
+            "App state is invalid, {key} not found".format(key=key),
             content_type=consts.content_types.TEXT_PLAIN,
         )
 
@@ -461,7 +461,7 @@ class AzureDevopsConnector(BaseConnector):
             return action_result.get_status()
 
         self.update_state_from_response(resp_json)
-        self.save_progress("Access token generated successfully!")
+        self.save_progress("Access token generated successfully")
 
         return phantom.APP_SUCCESS
 
@@ -808,8 +808,8 @@ class AzureDevopsConnector(BaseConnector):
         # Load the state again, since the http request handlers would have saved the result of the app authorization
         self._state = _load_app_state(self.get_asset_id(), self)
         if not self._state:
-            self.save_progress("Authorization not received!")
-            self.save_progress("Test Connectivity Failed!")
+            self.save_progress("Authorization not received")
+            self.save_progress("Test Connectivity Failed")
             return action_result.set_status(phantom.APP_ERROR)
 
         self.save_progress(consts.MS_GENERATING_ACCESS_TOKEN_MSG)
@@ -825,7 +825,7 @@ class AzureDevopsConnector(BaseConnector):
         )
 
         if phantom.is_fail(ret_val):
-            self.save_progress("Test Connectivity Failed.")
+            self.save_progress("Test Connectivity Failed")
             return action_result.get_status()
 
         # Return success
@@ -887,9 +887,10 @@ class AzureDevopsConnector(BaseConnector):
         action_result.add_data(response)
 
         summary = action_result.update_summary({})
-        summary["message"] = f"Work item {work_item_id} retrieved successfully!"
 
-        return action_result.set_status(phantom.APP_SUCCESS)
+        return action_result.set_status(
+            phantom.APP_SUCCESS, f"Work item {work_item_id} retrieved successfully"
+        )
 
     def _handle_add_work_item(self, param):
 
@@ -925,10 +926,9 @@ class AzureDevopsConnector(BaseConnector):
 
         action_result.add_data(response)
 
-        summary = action_result.update_summary({})
-        summary["message"] = "Work item added successfully!"
-
-        return action_result.set_status(phantom.APP_SUCCESS)
+        return action_result.set_status(
+            phantom.APP_SUCCESS, "Work item added successfully"
+        )
 
     def get_work_item_optional_params(self, param):
         expand = param.get("expand", "")
@@ -953,11 +953,11 @@ class AzureDevopsConnector(BaseConnector):
 
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        team = param.get("team", "")
-        timeframe = param.get("timeframe", "")
+        team = param.get("team", None)
+        time_frame = param.get("timeframe", None)
 
-        if timeframe:
-            params = {"$timeframe": timeframe}
+        if time_frame:
+            params = {"$timeframe": time_frame}
         else:
             params = {}
 
@@ -977,9 +977,10 @@ class AzureDevopsConnector(BaseConnector):
 
         summary = action_result.update_summary({})
         summary["num_data"] = len(action_result.get_data()[0])
-        summary["message"] = "Data retrieved successfully!"
 
-        return action_result.set_status(phantom.APP_SUCCESS)
+        return action_result.set_status(
+            phantom.APP_SUCCESS, "Data retrieved successfully"
+        )
 
     def _handle_add_comment(self, param):
 
@@ -1020,7 +1021,6 @@ class AzureDevopsConnector(BaseConnector):
             "In action handler for: {0}".format(self.get_action_identifier())
         )
 
-        # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
 
         search_filter = param.get("filter", None)
@@ -1041,8 +1041,6 @@ class AzureDevopsConnector(BaseConnector):
 
         user_data["members"].extend(response.get("members"))
         user_data["items"].extend(response.get("items"))
-
-        # TODO: make a separate method for pagination
 
         while True:
 
@@ -1069,7 +1067,9 @@ class AzureDevopsConnector(BaseConnector):
         summary = action_result.update_summary({})
         summary["total_users"] = len(action_result.get_data()[0]["items"])
 
-        return action_result.set_status(phantom.APP_SUCCESS)
+        return action_result.set_status(
+            phantom.APP_SUCCESS, "Data retrieved successfully"
+        )
 
     def _handle_delete_user(self, param):
 
@@ -1081,18 +1081,18 @@ class AzureDevopsConnector(BaseConnector):
 
         user_id = param["user_id"]
 
-        # make the rest call
         ret_val, response = self._make_rest_call_helper(
             f"{consts.endpoints.USER_ENTITLEMENTS}/{user_id}",
             action_result,
             method="delete",
         )
 
-        if response.status_code == 204:
-            return action_result.set_status(phantom.APP_SUCCESS)
-
         if phantom.is_fail(ret_val):
             return action_result.get_status()
+
+        return action_result.set_status(
+            phantom.APP_SUCCESS, "User deleted successfully"
+        )
 
     def _handle_add_user(self, param):
 
@@ -1130,9 +1130,10 @@ class AzureDevopsConnector(BaseConnector):
         action_result.add_data(response)
 
         summary = action_result.update_summary({})
-        summary["message"] = "User with given data added successfully."
 
-        return action_result.set_status(phantom.APP_SUCCESS)
+        return action_result.set_status(
+            phantom.APP_SUCCESS, "User with given data added successfully"
+        )
 
     def _get_error_message_from_exception(self, e):
         """This function is used to get appropriate error message from the exception.
