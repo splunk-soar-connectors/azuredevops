@@ -1148,15 +1148,15 @@ class AzureDevopsConnector(BaseConnector):
         :return: error message
         """
         error_code = None
-        error_msg = consts.AZURE_DEVOPS_ERROR_MESSAGE_UNAVAILABLE
+        error_message = consts.AZURE_DEVOPS_ERROR_MESSAGE_UNAVAILABLE
 
         try:
             if hasattr(e, "args"):
                 if len(e.args) > 1:
                     error_code = e.args[0]
-                    error_msg = e.args[1]
+                    error_message = e.args[1]
                 elif len(e.args) == 1:
-                    error_msg = e.args[0]
+                    error_message = e.args[0]
         except Exception as e:
             self.error_print(
                 "Error occurred while getting message from exception. Error: {}".format(
@@ -1165,10 +1165,10 @@ class AzureDevopsConnector(BaseConnector):
             )
 
         if not error_code:
-            error_text = "Error Message: {}".format(error_msg)
+            error_text = "Error Message: {}".format(error_message)
         else:
             error_text = "Error Code: {}. Error Message: {}".format(
-                error_code, error_msg
+                error_code, error_message
             )
 
         return error_text
