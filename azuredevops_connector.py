@@ -1148,7 +1148,7 @@ class AzureDevopsConnector(BaseConnector):
         :return: error message
         """
         error_code = None
-        error_msg = consts.ERR_MESSAGE_UNAVAILABLE
+        error_msg = consts.AZURE_DEVOPS_ERROR_MESSAGE_UNAVAILABLE
 
         try:
             if hasattr(e, "args"):
