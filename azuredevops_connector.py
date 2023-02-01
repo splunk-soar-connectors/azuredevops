@@ -1247,10 +1247,7 @@ class AzureDevopsConnector(BaseConnector):
         self._access_token = self._state.get(consts.AZURE_DEVOPS_TOKEN_STRING, {}).get(
             consts.AZURE_DEVOPS_ACCESS_TOKEN_STRING, None
         )
-        if (
-            self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED)
-            and self._access_token
-        ):
+        if self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED) and self._access_token:
             try:
                 self._access_token = self.decrypt_state(self._access_token, "access")
             except Exception as e:
@@ -1267,10 +1264,7 @@ class AzureDevopsConnector(BaseConnector):
         self._refresh_token = self._state.get(consts.AZURE_DEVOPS_TOKEN_STRING, {}).get(
             consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING, None
         )
-        if (
-            self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED)
-            and self._refresh_token
-        ):
+        if self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED) and self._refresh_token:
             try:
                 self._refresh_token = self.decrypt_state(self._refresh_token, "refresh")
             except Exception as e:
