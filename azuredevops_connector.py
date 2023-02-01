@@ -206,7 +206,7 @@ def _handle_login_response(request):
         state["is_encrypted"] = True
     except Exception as e:
         return HttpResponseBadRequest(
-            "{}: {}".format(consts.MS_AZURE_DEVOPS_DECRYPTION_ERR, str(e)),
+            "{}: {}".format(consts.AZURE_DEVOPS_DECRYPTION_ERR, str(e)),
             content_type=consts.content_types.TEXT_PLAIN,
         )
 
@@ -305,7 +305,7 @@ class AzureDevopsConnector(BaseConnector):
         :param encrypt_var: Variable needs to be encrypted
         :return: encrypted variable
         """
-        self.debug_print(consts.MS_AZURE_ENCRYPT_TOKEN.format(token_name))  # nosemgrep
+        self.debug_print(consts.AZURE_DEVOPS_ENCRYPT_TOKEN.format(token_name))  # nosemgrep
         return encryption_helper.encrypt(encrypt_var, self._asset_id)
 
     def decrypt_state(self, decrypt_var, token_name):
@@ -313,8 +313,8 @@ class AzureDevopsConnector(BaseConnector):
         :param decrypt_var: Variable needs to be decrypted
         :return: decrypted variable
         """
-        self.debug_print(consts.MS_AZURE_DECRYPT_TOKEN.format(token_name))  # nosemgrep
-        if self._state.get(consts.MS_AZURE_STATE_IS_ENCRYPTED):
+        self.debug_print(consts.AZURE_DEVOPS_DECRYPT_TOKEN.format(token_name))  # nosemgrep
+        if self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED):
             return encryption_helper.decrypt(decrypt_var, self._asset_id)
         else:
             return decrypt_var
@@ -425,7 +425,7 @@ class AzureDevopsConnector(BaseConnector):
         if from_action or self._refresh_token:
             data.update(
                 {
-                    "grant_type": consts.MS_AZURE_REFRESH_TOKEN_STRING,
+                    "grant_type": consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING,
                     "assertion": self._refresh_token,
                 }
             )
@@ -435,12 +435,12 @@ class AzureDevopsConnector(BaseConnector):
             except Exception as e:
                 self.error_print(
                     "{}: {}".format(
-                        consts.MS_AZURE_DECRYPTION_ERR,
+                        consts.AZURE_DEVOPS_DECRYPTION_ERR,
                         self._get_error_message_from_exception(e),
                     )
                 )
                 return action_result.set_status(
-                    phantom.APP_ERROR, consts.MS_AZURE_DECRYPTION_ERR
+                    phantom.APP_ERROR, consts.AZURE_DEVOPS_DECRYPTION_ERR
                 )
 
             data.update({"grant_type": consts.JWT_BEARER_TOKEN, "assertion": code})
@@ -471,12 +471,12 @@ class AzureDevopsConnector(BaseConnector):
         Args:
             resp_json (dict): response token data
         """
-        self._access_token = resp_json[consts.MS_AZURE_ACCESS_TOKEN_STRING]
-        self._refresh_token = resp_json[consts.MS_AZURE_REFRESH_TOKEN_STRING]
+        self._access_token = resp_json[consts.AZURE_DEVOPS_ACCESS_TOKEN_STRING]
+        self._refresh_token = resp_json[consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING]
 
-        self._state[consts.MS_AZURE_ACCESS_TOKEN_STRING] = self._access_token
-        self._state[consts.MS_AZURE_REFRESH_TOKEN_STRING] = self._refresh_token
-        self._state[consts.MS_AZURE_TOKEN_STRING] = resp_json
+        self._state[consts.AZURE_DEVOPS_ACCESS_TOKEN_STRING] = self._access_token
+        self._state[consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING] = self._refresh_token
+        self._state[consts.AZURE_DEVOPS_TOKEN_STRING] = resp_json
 
         self.save_state(self._state)
 
@@ -646,9 +646,9 @@ class AzureDevopsConnector(BaseConnector):
         """
 
         asset_id = self.get_asset_id()
-        rest_endpoint = consts.MS_AZURE_PHANTOM_ASSET_INFO_URL.format(asset_id=asset_id)
+        rest_endpoint = consts.AZURE_DEVOPS_PHANTOM_ASSET_INFO_URL.format(asset_id=asset_id)
         url = "{}{}".format(
-            consts.MS_AZURE_PHANTOM_BASE_URL.format(
+            consts.AZURE_DEVOPS_PHANTOM_BASE_URL.format(
                 phantom_base_url=self._get_phantom_base_url()
             ),
             rest_endpoint,
@@ -679,10 +679,10 @@ class AzureDevopsConnector(BaseConnector):
         """
 
         url = "{}{}".format(
-            consts.MS_AZURE_PHANTOM_BASE_URL.format(
+            consts.AZURE_DEVOPS_PHANTOM_BASE_URL.format(
                 phantom_base_url=self._get_phantom_base_url()
             ),
-            consts.MS_AZURE_PHANTOM_SYS_INFO_URL,
+            consts.AZURE_DEVOPS_PHANTOM_SYS_INFO_URL,
         )
 
         ret_val, resp_json = self._make_rest_call(
@@ -696,7 +696,7 @@ class AzureDevopsConnector(BaseConnector):
         if not phantom_base_url:
             return (
                 action_result.set_status(
-                    phantom.APP_ERROR, consts.MS_AZURE_BASE_URL_NOT_FOUND_MSG
+                    phantom.APP_ERROR, consts.AZURE_DEVOPS_BASE_URL_NOT_FOUND_MSG
                 ),
                 None,
             )
@@ -743,7 +743,7 @@ class AzureDevopsConnector(BaseConnector):
 
         if phantom.is_fail(ret_val):
             self.save_progress(
-                consts.MS_AZURE_REST_URL_NOT_AVAILABLE_MSG.format(
+                consts.AZURE_DEVOPS_REST_URL_NOT_AVAILABLE_MSG.format(
                     error=action_result.get_status()
                 )
             )
@@ -755,7 +755,7 @@ class AzureDevopsConnector(BaseConnector):
         redirect_uri = "{0}/result".format(app_rest_url)
         app_state["redirect_uri"] = redirect_uri
 
-        self.save_progress(consts.MS_AZURE_OAUTH_URL_MSG)
+        self.save_progress(consts.AZURE_DEVOPS_OAUTH_URL_MSG)
         self.save_progress(redirect_uri)
 
         app_authorization_base_url = consts.base_urls.AUTHORIZATION_URL
@@ -766,7 +766,7 @@ class AzureDevopsConnector(BaseConnector):
             client_id=self._client_id,
             state=self.get_asset_id(),
             response_type="Assertion",
-            scope=consts.MS_AZURE_CODE_GENERATION_SCOPE,
+            scope=consts.AZURE_DEVOPS_CODE_GENERATION_SCOPE,
             redirect_uri=redirect_uri,
         )
 
@@ -1231,7 +1231,7 @@ class AzureDevopsConnector(BaseConnector):
             self.debug_print("Resetting the state file with the default format")
             self._state = {"app_version": self.get_app_json().get("app_version")}
             return self.set_status(
-                phantom.APP_ERROR, consts.MS_AZURE_STATE_FILE_CORRUPT_ERR
+                phantom.APP_ERROR, consts.AZURE_DEVOPS_STATE_FILE_CORRUPT_ERR
             )
 
         # get the asset config
@@ -1251,76 +1251,76 @@ class AzureDevopsConnector(BaseConnector):
             organization=self._organization
         )
 
-        self._access_token = self._state.get(consts.MS_AZURE_TOKEN_STRING, {}).get(
-            consts.MS_AZURE_ACCESS_TOKEN_STRING, None
+        self._access_token = self._state.get(consts.AZURE_DEVOPS_TOKEN_STRING, {}).get(
+            consts.AZURE_DEVOPS_ACCESS_TOKEN_STRING, None
         )
-        if self._state.get(consts.MS_AZURE_STATE_IS_ENCRYPTED) and self._access_token:
+        if self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED) and self._access_token:
             try:
                 self._access_token = self.decrypt_state(self._access_token, "access")
             except Exception as e:
                 self.error_print(
                     "{}: {}".format(
-                        consts.MS_AZURE_DECRYPTION_ERR,
+                        consts.AZURE_DEVOPS_DECRYPTION_ERR,
                         self._get_error_message_from_exception(e),
                     )
                 )
                 return self.set_status(
-                    phantom.APP_ERROR, consts.MS_AZURE_DECRYPTION_ERR
+                    phantom.APP_ERROR, consts.AZURE_DEVOPS_DECRYPTION_ERR
                 )
 
-        self._refresh_token = self._state.get(consts.MS_AZURE_TOKEN_STRING, {}).get(
-            consts.MS_AZURE_REFRESH_TOKEN_STRING, None
+        self._refresh_token = self._state.get(consts.AZURE_DEVOPS_TOKEN_STRING, {}).get(
+            consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING, None
         )
-        if self._state.get(consts.MS_AZURE_STATE_IS_ENCRYPTED) and self._refresh_token:
+        if self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED) and self._refresh_token:
             try:
                 self._refresh_token = self.decrypt_state(self._refresh_token, "refresh")
             except Exception as e:
                 self.error_print(
                     "{}: {}".format(
-                        consts.MS_AZURE_DECRYPTION_ERR,
+                        consts.AZURE_DEVOPS_DECRYPTION_ERR,
                         self._get_error_message_from_exception(e),
                     )
                 )
                 return self.set_status(
-                    phantom.APP_ERROR, consts.MS_AZURE_DECRYPTION_ERR
+                    phantom.APP_ERROR, consts.AZURE_DEVOPS_DECRYPTION_ERR
                 )
 
         return phantom.APP_SUCCESS
 
     def finalize(self):
         try:
-            if self._state.get(consts.MS_AZURE_TOKEN_STRING, {}).get(
-                consts.MS_AZURE_ACCESS_TOKEN_STRING
+            if self._state.get(consts.AZURE_DEVOPS_TOKEN_STRING, {}).get(
+                consts.AZURE_DEVOPS_ACCESS_TOKEN_STRING
             ):
-                self._state[consts.MS_AZURE_TOKEN_STRING][
-                    consts.MS_AZURE_ACCESS_TOKEN_STRING
+                self._state[consts.AZURE_DEVOPS_TOKEN_STRING][
+                    consts.AZURE_DEVOPS_ACCESS_TOKEN_STRING
                 ] = self.encrypt_state(self._access_token, "access")
         except Exception as e:
             self.error_print(
                 "{}: {}".format(
-                    consts.MS_AZURE_ENCRYPTION_ERR,
+                    consts.AZURE_DEVOPS_ENCRYPTION_ERR,
                     self._get_error_message_from_exception(e),
                 )
             )
-            return self.set_status(phantom.APP_ERROR, consts.MS_AZURE_ENCRYPTION_ERR)
+            return self.set_status(phantom.APP_ERROR, consts.AZURE_DEVOPS_ENCRYPTION_ERR)
 
         try:
-            if self._state.get(consts.MS_AZURE_TOKEN_STRING, {}).get(
-                consts.MS_AZURE_REFRESH_TOKEN_STRING
+            if self._state.get(consts.AZURE_DEVOPS_TOKEN_STRING, {}).get(
+                consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING
             ):
-                self._state[consts.MS_AZURE_TOKEN_STRING][
-                    consts.MS_AZURE_REFRESH_TOKEN_STRING
+                self._state[consts.AZURE_DEVOPS_TOKEN_STRING][
+                    consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING
                 ] = self.encrypt_state(self._refresh_token, "refresh")
         except Exception as e:
             self.error_print(
                 "{}: {}".format(
-                    consts.MS_AZURE_ENCRYPTION_ERR,
+                    consts.AZURE_DEVOPS_ENCRYPTION_ERR,
                     self._get_error_message_from_exception(e),
                 )
             )
-            return self.set_status(phantom.APP_ERROR, consts.MS_AZURE_ENCRYPTION_ERR)
+            return self.set_status(phantom.APP_ERROR, consts.AZURE_DEVOPS_ENCRYPTION_ERR)
 
-        if not self._state.get(consts.MS_AZURE_STATE_IS_ENCRYPTED):
+        if not self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED):
             try:
                 if self._state.get("code"):
                     self._state["code"] = self.encrypt_state(
@@ -1329,16 +1329,16 @@ class AzureDevopsConnector(BaseConnector):
             except Exception as e:
                 self.error_print(
                     "{}: {}".format(
-                        consts.MS_AZURE_ENCRYPTION_ERR,
+                        consts.AZURE_DEVOPS_ENCRYPTION_ERR,
                         self._get_error_message_from_exception(e),
                     )
                 )
                 return self.set_status(
-                    phantom.APP_ERROR, consts.MS_AZURE_ENCRYPTION_ERR
+                    phantom.APP_ERROR, consts.AZURE_DEVOPS_ENCRYPTION_ERR
                 )
 
         # Save the state, this data is saved across actions and app upgrades
-        self._state[consts.MS_AZURE_STATE_IS_ENCRYPTED] = True
+        self._state[consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED] = True
         self.save_state(self._state)
         _save_app_state(self._state, self.get_asset_id(), self)
         return phantom.APP_SUCCESS
