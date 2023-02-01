@@ -533,7 +533,7 @@
                     "name": "user_email"
                 },
                 "account_license_type": {
-                    "description": "The type of account license. More information can be found here: https://docs.microsoft.com/en-us/rest/api/azure/devops/memberentitlementmanagement/user-entitlements/add?view=azure-devops-rest-6.1#accountlicensetype. Possible values are: express, stakeholder, advanced, earlyAdopter, professional.",
+                    "description": "The type of account license. Possible values are: express, stakeholder, advanced, earlyAdopter, professional.",
                     "data_type": "string",
                     "value_list": [
                         "express",
@@ -548,7 +548,7 @@
                     "name": "account_license_type"
                 },
                 "group_type": {
-                    "description": "The project group type. More information can be found here: https://docs.microsoft.com/en-us/rest/api/azure/devops/memberentitlementmanagement/user-entitlements/add?view=azure-devops-rest-6.1#grouptype. Possible values are: projectReader, projectContributor, projectAdministrator, projectStakeholder.",
+                    "description": "The project group type. Possible values are: projectReader, projectContributor, projectAdministrator, projectStakeholder.",
                     "data_type": "string",
                     "value_list": [
                         "projectReader",
@@ -570,6 +570,30 @@
                 }
             },
             "output": [
+                {
+                    "data_path": "action_result.parameter.user_email",
+                    "data_type": "string",
+                    "column_name": "User Email",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.parameter.account_license_type",
+                    "data_type": "string",
+                    "column_name": "Account License Type",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.parameter.group_type",
+                    "data_type": "string",
+                    "column_name": "Group Type",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.parameter.project_name",
+                    "data_type": "string",
+                    "column_name": "Project ID",
+                    "column_order": 3
+                },
                 {
                     "data_path": "action_result.data.*.isSuccess",
                     "data_type": "boolean",
@@ -938,7 +962,14 @@
                     "name": "user_id"
                 }
             },
-            "output": [],
+            "output": [
+                {
+                    "data_path": "action_result.parameter.user_id",
+                    "data_type": "string",
+                    "column_name": "User ID",
+                    "column_order": 0
+                }
+            ],
             "versions": "EQ(*)"
         },
         {
@@ -956,6 +987,12 @@
                 }
             },
             "output": [
+                {
+                    "data_path": "action_result.parameter.filter",
+                    "data_type": "string",
+                    "column_name": "Filter",
+                    "column_order": 0
+                },
                 {
                     "data_path": "action_result.data.*.items.*.id",
                     "data_type": "string",
