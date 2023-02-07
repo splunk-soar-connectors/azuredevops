@@ -1,6 +1,6 @@
 # File: azuredevops_consts.py
 #
-# Copyright (c) 2022 Splunk Inc.
+# Copyright (c) 2023 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
 # the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 # either express or implied. See the License for the specific language governing permissions
 # and limitations under the License.
-from collections import namedtuple
 
 TC_FILE = "oauth_task.out"
 
@@ -51,6 +50,7 @@ AZURE_DEVOPS_STATE_IS_ENCRYPTED = "is_encrypted"
 
 AZURE_DEVOPS_TOKEN_STRING = "token"
 AZURE_DEVOPS_ACCESS_TOKEN_STRING = "access_token"
+AZURE_DEVOPS_REFRESH_TOKEN_STRING = "refresh_token"
 
 AUTH_FAILURE_MESSAGES = (
     "token is invalid",
@@ -59,56 +59,22 @@ AUTH_FAILURE_MESSAGES = (
     "AuthenticationFailed",
 )
 
-GrantTypeNamespace = namedtuple(
-    "GrantTypeNamespace",
-    ["JWT_BEARER_TOKEN", "REFRESH_TOKEN"]
-)
+JWT_BEARER_TOKEN = "urn:ietf:params:oauth:grant-type:jwt-bearer"
 
-grant_types = GrantTypeNamespace(
-    "urn:ietf:params:oauth:grant-type:jwt-bearer",
-    "refresh_token"
-)
+CLIENT_ASSERTION = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
 
-AssertionTypeNamespace = namedtuple(
-    "AssertionTypeNamespace",
-    ["CLIENT_ASSERTION"]
-)
+TEXT_PLAIN = "text/plain"
+APPLICATION_JSON = "application/json"
+FORM_URLENCODED = "application/x-www-form-urlencoded"
+DEFAULT = "*/*"
 
-assertion_types = AssertionTypeNamespace(
-    "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
-)
+ITERATIONS = "/_apis/work/teamsettings/iterations"
+ITERATIONS_TEAM = "/{team}/_apis/work/teamsettings/iterations"
+WORK_ITEMS = "/_apis/wit/workitems"
+COMMENTS = "/_apis/wit/workItems/{}/comments"
+USER_ENTITLEMENTS = "/_apis/userentitlements"
 
-ContentTypeNamespace = namedtuple(
-    "ContentTypeNamespace",
-    ["TEXT_PLAIN", "APPLICATION_JSON", "FORM_URLENCODED", "DEFAULT"],
-)
-
-content_types = ContentTypeNamespace(
-    "text/plain", "application/json", "application/x-www-form-urlencoded", "*/*"
-)
-
-EndpointsNamespace = namedtuple(
-    "EndpointsNamespace",
-    ["ITERATIONS", "ITERATIONS_TEAM", "WORK_ITEMS", "COMMENTS", "USER_ENTITLEMENTS"],
-)
-
-endpoints = EndpointsNamespace(
-    "/_apis/work/teamsettings/iterations",
-    "/{team}/_apis/work/teamsettings/iterations",
-    "/_apis/wit/workitems",
-    "/_apis/wit/workItems/{workItemId}/comments",
-    "/_apis/userentitlements",
-)
-
-
-BaseUrlNamespace = namedtuple(
-    "BaseUrlNamespace",
-    ["PROJECT_BASE_URL", "USER_ENTITLEMENT_URL", "TOKEN_URL", "AUTHORIZATION_URL"],
-)
-
-base_urls = BaseUrlNamespace(
-    "https://dev.azure.com/{organization}/{project}",
-    "https://vsaex.dev.azure.com/{organization}",
-    "https://app.vssps.visualstudio.com/oauth2/token",
-    "https://app.vssps.visualstudio.com/oauth2/authorize",
-)
+PROJECT_BASE_URL = "https://dev.azure.com/{organization}/{project}"
+USER_ENTITLEMENT_URL = "https://vsaex.dev.azure.com/{organization}"
+TOKEN_URL = "https://app.vssps.visualstudio.com/oauth2/token"
+AUTHORIZATION_URL = "https://app.vssps.visualstudio.com/oauth2/authorize"

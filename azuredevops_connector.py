@@ -1,6 +1,6 @@
 # File: azuredevops_connector.py
 #
-# Copyright (c) 2022 Splunk Inc.
+# Copyright (c) 2023 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,28 +13,24 @@
 # either express or implied. See the License for the specific language governing permissions
 # and limitations under the License.
 from __future__ import print_function, unicode_literals
+
 import grp
 import json
 import os
 import pwd
 import sys
 import time
+import urllib.parse as urlparse
+
+import encryption_helper
+import phantom.app as phantom
 import requests
 from bs4 import BeautifulSoup
-from django.http import (
-    HttpResponse,
-    HttpResponseBadRequest,
-    HttpResponseNotFound,
-    HttpResponseRedirect,
-)
-
-import azuredevops_consts as consts
-
-import phantom.app as phantom
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseRedirect
 from phantom.action_result import ActionResult
 from phantom.base_connector import BaseConnector
-import encryption_helper
-import urllib.parse as urlparse
+
+import azuredevops_consts as consts
 
 
 def _save_app_state(state, asset_id, app_connector):
@@ -140,20 +136,20 @@ def _handle_login_redirect(request, key):
     if not asset_id:
         return HttpResponseBadRequest(
             "ERROR: Asset ID not found in URL, {}".format(request.GET),
-            content_type=consts.content_types.TEXT_PLAIN,
+            content_type=consts.TEXT_PLAIN,
         )
 
     state = _load_app_state(asset_id)
     if not state:
         return HttpResponseBadRequest(
-            "ERROR: Invalid asset_id", content_type=consts.content_types.TEXT_PLAIN
+            "ERROR: Invalid asset_id", content_type=consts.TEXT_PLAIN
         )
 
     url = state.get(key)
     if not url:
         return HttpResponseBadRequest(
             "App state is invalid, {key} not found".format(key=key),
-            content_type=consts.content_types.TEXT_PLAIN,
+            content_type=consts.TEXT_PLAIN,
         )
 
     return HttpResponseRedirect(redirect_to=url)
@@ -170,7 +166,7 @@ def _handle_login_response(request):
     if not asset_id:
         return HttpResponseBadRequest(
             "ERROR: Asset ID not found in URL, {}".format(request.GET),
-            content_type=consts.content_types.TEXT_PLAIN,
+            content_type=consts.TEXT_PLAIN,
         )
 
     # Check for error in URL
@@ -186,14 +182,14 @@ def _handle_login_response(request):
 
         return HttpResponseBadRequest(
             "Server returned {0}".format(message),
-            content_type=consts.content_types.TEXT_PLAIN,
+            content_type=consts.TEXT_PLAIN,
         )
 
     code = request.GET.get("code")
     if not code:
         return HttpResponseBadRequest(
             "Error while authenticating\n{0}".format(json.dumps(request.GET)),
-            content_type=consts.content_types.TEXT_PLAIN,
+            content_type=consts.TEXT_PLAIN,
         )
 
     state = _load_app_state(asset_id)
@@ -203,14 +199,14 @@ def _handle_login_response(request):
     except Exception as e:
         return HttpResponseBadRequest(
             "{}: {}".format(consts.AZURE_DEVOPS_DECRYPTION_ERROR, str(e)),
-            content_type=consts.content_types.TEXT_PLAIN,
+            content_type=consts.TEXT_PLAIN,
         )
 
     _save_app_state(state, asset_id, None)
 
     return HttpResponse(
         "Code received. Please close this window, the action will continue to get new token.",
-        content_type=consts.content_types.TEXT_PLAIN,
+        content_type=consts.TEXT_PLAIN,
     )
 
 
@@ -225,7 +221,7 @@ def _handle_rest_request(request, path_parts):
     if len(path_parts) < 2:
         return HttpResponseBadRequest(
             "error: True, message: Invalid REST endpoint request",
-            content_type=consts.content_types.TEXT_PLAIN,
+            content_type=consts.TEXT_PLAIN,
         )
 
     call_type = path_parts[1]
@@ -253,7 +249,7 @@ def _handle_rest_request(request, path_parts):
             if os.path.dirname(real_auth_status_file_path) != app_dir:
                 return HttpResponseBadRequest(
                     "Error: Invalid asset_id",
-                    content_type=consts.content_types.TEXT_PLAIN,
+                    content_type=consts.TEXT_PLAIN,
                 )
 
             open(auth_status_file_path, "w").close()
@@ -266,7 +262,7 @@ def _handle_rest_request(request, path_parts):
         return return_val
 
     return HttpResponseNotFound(
-        "error: Invalid endpoint", content_type=consts.content_types.TEXT_PLAIN
+        "error: Invalid endpoint", content_type=consts.TEXT_PLAIN
     )
 
 
@@ -416,7 +412,7 @@ class AzureDevopsConnector(BaseConnector):
         app_state = _load_app_state(self.get_asset_id(), self)
 
         data = {
-            "client_assertion_type": consts.assertion_types.CLIENT_ASSERTION,
+            "client_assertion_type": consts.CLIENT_ASSERTION,
             "client_assertion": self._client_secret,
             "redirect_uri": self._state.get("redirect_uri"),
         }
@@ -426,7 +422,7 @@ class AzureDevopsConnector(BaseConnector):
         if from_action or self._refresh_token:
             data.update(
                 {
-                    "grant_type": consts.grant_types.REFRESH_TOKEN,
+                    "grant_type": consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING,
                     "assertion": self._refresh_token,
                 }
             )
@@ -445,10 +441,10 @@ class AzureDevopsConnector(BaseConnector):
                 )
 
             data.update({
-                "grant_type": consts.grant_types.JWT_BEARER_TOKEN, "assertion": code})
+                "grant_type": consts.JWT_BEARER_TOKEN, "assertion": code})
 
-        req_url = consts.base_urls.TOKEN_URL
-        headers = {"Content-Type": consts.content_types.FORM_URLENCODED}
+        req_url = consts.TOKEN_URL
+        headers = {"Content-Type": consts.FORM_URLENCODED}
 
         ret_val, resp_json = self._make_rest_call(
             req_url,
@@ -493,7 +489,7 @@ class AzureDevopsConnector(BaseConnector):
         return {
             "Authorization": "Bearer {token}".format(token=self._access_token),
             "Accept": "*/*",
-            "Content-Type": consts.content_types.APPLICATION_JSON,
+            "Content-Type": consts.APPLICATION_JSON,
         }
 
     def _make_rest_call_helper(
@@ -519,12 +515,13 @@ class AzureDevopsConnector(BaseConnector):
         response obtained by making an API call
         """
 
-        token = self._state.get("token", {})
-        if not token.get("access_token"):
-            ret_val = self._get_token(action_result)
+        if not self._password:
+            token = self._state.get("token", {})
+            if not token.get("access_token"):
+                ret_val = self._get_token(action_result)
 
-            if phantom.is_fail(ret_val):
-                return action_result.get_status(), None
+                if phantom.is_fail(ret_val):
+                    return action_result.get_status(), None
 
         # NOTE: always call this method after _get_token() method
         headers = self._get_request_headers()
@@ -625,11 +622,18 @@ class AzureDevopsConnector(BaseConnector):
 
         # TODO: check authentication method, Basic or Oauth
         try:
-            r = request_func(
-                url,
-                # auth=(self._username, self._password),  # basic authentication
-                **kwargs,
-            )
+            if self._password:
+                r = request_func(
+                    url,
+                    auth=(self._username, self._password),  # basic authentication
+                    **kwargs
+                )
+            else:
+                r = request_func(
+                    url,
+                    # auth=(self._username, self._password),  # basic authentication
+                    **kwargs,
+                )
         except Exception as e:
             return RetVal(
                 action_result.set_status(
@@ -738,6 +742,27 @@ class AzureDevopsConnector(BaseConnector):
         # self.save_progress("Generating Authentication URL")
         app_state = {}
         action_result = self.add_action_result(ActionResult(dict(param)))
+        if self._password:
+            # NOTE: test connectivity does _NOT_ take any parameters
+            # i.e. the param dictionary passed to this handler will be empty.
+            # Also typically it does not add any data into an action_result either.
+            # The status and progress messages are more important.
+
+            self.save_progress("Connecting to endpoint")
+            # make rest call
+            ret_val, response = self._make_rest_call(
+               consts.ITERATIONS, action_result, params=None, headers=None
+            )
+
+            if phantom.is_fail(ret_val):
+                # the call to the 3rd party device or service failed, action result should contain all the error details
+                # for now the return is commented out, but after implementation, return from here
+                self.save_progress("Test Connectivity Failed.")
+                return action_result.get_status()
+
+            # Return success
+            self.save_progress("Test Connectivity Passed")
+            return action_result.set_status(phantom.APP_SUCCESS)
 
         self.save_progress("Getting App REST endpoint URL")
 
@@ -760,17 +785,18 @@ class AzureDevopsConnector(BaseConnector):
         self.save_progress(consts.AZURE_DEVOPS_OAUTH_URL_MESSAGE)
         self.save_progress(redirect_uri)
 
-        app_authorization_base_url = consts.base_urls.AUTHORIZATION_URL
+        app_authorization_base_url = consts.AUTHORIZATION_URL
 
         # NOTE: do not change to urlencode, because the scope value changes its format. #noqa
-        app_authorization_url = "{base_url}?client_id={client_id}&state={state}&response_type={response_type}&scope={scope}&redirect_uri={redirect_uri}".format(
-            base_url=app_authorization_base_url,
-            client_id=self._client_id,
-            state=self.get_asset_id(),
-            response_type="Assertion",
-            scope=consts.AZURE_DEVOPS_CODE_GENERATION_SCOPE,
-            redirect_uri=redirect_uri,
-        )
+        app_authorization_url = "{base_url}?client_id={client_id}&state={state}&response_type={response_type}" \
+            "&scope={scope}&redirect_uri={redirect_uri}".format(
+                base_url=app_authorization_base_url,
+                client_id=self._client_id,
+                state=self.get_asset_id(),
+                response_type="Assertion",
+                scope=consts.AZURE_DEVOPS_CODE_GENERATION_SCOPE,
+                redirect_uri=redirect_uri,
+            )
 
         app_state["app_authorization_url"] = app_authorization_url
 
@@ -821,7 +847,7 @@ class AzureDevopsConnector(BaseConnector):
             return action_result.get_status()
 
         ret_val, response = self._make_rest_call_helper(
-            endpoint=consts.endpoints.ITERATIONS,
+            endpoint=consts.ITERATIONS,
             action_result=action_result,
         )
 
@@ -874,7 +900,7 @@ class AzureDevopsConnector(BaseConnector):
             params["fields"] = fields
 
         ret_val, response = self._make_rest_call_helper(
-            f"{consts.endpoints.WORK_ITEMS}/{work_item_id}",
+            f"{consts.WORK_ITEMS}/{work_item_id}",
             action_result,
             params=params,
         )
@@ -885,9 +911,9 @@ class AzureDevopsConnector(BaseConnector):
         action_result.add_data(response)
 
         summary = action_result.update_summary({})
-        summary["status"] = "Work item {work_item_id} retrieved successfully"
+        summary["status"] = f"Work item {work_item_id} retrieved successfully"
 
-        self.debug_print("Work item {work_item_id} retrieved successfully")
+        self.debug_print(f"Work item {work_item_id} retrieved successfully")
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -907,12 +933,12 @@ class AzureDevopsConnector(BaseConnector):
 
         try:
             post_body_json = json.loads(param["post_body"], strict=False)
-        except:
+        except Exception:
             return action_result.set_status(phantom.APP_ERROR, "Failed to parse JSON")
 
         # make rest call
         ret_val, response = self._make_rest_call_helper(
-            f"{consts.endpoints.WORK_ITEMS}/${work_item_type}",
+            f"{consts.WORK_ITEMS}/${work_item_type}",
             action_result,
             method="post",
             data=json.dumps(post_body_json),
@@ -964,9 +990,9 @@ class AzureDevopsConnector(BaseConnector):
             params = {}
 
         if team:
-            endpoint = consts.endpoints.ITERATIONS_TEAM.format(team)
+            endpoint = consts.ITERATIONS_TEAM.format(team)
         else:
-            endpoint = consts.endpoints.ITERATIONS
+            endpoint = consts.ITERATIONS
 
         ret_val, response = self._make_rest_call_helper(
             endpoint, action_result, method="get", params=params
@@ -997,13 +1023,17 @@ class AzureDevopsConnector(BaseConnector):
         comment = param["comment"]
 
         post_body = {"text": comment}
+        params = {
+            "api-version": "7.1-preview.3"
+        }
 
         # make rest call
         ret_val, response = self._make_rest_call_helper(
-            consts.endpoints.COMMENTS.format(work_item_id),
+            consts.COMMENTS.format(work_item_id),
             action_result,
             method="post",
             data=json.dumps(post_body),
+            params=params
         )
 
         if phantom.is_fail(ret_val):
@@ -1034,7 +1064,7 @@ class AzureDevopsConnector(BaseConnector):
         user_data = {"members": list(), "items": list()}
 
         ret_val, response = self._make_rest_call_helper(
-            consts.endpoints.USER_ENTITLEMENTS,
+            consts.USER_ENTITLEMENTS,
             action_result,
             method="get",
             params=param,
@@ -1054,7 +1084,7 @@ class AzureDevopsConnector(BaseConnector):
             else:
                 param["continuationToken"] = continuation_token
                 ret_val, response = self._make_rest_call_helper(
-                    consts.endpoints.USER_ENTITLEMENTS,
+                    consts.USER_ENTITLEMENTS,
                     action_result,
                     method="get",
                     params=param,
@@ -1087,7 +1117,7 @@ class AzureDevopsConnector(BaseConnector):
         user_id = param["user_id"]
 
         ret_val, _ = self._make_rest_call_helper(
-            f"{consts.endpoints.USER_ENTITLEMENTS}/{user_id}",
+            f"{consts.USER_ENTITLEMENTS}/{user_id}",
             action_result,
             method="delete",
         )
@@ -1097,7 +1127,7 @@ class AzureDevopsConnector(BaseConnector):
 
         summary = action_result.update_summary({})
         summary["status"] = "User deleted successfully"
-        
+
         return action_result.set_status(phantom.APP_SUCCESS)
 
     def _handle_add_user(self, param: dict):
@@ -1124,7 +1154,7 @@ class AzureDevopsConnector(BaseConnector):
 
         # make the rest call
         ret_val, response = self._make_rest_call_helper(
-            consts.endpoints.USER_ENTITLEMENTS,
+            consts.USER_ENTITLEMENTS,
             action_result,
             data=json.dumps(data),
             method="post",
@@ -1247,14 +1277,14 @@ class AzureDevopsConnector(BaseConnector):
         self._organization = config["organization"]
         self._project = config["project"]
         self._api_version = config["api_version"]
-        self._client_id = config["client_id"]
-        self._client_secret = config["client_secret"]
+        self._client_id = config.get("client_id", None)
+        self._client_secret = config.get("client_secret", None)
         self._username = config["username"]
-        self._password = config["password"]
-        self._base_url = consts.base_urls.PROJECT_BASE_URL.format(
+        self._password = config.get("password", None)
+        self._base_url = consts.PROJECT_BASE_URL.format(
             organization=self._organization, project=self._project
         )
-        self._user_entitlement_base_url = consts.base_urls.USER_ENTITLEMENT_URL.format(
+        self._user_entitlement_base_url = consts.USER_ENTITLEMENT_URL.format(
             organization=self._organization
         )
 

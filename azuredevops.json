@@ -9,13 +9,16 @@
     "product_name": "Azure DevOps",
     "python_version": "3",
     "product_version_regex": ".*",
-    "publisher": "Splunk Community",
-    "license": "Copyright (c) 2022 Splunk Inc.",
-    "app_version": "1.0.2",
+    "publisher": "Splunk",
+    "license": "Copyright (c) 2023 Splunk Inc.",
+    "app_version": "2.0.0",
+    "latest_tested_versions": [
+        "Cloud, API api.crowdstrike.com, January 20 2023, API versions: v1, v2"
+    ],
     "utctime_updated": "2022-10-17T09:45:50.000000Z",
     "package_name": "phantom_azuredevops",
     "main_module": "azuredevops_connector.py",
-    "min_phantom_version": "5.3.4",
+    "min_phantom_version": "5.4.0",
     "app_wizard_version": "1.0.0",
     "fips_compliant": false,
     "rest_handler": "azuredevops_connector._handle_rest_request",
@@ -63,7 +66,6 @@
         "password": {
             "description": "Access token / password in case of Basic Auth",
             "data_type": "password",
-            "required": true,
             "order": 4,
             "name": "password",
             "id": 4
@@ -71,13 +73,11 @@
         "client_id": {
             "description": "Client ID",
             "data_type": "string",
-            "required": true,
             "order": 5
         },
         "client_secret": {
             "description": "Client Secret",
             "data_type": "password",
-            "required": true,
             "order": 6
         }
     },
@@ -182,12 +182,309 @@
                     "data_type": "string"
                 },
                 {
+                    "data_path": "action_result.data.*._links.fields.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/fields"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._links.html.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_workitems/edit/1"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._links.self.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/workItems/1"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._links.workItemComments.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/workItems/1/comments"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._links.workItemRevisions.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/workItems/1/revisions"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._links.workItemType.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/workItemTypes/Epic"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._links.workItemUpdates.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/workItems/1/updates"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.commentVersionRef.commentId",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1985876
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.commentVersionRef.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/workItems/1/comments/1985876/versions/1"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.commentVersionRef.version",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.Microsoft.VSTS.Common.Priority",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.Microsoft.VSTS.Common.StateChangeDate",
+                    "data_type": "string",
+                    "example_values": [
+                        "2023-01-02T11:53:05.303Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.AreaPath",
+                    "data_type": "string",
+                    "example_values": [
+                        "Phantom_test"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.ChangedBy._links.avatar.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.ChangedBy.descriptor",
+                    "data_type": "string",
+                    "example_values": [
+                        "aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.ChangedBy.displayName",
+                    "data_type": "string",
+                    "example_values": [
+                        "test Edwards"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.ChangedBy.id",
+                    "data_type": "string",
+                    "example_values": [
+                        "a4587438-ef08-6c3a-bb0e-9426cff36a72"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.ChangedBy.imageUrl",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.ChangedBy.uniqueName",
+                    "data_type": "string",
+                    "example_values": [
+                        "test@phantomengineering2.onmicrosoft.com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.ChangedBy.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://spsprodsin2.vssps.visualstudio.com/A0ec3bd2d-0567-4fc0-bd83-8a95ff980ce7/_apis/Identities/a4587438-ef08-6c3a-bb0e-9426cff36a72"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.ChangedDate",
+                    "data_type": "string",
+                    "example_values": [
+                        "2023-02-07T08:33:56.447Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.CommentCount",
+                    "data_type": "numeric",
+                    "example_values": [
+                        5
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.CreatedBy._links.avatar.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.CreatedBy.descriptor",
+                    "data_type": "string",
+                    "example_values": [
+                        "aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.CreatedBy.displayName",
+                    "data_type": "string",
+                    "example_values": [
+                        "test Edwards"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.CreatedBy.id",
+                    "data_type": "string",
+                    "example_values": [
+                        "a4587438-ef08-6c3a-bb0e-9426cff36a72"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.CreatedBy.imageUrl",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.CreatedBy.uniqueName",
+                    "data_type": "string",
+                    "example_values": [
+                        "test@phantomengineering2.onmicrosoft.com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.CreatedBy.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://spsprodsin2.vssps.visualstudio.com/A0ec3bd2d-0567-4fc0-bd83-8a95ff980ce7/_apis/Identities/a4587438-ef08-6c3a-bb0e-9426cff36a72"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.CreatedDate",
+                    "data_type": "string",
+                    "example_values": [
+                        "2023-01-02T11:53:05.303Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.Description",
+                    "data_type": "string",
+                    "example_values": [
+                        "<div>Test description </div>"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.History",
+                    "data_type": "string",
+                    "example_values": [
+                        "testing phantom"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.IterationPath",
+                    "data_type": "string",
+                    "example_values": [
+                        "Phantom_test"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.Reason",
+                    "data_type": "string",
+                    "example_values": [
+                        "Added to backlog"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.State",
+                    "data_type": "string",
+                    "example_values": [
+                        "To Do"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.TeamProject",
+                    "data_type": "string",
+                    "example_values": [
+                        "Phantom_test"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.Title",
+                    "data_type": "string",
+                    "example_values": [
+                        "Test Epic Title"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.WorkItemType",
+                    "data_type": "string",
+                    "example_values": [
+                        "Epic"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.id",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.rev",
+                    "data_type": "numeric",
+                    "example_values": [
+                        6
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/workItems/1"
+                    ]
+                },
+                {
                     "data_path": "action_result.summary",
                     "data_type": "string"
                 },
                 {
+                    "data_path": "action_result.summary.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "Work item {work_item_id} retrieved successfully"
+                    ]
+                },
+                {
                     "data_path": "action_result.message",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "example_values": [
+                        "Status: Work item added successfully"
+                    ]
                 },
                 {
                     "data_path": "summary.total_objects",
@@ -339,8 +636,271 @@
                     "data_type": "string"
                 },
                 {
+                    "data_path": "action_result.data.*._links.fields.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/fields"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._links.html.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_workitems/edit/9"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._links.self.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/workItems/9"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._links.workItemComments.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/workItems/9/comments"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._links.workItemRevisions.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/workItems/9/revisions"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._links.workItemType.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/workItemTypes/Epic"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*._links.workItemUpdates.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/workItems/9/updates"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.Microsoft.VSTS.Common.Priority",
+                    "data_type": "numeric",
+                    "example_values": [
+                        2
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.Microsoft.VSTS.Common.StateChangeDate",
+                    "data_type": "string",
+                    "example_values": [
+                        "2023-02-07T08:34:37.39Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.AreaPath",
+                    "data_type": "string",
+                    "example_values": [
+                        "Phantom_test"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.ChangedBy._links.avatar.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.ChangedBy.descriptor",
+                    "data_type": "string",
+                    "example_values": [
+                        "aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.ChangedBy.displayName",
+                    "data_type": "string",
+                    "example_values": [
+                        "test Edwards"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.ChangedBy.id",
+                    "data_type": "string",
+                    "example_values": [
+                        "a4587438-ef08-6c3a-bb0e-9426cff36a72"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.ChangedBy.imageUrl",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.ChangedBy.uniqueName",
+                    "data_type": "string",
+                    "example_values": [
+                        "test@phantomengineering2.onmicrosoft.com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.ChangedBy.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://spsprodsin2.vssps.visualstudio.com/A0ec3bd2d-0567-4fc0-bd83-8a95ff980ce7/_apis/Identities/a4587438-ef08-6c3a-bb0e-9426cff36a72"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.ChangedDate",
+                    "data_type": "string",
+                    "example_values": [
+                        "2023-02-07T08:34:37.39Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.CommentCount",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.CreatedBy._links.avatar.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.CreatedBy.descriptor",
+                    "data_type": "string",
+                    "example_values": [
+                        "aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.CreatedBy.displayName",
+                    "data_type": "string",
+                    "example_values": [
+                        "test Edwards"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.CreatedBy.id",
+                    "data_type": "string",
+                    "example_values": [
+                        "a4587438-ef08-6c3a-bb0e-9426cff36a72"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.CreatedBy.imageUrl",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.CreatedBy.uniqueName",
+                    "data_type": "string",
+                    "example_values": [
+                        "test@phantomengineering2.onmicrosoft.com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.CreatedBy.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://spsprodsin2.vssps.visualstudio.com/A0ec3bd2d-0567-4fc0-bd83-8a95ff980ce7/_apis/Identities/a4587438-ef08-6c3a-bb0e-9426cff36a72"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.CreatedDate",
+                    "data_type": "string",
+                    "example_values": [
+                        "2023-02-07T08:34:37.39Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.Description",
+                    "data_type": "string",
+                    "example_values": [
+                        "<div>This is a sample description added via REST API </div>"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.IterationPath",
+                    "data_type": "string",
+                    "example_values": [
+                        "Phantom_test"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.Reason",
+                    "data_type": "string",
+                    "example_values": [
+                        "Added to backlog"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.State",
+                    "data_type": "string",
+                    "example_values": [
+                        "To Do"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.TeamProject",
+                    "data_type": "string",
+                    "example_values": [
+                        "Phantom_test"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.Title",
+                    "data_type": "string",
+                    "example_values": [
+                        "This task title is created via REST API"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.WorkItemType",
+                    "data_type": "string",
+                    "example_values": [
+                        "Epic"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.id",
+                    "data_type": "numeric",
+                    "example_values": [
+                        9
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.rev",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/workItems/9"
+                    ]
+                },
+                {
                     "data_path": "action_result.summary",
                     "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "Work item added successfully"
+                    ]
                 },
                 {
                     "data_path": "action_result.message",
@@ -414,8 +974,72 @@
                     "data_type": "string"
                 },
                 {
+                    "data_path": "action_result.data.*.count",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.value.*.attributes.finishDate",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.value.*.attributes.startDate",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.value.*.attributes.timeFrame",
+                    "data_type": "string",
+                    "example_values": [
+                        "current"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.value.*.id",
+                    "data_type": "string",
+                    "example_values": [
+                        "8f75ec99-73f5-401c-8c9d-7ac14e9de431"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.value.*.name",
+                    "data_type": "string",
+                    "example_values": [
+                        "Sprint 1"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.value.*.path",
+                    "data_type": "string",
+                    "example_values": [
+                        "Phantom_test\\Sprint 1"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.value.*.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/c124ba33-cc3e-42b0-b9d1-7d29c1812c34/_apis/work/teamsettings/iterations/8f75ec99-73f5-401c-8c9d-7ac14e9de431"
+                    ]
+                },
+                {
                     "data_path": "action_result.summary",
                     "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary.num_data",
+                    "data_type": "numeric",
+                    "example_values": [
+                        2
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "Data retrieved successfully"
+                    ]
                 },
                 {
                     "data_path": "action_result.message",
@@ -491,8 +1115,162 @@
                     "data_type": "string"
                 },
                 {
+                    "data_path": "action_result.data.*.createdBy._links.avatar.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.createdBy.descriptor",
+                    "data_type": "string",
+                    "example_values": [
+                        "aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.createdBy.displayName",
+                    "data_type": "string",
+                    "example_values": [
+                        "test Edwards"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.createdBy.id",
+                    "data_type": "string",
+                    "example_values": [
+                        "a4587438-ef08-6c3a-bb0e-9426cff36a72"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.createdBy.imageUrl",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.createdBy.uniqueName",
+                    "data_type": "string",
+                    "example_values": [
+                        "test@phantomengineering2.onmicrosoft.com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.createdBy.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://spsprodsin2.vssps.visualstudio.com/A0ec3bd2d-0567-4fc0-bd83-8a95ff980ce7/_apis/Identities/a4587438-ef08-6c3a-bb0e-9426cff36a72"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.createdDate",
+                    "data_type": "string",
+                    "example_values": [
+                        "2023-02-07T08:33:56.447Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.id",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1985876
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.modifiedBy._links.avatar.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.modifiedBy.descriptor",
+                    "data_type": "string",
+                    "example_values": [
+                        "aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.modifiedBy.displayName",
+                    "data_type": "string",
+                    "example_values": [
+                        "test Edwards"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.modifiedBy.id",
+                    "data_type": "string",
+                    "example_values": [
+                        "a4587438-ef08-6c3a-bb0e-9426cff36a72"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.modifiedBy.imageUrl",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.modifiedBy.uniqueName",
+                    "data_type": "string",
+                    "example_values": [
+                        "test@phantomengineering2.onmicrosoft.com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.modifiedBy.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://spsprodsin2.vssps.visualstudio.com/A0ec3bd2d-0567-4fc0-bd83-8a95ff980ce7/_apis/Identities/a4587438-ef08-6c3a-bb0e-9426cff36a72"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.modifiedDate",
+                    "data_type": "string",
+                    "example_values": [
+                        "2023-02-07T08:33:56.447Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.text",
+                    "data_type": "string",
+                    "example_values": [
+                        "testing phantom"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/workItems/1/comments/1985876"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.version",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.workItemId",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
                     "data_path": "action_result.summary",
                     "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "Comment added successfully"
+                    ]
                 },
                 {
                     "data_path": "action_result.message",
@@ -571,10 +1349,14 @@
             },
             "output": [
                 {
-                    "data_path": "action_result.parameter.user_email",
+                    "data_path": "action_result.status",
                     "data_type": "string",
-                    "column_name": "User Email",
-                    "column_order": 0
+                    "column_name": "Status",
+                    "column_order": 4,
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
                 },
                 {
                     "data_path": "action_result.parameter.account_license_type",
@@ -595,6 +1377,12 @@
                     "column_order": 3
                 },
                 {
+                    "data_path": "action_result.parameter.user_email",
+                    "data_type": "string",
+                    "column_name": "User Email",
+                    "column_order": 0
+                },
+                {
                     "data_path": "action_result.data.*.isSuccess",
                     "data_type": "boolean",
                     "example_values": [
@@ -603,117 +1391,51 @@
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.operationResult.result.id",
-                    "data_type": "string",
+                    "data_path": "action_result.data.*.operationResult.errors.*.key",
+                    "data_type": "numeric",
                     "example_values": [
-                        "1556eb14-2da0-46cb-8425-e9a11dcee3ac"
+                        5000
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.operationResult.result.user.url",
+                    "data_path": "action_result.data.*.operationResult.errors.*.value",
                     "data_type": "string",
                     "example_values": [
-                        "https://vssps.dev.azure.com/herman0828/_apis/Graph/Users/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
+                        "abc"
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.operationResult.result.user._links.self.href",
-                    "data_type": "string",
+                    "data_path": "action_result.data.*.operationResult.isSuccess",
+                    "data_type": "boolean",
                     "example_values": [
-                        "https://vssps.dev.azure.com/herman0828/_apis/Graph/Users/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
+                        true,
+                        false
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.operationResult.result.user._links.avatar.href",
-                    "data_type": "string",
-                    "example_values": [
-                        "https://dev.azure.com/herman0828/_apis/GraphProfile/MemberAvatars/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.operationResult.result.user._links.storageKey.href",
-                    "data_type": "string",
-                    "example_values": [
-                        "https://vssps.dev.azure.com/herman0828/_apis/Graph/StorageKeys/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.operationResult.result.user._links.memberships.href",
-                    "data_type": "string",
-                    "example_values": [
-                        "https://vssps.dev.azure.com/herman0828/_apis/Graph/Memberships/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.operationResult.result.user._links.membershipState.href",
-                    "data_type": "string",
-                    "example_values": [
-                        "https://vssps.dev.azure.com/herman0828/_apis/Graph/MembershipStates/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.operationResult.result.user.domain",
-                    "data_type": "string",
-                    "example_values": [
-                        "140fe46d-819d-4b6d-b7ef-1c0a8270f4f0"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.operationResult.result.user.origin",
-                    "data_type": "string",
-                    "example_values": [
-                        "aad"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.operationResult.result.user.originId",
+                    "data_path": "action_result.data.*.operationResult.result",
                     "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.data.*.operationResult.result.user.descriptor",
+                    "data_path": "action_result.data.*.operationResult.result.accessLevel.accountLicenseType",
                     "data_type": "string",
                     "example_values": [
-                        "bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
+                        "stakeholder"
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.operationResult.result.user.displayName",
+                    "data_path": "action_result.data.*.operationResult.result.accessLevel.assignmentSource",
                     "data_type": "string",
                     "example_values": [
-                        "dhruv@testazure.com"
+                        "unknown"
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.operationResult.result.user.mailAddress",
+                    "data_path": "action_result.data.*.operationResult.result.accessLevel.licenseDisplayName",
                     "data_type": "string",
                     "example_values": [
-                        "dhruv@testazure.com"
+                        "Stakeholder"
                     ]
-                },
-                {
-                    "data_path": "action_result.data.*.operationResult.result.user.subjectKind",
-                    "data_type": "string",
-                    "example_values": [
-                        "user"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.operationResult.result.user.principalName",
-                    "data_type": "string",
-                    "example_values": [
-                        "dhruv@testazure.com"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.operationResult.result.accessLevel.status",
-                    "data_type": "string",
-                    "example_values": [
-                        "pending"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.operationResult.result.accessLevel.statusMessage",
-                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.data.*.operationResult.result.accessLevel.licensingSource",
@@ -730,31 +1452,28 @@
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.operationResult.result.accessLevel.assignmentSource",
+                    "data_path": "action_result.data.*.operationResult.result.accessLevel.status",
                     "data_type": "string",
                     "example_values": [
-                        "unknown"
+                        "pending"
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.operationResult.result.accessLevel.accountLicenseType",
-                    "data_type": "string",
-                    "example_values": [
-                        "stakeholder"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.operationResult.result.accessLevel.licenseDisplayName",
-                    "data_type": "string",
-                    "example_values": [
-                        "Stakeholder"
-                    ]
+                    "data_path": "action_result.data.*.operationResult.result.accessLevel.statusMessage",
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.data.*.operationResult.result.dateCreated",
                     "data_type": "string",
                     "example_values": [
                         "2023-01-25T09:43:42.8909935Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.operationResult.result.id",
+                    "data_type": "string",
+                    "example_values": [
+                        "1556eb14-2da0-46cb-8425-e9a11dcee3ac"
                     ]
                 },
                 {
@@ -765,6 +1484,101 @@
                     ]
                 },
                 {
+                    "data_path": "action_result.data.*.operationResult.result.user._links.avatar.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.operationResult.result.user._links.membershipState.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://vssps.dev.azure.com/test0828/_apis/Graph/MembershipStates/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.operationResult.result.user._links.memberships.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://vssps.dev.azure.com/test0828/_apis/Graph/Memberships/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.operationResult.result.user._links.self.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://vssps.dev.azure.com/test0828/_apis/Graph/Users/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.operationResult.result.user._links.storageKey.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://vssps.dev.azure.com/test0828/_apis/Graph/StorageKeys/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.operationResult.result.user.descriptor",
+                    "data_type": "string",
+                    "example_values": [
+                        "bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.operationResult.result.user.displayName",
+                    "data_type": "string",
+                    "example_values": [
+                        "dhruv@testazure.com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.operationResult.result.user.domain",
+                    "data_type": "string",
+                    "example_values": [
+                        "140fe46d-819d-4b6d-b7ef-1c0a8270f4f0"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.operationResult.result.user.mailAddress",
+                    "data_type": "string",
+                    "example_values": [
+                        "dhruv@testazure.com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.operationResult.result.user.origin",
+                    "data_type": "string",
+                    "example_values": [
+                        "aad"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.operationResult.result.user.originId",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.operationResult.result.user.principalName",
+                    "data_type": "string",
+                    "example_values": [
+                        "dhruv@testazure.com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.operationResult.result.user.subjectKind",
+                    "data_type": "string",
+                    "example_values": [
+                        "user"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.operationResult.result.user.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://www.google.com"
+                    ]
+                },
+                {
                     "data_path": "action_result.data.*.operationResult.userId",
                     "data_type": "string",
                     "example_values": [
@@ -772,125 +1586,29 @@
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.operationResult.isSuccess",
-                    "data_type": "boolean",
-                    "example_values": [
-                        true,
-                        false
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.userEntitlement.id",
-                    "data_type": "string",
-                    "example_values": [
-                        "1556eb14-2da0-46cb-8425-e9a11dcee3ac"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.userEntitlement.user.url",
-                    "data_type": "string",
-                    "example_values": [
-                        "https://vssps.dev.azure.com/herman0828/_apis/Graph/Users/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.userEntitlement.user._links.self.href",
-                    "data_type": "string",
-                    "example_values": [
-                        "https://vssps.dev.azure.com/herman0828/_apis/Graph/Users/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.userEntitlement.user._links.avatar.href",
-                    "data_type": "string",
-                    "example_values": [
-                        "https://dev.azure.com/herman0828/_apis/GraphProfile/MemberAvatars/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.userEntitlement.user._links.storageKey.href",
-                    "data_type": "string",
-                    "example_values": [
-                        "https://vssps.dev.azure.com/herman0828/_apis/Graph/StorageKeys/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.userEntitlement.user._links.memberships.href",
-                    "data_type": "string",
-                    "example_values": [
-                        "https://vssps.dev.azure.com/herman0828/_apis/Graph/Memberships/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.userEntitlement.user._links.membershipState.href",
-                    "data_type": "string",
-                    "example_values": [
-                        "https://vssps.dev.azure.com/herman0828/_apis/Graph/MembershipStates/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.userEntitlement.user.domain",
-                    "data_type": "string",
-                    "example_values": [
-                        "140fe46d-819d-4b6d-b7ef-1c0a8270f4f0"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.userEntitlement.user.origin",
-                    "data_type": "string",
-                    "example_values": [
-                        "aad"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.userEntitlement.user.originId",
+                    "data_path": "action_result.data.*.userEntitlement",
                     "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.data.*.userEntitlement.user.descriptor",
+                    "data_path": "action_result.data.*.userEntitlement.accessLevel.accountLicenseType",
                     "data_type": "string",
                     "example_values": [
-                        "bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
+                        "stakeholder"
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.userEntitlement.user.displayName",
+                    "data_path": "action_result.data.*.userEntitlement.accessLevel.assignmentSource",
                     "data_type": "string",
                     "example_values": [
-                        "dhruv@testazure.com"
+                        "unknown"
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.userEntitlement.user.mailAddress",
+                    "data_path": "action_result.data.*.userEntitlement.accessLevel.licenseDisplayName",
                     "data_type": "string",
                     "example_values": [
-                        "dhruv@testazure.com"
+                        "Stakeholder"
                     ]
-                },
-                {
-                    "data_path": "action_result.data.*.userEntitlement.user.subjectKind",
-                    "data_type": "string",
-                    "example_values": [
-                        "user"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.userEntitlement.user.principalName",
-                    "data_type": "string",
-                    "example_values": [
-                        "dhruv@testazure.com"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.userEntitlement.accessLevel.status",
-                    "data_type": "string",
-                    "example_values": [
-                        "pending"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.userEntitlement.accessLevel.statusMessage",
-                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.data.*.userEntitlement.accessLevel.licensingSource",
@@ -907,25 +1625,15 @@
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.userEntitlement.accessLevel.assignmentSource",
+                    "data_path": "action_result.data.*.userEntitlement.accessLevel.status",
                     "data_type": "string",
                     "example_values": [
-                        "unknown"
+                        "pending"
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.userEntitlement.accessLevel.accountLicenseType",
-                    "data_type": "string",
-                    "example_values": [
-                        "stakeholder"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.userEntitlement.accessLevel.licenseDisplayName",
-                    "data_type": "string",
-                    "example_values": [
-                        "Stakeholder"
-                    ]
+                    "data_path": "action_result.data.*.userEntitlement.accessLevel.statusMessage",
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.data.*.userEntitlement.dateCreated",
@@ -935,10 +1643,137 @@
                     ]
                 },
                 {
+                    "data_path": "action_result.data.*.userEntitlement.id",
+                    "data_type": "string",
+                    "example_values": [
+                        "1556eb14-2da0-46cb-8425-e9a11dcee3ac"
+                    ]
+                },
+                {
                     "data_path": "action_result.data.*.userEntitlement.lastAccessedDate",
                     "data_type": "string",
                     "example_values": [
                         "0001-01-01T00:00:00Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.userEntitlement.user._links.avatar.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.userEntitlement.user._links.membershipState.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://vssps.dev.azure.com/test0828/_apis/Graph/MembershipStates/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.userEntitlement.user._links.memberships.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://vssps.dev.azure.com/test0828/_apis/Graph/Memberships/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.userEntitlement.user._links.self.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://vssps.dev.azure.com/test0828/_apis/Graph/Users/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.userEntitlement.user._links.storageKey.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://vssps.dev.azure.com/test0828/_apis/Graph/StorageKeys/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.userEntitlement.user.descriptor",
+                    "data_type": "string",
+                    "example_values": [
+                        "bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.userEntitlement.user.displayName",
+                    "data_type": "string",
+                    "example_values": [
+                        "dhruv@testazure.com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.userEntitlement.user.domain",
+                    "data_type": "string",
+                    "example_values": [
+                        "140fe46d-819d-4b6d-b7ef-1c0a8270f4f0"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.userEntitlement.user.mailAddress",
+                    "data_type": "string",
+                    "example_values": [
+                        "dhruv@testazure.com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.userEntitlement.user.origin",
+                    "data_type": "string",
+                    "example_values": [
+                        "aad"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.userEntitlement.user.originId",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.userEntitlement.user.principalName",
+                    "data_type": "string",
+                    "example_values": [
+                        "dhruv@testazure.com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.userEntitlement.user.subjectKind",
+                    "data_type": "string",
+                    "example_values": [
+                        "user"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.userEntitlement.user.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://vssps.dev.azure.com/test0828/_apis/Graph/Users/bnd.dXBuOjE0MGZlNDZkLTgxOWQtNGI2ZC1iN2VmLTFjMGE4MjcwZjRmMFxkaHJ1dkB0ZXN0YXp1cmUuY29t"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "User with given data added successfully"
+                    ]
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
                     ]
                 }
             ],
@@ -964,12 +1799,54 @@
             },
             "output": [
                 {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "Status",
+                    "column_order": 1,
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
+                },
+                {
                     "data_path": "action_result.parameter.user_id",
                     "data_type": "string",
                     "column_name": "User ID",
                     "column_order": 0
+                },
+                {
+                    "data_path": "action_result.data",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "User deleted successfully"
+                    ]
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
                 }
             ],
+            "render": {
+                "type": "table"
+            },
             "versions": "EQ(*)"
         },
         {
@@ -988,10 +1865,86 @@
             },
             "output": [
                 {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "Status",
+                    "column_order": 1,
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
+                },
+                {
                     "data_path": "action_result.parameter.filter",
                     "data_type": "string",
                     "column_name": "Filter",
                     "column_order": 0
+                },
+                {
+                    "data_path": "action_result.parameter.filter",
+                    "data_type": "string",
+                    "example_value": ""
+                },
+                {
+                    "data_path": "action_result.data.*.items.*.accessLevel.accountLicenseType",
+                    "data_type": "string",
+                    "example_values": [
+                        "stakeholder"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.items.*.accessLevel.assignmentSource",
+                    "data_type": "string",
+                    "example_values": [
+                        "unknown"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.items.*.accessLevel.licenseDisplayName",
+                    "data_type": "string",
+                    "example_values": [
+                        "Stakeholder"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.items.*.accessLevel.licensingSource",
+                    "data_type": "string",
+                    "example_values": [
+                        "account"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.items.*.accessLevel.msdnLicenseType",
+                    "data_type": "string",
+                    "example_values": [
+                        "none"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.items.*.accessLevel.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "pending"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.items.*.accessLevel.statusMessage",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.items.*.dateCreated",
+                    "data_type": "string",
+                    "example_values": [
+                        "2023-01-17T13:06:14.1509397Z"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.items.*.id",
@@ -1001,45 +1954,66 @@
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.items.*.user.url",
+                    "data_path": "action_result.data.*.items.*.lastAccessedDate",
                     "data_type": "string",
                     "example_values": [
-                        "https://vssps.dev.azure.com/herman0828/_apis/Graph/Users/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.items.*.user._links.self.href",
-                    "data_type": "string",
-                    "example_values": [
-                        "https://vssps.dev.azure.com/herman0828/_apis/Graph/Users/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
+                        "0001-01-01T00:00:00Z"
                     ]
                 },
                 {
                     "data_path": "action_result.data.*.items.*.user._links.avatar.href",
                     "data_type": "string",
                     "example_values": [
-                        "https://dev.azure.com/herman0828/_apis/GraphProfile/MemberAvatars/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.items.*.user._links.storageKey.href",
-                    "data_type": "string",
-                    "example_values": [
-                        "https://vssps.dev.azure.com/herman0828/_apis/Graph/StorageKeys/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.items.*.user._links.memberships.href",
-                    "data_type": "string",
-                    "example_values": [
-                        "https://vssps.dev.azure.com/herman0828/_apis/Graph/Memberships/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
+                        "https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
                     ]
                 },
                 {
                     "data_path": "action_result.data.*.items.*.user._links.membershipState.href",
                     "data_type": "string",
                     "example_values": [
-                        "https://vssps.dev.azure.com/herman0828/_apis/Graph/MembershipStates/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
+                        "https://vssps.dev.azure.com/test0828/_apis/Graph/MembershipStates/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.items.*.user._links.memberships.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://vssps.dev.azure.com/test0828/_apis/Graph/Memberships/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.items.*.user._links.self.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://vssps.dev.azure.com/test0828/_apis/Graph/Users/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.items.*.user._links.storageKey.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://vssps.dev.azure.com/test0828/_apis/Graph/StorageKeys/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.items.*.user.descriptor",
+                    "data_type": "string",
+                    "example_values": [
+                        "aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.items.*.user.directoryAlias",
+                    "data_type": "string",
+                    "example_values": [
+                        "test7user_user.com#EXT#"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.items.*.user.displayName",
+                    "data_type": "string",
+                    "example_values": [
+                        "test7user@user.com"
                     ]
                 },
                 {
@@ -1047,6 +2021,20 @@
                     "data_type": "string",
                     "example_values": [
                         "140fe46d-819d-4b6d-b7ef-1c0a8270f4f0"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.items.*.user.mailAddress",
+                    "data_type": "string",
+                    "example_values": [
+                        "test7user@user.com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.items.*.user.metaType",
+                    "data_type": "string",
+                    "example_values": [
+                        "member"
                     ]
                 },
                 {
@@ -1064,21 +2052,7 @@
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.items.*.user.descriptor",
-                    "data_type": "string",
-                    "example_values": [
-                        "aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.items.*.user.displayName",
-                    "data_type": "string",
-                    "example_values": [
-                        "test7user@user.com"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.items.*.user.mailAddress",
+                    "data_path": "action_result.data.*.items.*.user.principalName",
                     "data_type": "string",
                     "example_values": [
                         "test7user@user.com"
@@ -1092,77 +2066,63 @@
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.items.*.user.principalName",
+                    "data_path": "action_result.data.*.items.*.user.url",
                     "data_type": "string",
                     "example_values": [
-                        "test7user@user.com"
+                        "https://vssps.dev.azure.com/test0828/_apis/Graph/Users/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.items.*.user.directoryAlias",
-                    "data_type": "string",
-                    "example_values": [
-                        "test7user_user.com#EXT#"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.items.*.accessLevel.status",
-                    "data_type": "string",
-                    "example_values": [
-                        "pending"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.items.*.accessLevel.statusMessage",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.items.*.accessLevel.licensingSource",
-                    "data_type": "string",
-                    "example_values": [
-                        "account"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.items.*.accessLevel.msdnLicenseType",
-                    "data_type": "string",
-                    "example_values": [
-                        "none"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.items.*.accessLevel.assignmentSource",
-                    "data_type": "string",
-                    "example_values": [
-                        "unknown"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.items.*.accessLevel.accountLicenseType",
+                    "data_path": "action_result.data.*.members.*.accessLevel.accountLicenseType",
                     "data_type": "string",
                     "example_values": [
                         "stakeholder"
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.items.*.accessLevel.licenseDisplayName",
+                    "data_path": "action_result.data.*.members.*.accessLevel.assignmentSource",
+                    "data_type": "string",
+                    "example_values": [
+                        "unknown"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.members.*.accessLevel.licenseDisplayName",
                     "data_type": "string",
                     "example_values": [
                         "Stakeholder"
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.items.*.dateCreated",
+                    "data_path": "action_result.data.*.members.*.accessLevel.licensingSource",
                     "data_type": "string",
                     "example_values": [
-                        "2023-01-17T13:06:14.1509397Z"
+                        "account"
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.items.*.lastAccessedDate",
+                    "data_path": "action_result.data.*.members.*.accessLevel.msdnLicenseType",
                     "data_type": "string",
                     "example_values": [
-                        "0001-01-01T00:00:00Z"
+                        "none"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.members.*.accessLevel.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "pending"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.members.*.accessLevel.statusMessage",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.members.*.dateCreated",
+                    "data_type": "string",
+                    "example_values": [
+                        "2023-01-17T13:06:14.1509397Z"
                     ]
                 },
                 {
@@ -1173,45 +2133,66 @@
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.members.*.user.url",
+                    "data_path": "action_result.data.*.members.*.lastAccessedDate",
                     "data_type": "string",
                     "example_values": [
-                        "https://vssps.dev.azure.com/herman0828/_apis/Graph/Users/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.members.*.user._links.self.href",
-                    "data_type": "string",
-                    "example_values": [
-                        "https://vssps.dev.azure.com/herman0828/_apis/Graph/Users/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
+                        "0001-01-01T00:00:00Z"
                     ]
                 },
                 {
                     "data_path": "action_result.data.*.members.*.user._links.avatar.href",
                     "data_type": "string",
                     "example_values": [
-                        "https://dev.azure.com/herman0828/_apis/GraphProfile/MemberAvatars/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.members.*.user._links.storageKey.href",
-                    "data_type": "string",
-                    "example_values": [
-                        "https://vssps.dev.azure.com/herman0828/_apis/Graph/StorageKeys/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.members.*.user._links.memberships.href",
-                    "data_type": "string",
-                    "example_values": [
-                        "https://vssps.dev.azure.com/herman0828/_apis/Graph/Memberships/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
+                        "https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
                     ]
                 },
                 {
                     "data_path": "action_result.data.*.members.*.user._links.membershipState.href",
                     "data_type": "string",
                     "example_values": [
-                        "https://vssps.dev.azure.com/herman0828/_apis/Graph/MembershipStates/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
+                        "https://vssps.dev.azure.com/test0828/_apis/Graph/MembershipStates/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.members.*.user._links.memberships.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://vssps.dev.azure.com/test0828/_apis/Graph/Memberships/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.members.*.user._links.self.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://vssps.dev.azure.com/test0828/_apis/Graph/Users/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.members.*.user._links.storageKey.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://vssps.dev.azure.com/test0828/_apis/Graph/StorageKeys/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.members.*.user.descriptor",
+                    "data_type": "string",
+                    "example_values": [
+                        "aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.members.*.user.directoryAlias",
+                    "data_type": "string",
+                    "example_values": [
+                        "test7user_user.com#EXT#"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.members.*.user.displayName",
+                    "data_type": "string",
+                    "example_values": [
+                        "test7user@user.com"
                     ]
                 },
                 {
@@ -1219,6 +2200,20 @@
                     "data_type": "string",
                     "example_values": [
                         "140fe46d-819d-4b6d-b7ef-1c0a8270f4f0"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.members.*.user.mailAddress",
+                    "data_type": "string",
+                    "example_values": [
+                        "test7user@user.com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.members.*.user.metaType",
+                    "data_type": "string",
+                    "example_values": [
+                        "member"
                     ]
                 },
                 {
@@ -1236,21 +2231,7 @@
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.members.*.user.descriptor",
-                    "data_type": "string",
-                    "example_values": [
-                        "aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.members.*.user.displayName",
-                    "data_type": "string",
-                    "example_values": [
-                        "test7user@user.com"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.members.*.user.mailAddress",
+                    "data_path": "action_result.data.*.members.*.user.principalName",
                     "data_type": "string",
                     "example_values": [
                         "test7user@user.com"
@@ -1264,97 +2245,42 @@
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.members.*.user.principalName",
+                    "data_path": "action_result.data.*.members.*.user.url",
                     "data_type": "string",
                     "example_values": [
-                        "test7user@user.com"
+                        "https://vssps.dev.azure.com/test0828/_apis/Graph/Users/aad.NmZmNDFiNDktY2VmYS03M2VkLWI1ZmYtN2EyOWQzMDI3MTA1"
                     ]
                 },
                 {
-                    "data_path": "action_result.data.*.members.*.user.directoryAlias",
+                    "data_path": "action_result.summary.status",
                     "data_type": "string",
                     "example_values": [
-                        "test7user_user.com#EXT#"
+                        "Data retrieved successfully"
                     ]
-                },
-                {
-                    "data_path": "action_result.data.*.members.*.accessLevel.status",
-                    "data_type": "string",
-                    "example_values": [
-                        "pending"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.members.*.accessLevel.statusMessage",
-                    "data_type": "string"
-                },
-                {
-                    "data_path": "action_result.data.*.members.*.accessLevel.licensingSource",
-                    "data_type": "string",
-                    "example_values": [
-                        "account"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.members.*.accessLevel.msdnLicenseType",
-                    "data_type": "string",
-                    "example_values": [
-                        "none"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.members.*.accessLevel.assignmentSource",
-                    "data_type": "string",
-                    "example_values": [
-                        "unknown"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.members.*.accessLevel.accountLicenseType",
-                    "data_type": "string",
-                    "example_values": [
-                        "stakeholder"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.members.*.accessLevel.licenseDisplayName",
-                    "data_type": "string",
-                    "example_values": [
-                        "Stakeholder"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.members.*.dateCreated",
-                    "data_type": "string",
-                    "example_values": [
-                        "2023-01-17T13:06:14.1509397Z"
-                    ]
-                },
-                {
-                    "data_path": "action_result.data.*.members.*.lastAccessedDate",
-                    "data_type": "string",
-                    "example_values": [
-                        "0001-01-01T00:00:00Z"
-                    ]
-                },
-                {
-                    "data_path": "action_result.status",
-                    "data_type": "string",
-                    "example_values": [
-                        "success",
-                        "failed"
-                    ]
-                },
-                {
-                    "data_path": "action_result.parameter.filter",
-                    "data_type": "string",
-                    "example_value": ""
                 },
                 {
                     "data_path": "action_result.summary.total_users",
                     "data_type": "numeric",
                     "example_values": [
                         127
+                    ]
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
                     ]
                 }
             ],
