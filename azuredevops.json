@@ -15,7 +15,7 @@
     "utctime_updated": "2022-10-17T09:45:50.000000Z",
     "package_name": "phantom_azuredevops",
     "main_module": "azuredevops_connector.py",
-    "min_phantom_version": "5.3.4",
+    "min_phantom_version": "5.3.2",
     "app_wizard_version": "1.0.0",
     "fips_compliant": false,
     "configuration": {
@@ -472,6 +472,100 @@
                     "data_type": "string",
                     "column_name": "Work Item ID",
                     "column_order": 0
+                },
+                {
+                    "data_path": "action_result.data",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
+        },
+        {
+            "action": "add attachment",
+            "identifier": "add_attachment",
+            "description": "Add an attachment to a project",
+            "type": "generic",
+            "read_only": false,
+            "parameters": {
+                "vault_id": {
+                    "description": "SOAR Vault ID of the attachment",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 0,
+                    "name": "vault_id",
+                    "contains": [
+                        "vault id"
+                    ]
+                },
+                "api_version": {
+                    "description": "Version of the API to use (overwrites config)",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 1,
+                    "name": "api_version",
+                    "default": "7.1-preview.3"
+                },
+                "filename": {
+                    "description": "Name of the file to be uploaded",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 2,
+                    "name": "filename"
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "Status",
+                    "column_order": 2,
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.vault_id",
+                    "data_type": "string",
+                    "column_name": "Vault ID",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.parameter.api_version",
+                    "data_type": "string",
+                    "column_name": "API Version",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.parameter.filename",
+                    "data_type": "string",
+                    "column_name": "FileName",
+                    "column_order": 1
                 },
                 {
                     "data_path": "action_result.data",
