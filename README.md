@@ -147,3 +147,43 @@ action\_result\.summary | string |
 action\_result\.message | string | 
 summary\.total\_objects | numeric | 
 summary\.total\_objects\_successful | numeric | 
+
+#### Action Output
+DATA PATH | TYPE | CONTAINS
+--------- | ---- | --------
+action\_result\.status | string | 
+action\_result\.parameter\.team | string | 
+action\_result\.parameter\.timeframe | string | 
+action\_result\.data | string | 
+action\_result\.summary | string | 
+action\_result\.message | string | 
+summary\.total\_objects | numeric | 
+summary\.total\_objects\_successful | numeric |   
+
+## action: 'add attachment'
+Add an attachment to a project
+
+Type: **generic**  
+Read only: **False**
+
+#### Action Parameters
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**vault\_id** |  required  | Id of the vault item to upload | string | 
+**api\_version** |  required  | Version of the API endpoint to use | string | 
+**filename** |  required  | Name of the file to upload | string |
+
+#### Action Output
+DATA PATH | TYPE | CONTAINS
+--------- | ---- | --------
+action\_result\.status | string | 
+action\_result\.parameter\.api\_version | string | 
+action\_result\.parameter\.vault_id | string | 
+action\_result\.parameter\.filename | string | 
+action\_result\.data | string | 
+action\_result\.data.0.id | string | 
+action\_result\.data.0.url | string | 
+action\_result\.summary | string | 
+action\_result\.message | string | 
+summary\.total\_objects | numeric | 
+summary\.total\_objects\_successful | numeric | 
