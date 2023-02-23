@@ -571,7 +571,7 @@
                     "data_path": "action_result.status",
                     "data_type": "string",
                     "column_name": "Status",
-                    "column_order": 3,
+                    "column_order": 2,
                     "example_values": [
                         "success",
                         "failed"
@@ -591,9 +591,7 @@
                 },
                 {
                     "data_path": "action_result.parameter.post_body",
-                    "data_type": "string",
-                    "column_name": "Post Body",
-                    "column_order": 2
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.parameter.suppressnotifications",
@@ -1348,27 +1346,19 @@
                 },
                 {
                     "data_path": "action_result.parameter.account_license_type",
-                    "data_type": "string",
-                    "column_name": "Account License Type",
-                    "column_order": 1
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.parameter.group_type",
-                    "data_type": "string",
-                    "column_name": "Group Type",
-                    "column_order": 2
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.parameter.project_name",
-                    "data_type": "string",
-                    "column_name": "Project ID",
-                    "column_order": 3
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.parameter.user_email",
-                    "data_type": "string",
-                    "column_name": "User Email",
-                    "column_order": 0
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.data.*.isSuccess",
@@ -1423,7 +1413,9 @@
                     "data_type": "string",
                     "example_values": [
                         "Stakeholder"
-                    ]
+                    ],
+                    "column_name": "display name",
+                    "column_order": 1
                 },
                 {
                     "data_path": "action_result.data.*.operationResult.result.accessLevel.licensingSource",
@@ -1571,6 +1563,11 @@
                     "data_type": "string",
                     "example_values": [
                         "1556eb14-2da0-46cb-8425-e9a11dcee3ac"
+                    ],
+                    "column_name": "user id",
+                    "column_order": 0,
+                    "contains": [
+                        "user_id"
                     ]
                 },
                 {
@@ -1744,7 +1741,9 @@
                     "data_type": "string",
                     "example_values": [
                         "User with given data added successfully"
-                    ]
+                    ],
+                    "column_name": "status",
+                    "column_order": 2
                 },
                 {
                     "data_path": "action_result.message",
