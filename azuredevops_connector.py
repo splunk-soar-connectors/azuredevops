@@ -1004,10 +1004,10 @@ class AzureDevopsConnector(BaseConnector):
         action_result.add_data(response)
 
         summary = action_result.update_summary({})
-        summary["num_data"] = len(action_result.get_data()[0])
-        summary["status"] = "Data retrieved successfully"
+        summary["total_iterations"] = action_result.get_data()[0]["count"]
+        # summary["status"] = "Data retrieved successfully"
 
-        self.debug_print("Data retrieved successfully")
+        self.debug_print("Data retrieved successfully",)
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -1100,7 +1100,7 @@ class AzureDevopsConnector(BaseConnector):
 
         summary = action_result.update_summary({})
         summary["total_users"] = len(action_result.get_data()[0]["items"])
-        summary["status"] = "Data retrieved successfully"
+        # summary["status"] = "Data retrieved successfully"
 
         self.debug_print("Data retrieved successfully")
 
@@ -1125,10 +1125,10 @@ class AzureDevopsConnector(BaseConnector):
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
-        summary = action_result.update_summary({})
-        summary["status"] = "User deleted successfully"
+        # summary = action_result.update_summary({})
+        # summary["status"] = "User deleted successfully"
 
-        return action_result.set_status(phantom.APP_SUCCESS)
+        return action_result.set_status(phantom.APP_SUCCESS, "User deleted successfully")
 
     def _handle_add_user(self, param: dict):
 
@@ -1165,12 +1165,12 @@ class AzureDevopsConnector(BaseConnector):
 
         action_result.add_data(response)
 
-        summary = action_result.update_summary({})
-        summary["status"] = "User with given data added successfully"
+        # summary = action_result.update_summary({})
+        # summary["status"] = "User with given data added successfully"
 
         self.debug_print("User with given data added successfully")
 
-        return action_result.set_status(phantom.APP_SUCCESS)
+        return action_result.set_status(phantom.APP_SUCCESS, "User with given data added successfully")
 
     def _get_error_message_from_exception(self, e):
         """This function is used to get appropriate error message from the exception.

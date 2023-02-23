@@ -10,7 +10,7 @@
     "python_version": "3",
     "product_version_regex": ".*",
     "publisher": "Splunk",
-    "license": "Copyright (c) 2023 Splunk Inc.",
+    "license": "Copyright (c) 2022-2023 Splunk Inc.",
     "app_version": "2.0.0",
     "latest_tested_versions": [
         "Cloud, API api.crowdstrike.com, January 20 2023, API versions: v1, v2"
@@ -147,7 +147,7 @@
                     "data_path": "action_result.status",
                     "data_type": "string",
                     "column_name": "Status",
-                    "column_order": 4,
+                    "column_order": 1,
                     "example_values": [
                         "success",
                         "failed"
@@ -155,21 +155,15 @@
                 },
                 {
                     "data_path": "action_result.parameter.asof",
-                    "data_type": "string",
-                    "column_name": "Asof",
-                    "column_order": 2
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.parameter.expand",
-                    "data_type": "string",
-                    "column_name": "Expand",
-                    "column_order": 1
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.parameter.fields",
-                    "data_type": "string",
-                    "column_name": "Fields",
-                    "column_order": 3
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.parameter.work_item_id",
@@ -577,7 +571,7 @@
                     "data_path": "action_result.status",
                     "data_type": "string",
                     "column_name": "Status",
-                    "column_order": 6,
+                    "column_order": 3,
                     "example_values": [
                         "success",
                         "failed"
@@ -586,8 +580,6 @@
                 {
                     "data_path": "action_result.parameter.bypassrules",
                     "data_type": "boolean",
-                    "column_name": "Bypassrules",
-                    "column_order": 2,
                     "example_values": [
                         true,
                         false
@@ -595,21 +587,17 @@
                 },
                 {
                     "data_path": "action_result.parameter.expand",
-                    "data_type": "string",
-                    "column_name": "Expand",
-                    "column_order": 1
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.parameter.post_body",
                     "data_type": "string",
                     "column_name": "Post Body",
-                    "column_order": 5
+                    "column_order": 2
                 },
                 {
                     "data_path": "action_result.parameter.suppressnotifications",
                     "data_type": "boolean",
-                    "column_name": "Suppressnotifications",
-                    "column_order": 3,
                     "example_values": [
                         true,
                         false
@@ -618,8 +606,6 @@
                 {
                     "data_path": "action_result.parameter.validateonly",
                     "data_type": "boolean",
-                    "column_name": "Validateonly",
-                    "column_order": 4,
                     "example_values": [
                         true,
                         false
@@ -629,7 +615,7 @@
                     "data_path": "action_result.parameter.work_item_type",
                     "data_type": "string",
                     "column_name": "Work Item Type",
-                    "column_order": 0
+                    "column_order": 1
                 },
                 {
                     "data_path": "action_result.data",
@@ -875,7 +861,9 @@
                     "data_type": "numeric",
                     "example_values": [
                         9
-                    ]
+                    ],
+                    "column_name": "work item id",
+                    "column_order": 0
                 },
                 {
                     "data_path": "action_result.data.*.rev",
@@ -950,8 +938,6 @@
                 {
                     "data_path": "action_result.status",
                     "data_type": "string",
-                    "column_name": "Status",
-                    "column_order": 2,
                     "example_values": [
                         "success",
                         "failed"
@@ -959,15 +945,11 @@
                 },
                 {
                     "data_path": "action_result.parameter.team",
-                    "data_type": "string",
-                    "column_name": "Team",
-                    "column_order": 0
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.parameter.timeframe",
-                    "data_type": "string",
-                    "column_name": "Timeframe",
-                    "column_order": 1
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.data",
@@ -1000,21 +982,27 @@
                     "data_type": "string",
                     "example_values": [
                         "8f75ec99-73f5-401c-8c9d-7ac14e9de431"
-                    ]
+                    ],
+                    "column_name": "id",
+                    "column_order": 0
                 },
                 {
                     "data_path": "action_result.data.*.value.*.name",
                     "data_type": "string",
                     "example_values": [
                         "Sprint 1"
-                    ]
+                    ],
+                    "column_name": "name",
+                    "column_order": 1
                 },
                 {
                     "data_path": "action_result.data.*.value.*.path",
                     "data_type": "string",
                     "example_values": [
                         "Phantom_test\\Sprint 1"
-                    ]
+                    ],
+                    "column_name": "path",
+                    "column_order": 2
                 },
                 {
                     "data_path": "action_result.data.*.value.*.url",
@@ -1092,7 +1080,7 @@
                     "data_path": "action_result.status",
                     "data_type": "string",
                     "column_name": "Status",
-                    "column_order": 2,
+                    "column_order": 3,
                     "example_values": [
                         "success",
                         "failed"
@@ -1175,7 +1163,9 @@
                     "data_type": "numeric",
                     "example_values": [
                         1985876
-                    ]
+                    ],
+                    "column_name": "comment id",
+                    "column_order": 2
                 },
                 {
                     "data_path": "action_result.data.*.modifiedBy._links.avatar.href",
@@ -1351,8 +1341,6 @@
                 {
                     "data_path": "action_result.status",
                     "data_type": "string",
-                    "column_name": "Status",
-                    "column_order": 4,
                     "example_values": [
                         "success",
                         "failed"
@@ -1867,8 +1855,6 @@
                 {
                     "data_path": "action_result.status",
                     "data_type": "string",
-                    "column_name": "Status",
-                    "column_order": 1,
                     "example_values": [
                         "success",
                         "failed"
@@ -1884,9 +1870,7 @@
                 },
                 {
                     "data_path": "action_result.parameter.filter",
-                    "data_type": "string",
-                    "column_name": "Filter",
-                    "column_order": 0
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.parameter.filter",
@@ -1951,7 +1935,9 @@
                     "data_type": "string",
                     "example_values": [
                         "35aff9fa-f21a-4ddd-b3b8-ddb8ecaa0f4c"
-                    ]
+                    ],
+                    "column_name": "ID",
+                    "column_order": 0
                 },
                 {
                     "data_path": "action_result.data.*.items.*.lastAccessedDate",
@@ -2012,6 +1998,8 @@
                 {
                     "data_path": "action_result.data.*.items.*.user.displayName",
                     "data_type": "string",
+                    "column_name": "display name",
+                    "column_order": 2,
                     "example_values": [
                         "test7user@user.com"
                     ]
@@ -2028,7 +2016,9 @@
                     "data_type": "string",
                     "example_values": [
                         "test7user@user.com"
-                    ]
+                    ],
+                    "column_name": "EMAIL",
+                    "column_order": 1
                 },
                 {
                     "data_path": "action_result.data.*.items.*.user.metaType",
