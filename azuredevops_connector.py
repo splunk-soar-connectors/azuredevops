@@ -1,6 +1,6 @@
 # File: azuredevops_connector.py
 #
-# Copyright (c) 2022 Splunk Inc.
+# Copyright (c) 2023 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ class AzureDevopsConnector(BaseConnector):
             split_lines = error_text.split('\n')
             split_lines = [x.strip() for x in split_lines if x.strip()]
             error_text = '\n'.join(split_lines)
-        except:
+        except Exception:
             error_text = "Cannot parse error details"
 
         message = "Status Code: {0}. Data from server:\n{1}\n".format(status_code, error_text)
@@ -152,8 +152,9 @@ class AzureDevopsConnector(BaseConnector):
                 pass
             else:
                 kwargs.pop("params")
-                kwargs = {"params": {
-                    "api-version": config["api version"]
+                kwargs = {
+                    "params": {
+                        "api-version": config["api version"]
                     }
                 }
         else:
@@ -288,7 +289,7 @@ class AzureDevopsConnector(BaseConnector):
 
         try:
             post_body_json = json.loads(param["post_body"], strict=False)
-        except:
+        except Exception:
             return action_result.set_status(phantom.APP_ERROR, "Failed to parse JSON")
 
         # make rest call
@@ -446,7 +447,7 @@ class AzureDevopsConnector(BaseConnector):
         filename = param['filename']
 
         try:
-            success, msg, vault_info = phantom_rules.vault_info(vault_id=vault_id)
+            success, msg, vault_info = phantom_rules.vault_info(vault_id=vault_id, file_name=filename)
         except Exception:
             return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching the vault information of the specified Vault ID")
 
@@ -458,7 +459,7 @@ class AzureDevopsConnector(BaseConnector):
 
             return action_result.set_status(phantom.APP_ERROR, error_msg)
 
-        # Loop through the Vault infomation
+        # Loop through the Vault information
         for item in vault_info:
             vault_path = item.get('path')
             if vault_path is None:
@@ -470,7 +471,6 @@ class AzureDevopsConnector(BaseConnector):
             except Exception as e:
                 error_message = self._get_error_message_from_exception(e)
                 return action_result.set_status(phantom.APP_ERROR, "Unable to open vault file: {}".format(error_message))
-                
 
         params = {
             "api-version": param["api_version"]
@@ -530,7 +530,7 @@ class AzureDevopsConnector(BaseConnector):
 
         if action_id == 'add_comment':
             ret_val = self._handle_add_comment(param)
-        
+
         if action_id == 'add_attachment':
             ret_val = self._handle_add_attachment(param)
 
