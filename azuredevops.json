@@ -571,7 +571,7 @@
                     "data_path": "action_result.status",
                     "data_type": "string",
                     "column_name": "Status",
-                    "column_order": 2,
+                    "column_order": 1,
                     "example_values": [
                         "success",
                         "failed"
@@ -611,9 +611,7 @@
                 },
                 {
                     "data_path": "action_result.parameter.work_item_type",
-                    "data_type": "string",
-                    "column_name": "Work Item Type",
-                    "column_order": 1
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.data",
@@ -1342,7 +1340,9 @@
                     "example_values": [
                         "success",
                         "failed"
-                    ]
+                    ],
+                    "column_name": "status",
+                    "column_order": 2
                 },
                 {
                     "data_path": "action_result.parameter.account_license_type",
@@ -1413,9 +1413,7 @@
                     "data_type": "string",
                     "example_values": [
                         "Stakeholder"
-                    ],
-                    "column_name": "display name",
-                    "column_order": 1
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.operationResult.result.accessLevel.licensingSource",
@@ -1509,8 +1507,10 @@
                     "data_path": "action_result.data.*.operationResult.result.user.displayName",
                     "data_type": "string",
                     "example_values": [
-                        "dhruv@testazure.com"
-                    ]
+                        "test@testazure.com"
+                    ],
+                    "column_name": "display name",
+                    "column_order": 1
                 },
                 {
                     "data_path": "action_result.data.*.operationResult.result.user.domain",
@@ -1567,7 +1567,7 @@
                     "column_name": "user id",
                     "column_order": 0,
                     "contains": [
-                        "user_id"
+                        "id"
                     ]
                 },
                 {
@@ -1741,9 +1741,7 @@
                     "data_type": "string",
                     "example_values": [
                         "User with given data added successfully"
-                    ],
-                    "column_name": "status",
-                    "column_order": 2
+                    ]
                 },
                 {
                     "data_path": "action_result.message",

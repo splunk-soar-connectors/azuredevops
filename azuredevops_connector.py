@@ -1163,6 +1163,9 @@ class AzureDevopsConnector(BaseConnector):
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
+        if not bool(response.get("operationResult", {}).get("isSuccess", True)):
+            return action_result.set_status(phantom.APP_ERROR, "data is invalid")
+
         action_result.add_data(response)
 
         # summary = action_result.update_summary({})
