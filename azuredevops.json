@@ -540,8 +540,6 @@
                 {
                     "data_path": "action_result.status",
                     "data_type": "string",
-                    "column_name": "Status",
-                    "column_order": 2,
                     "example_values": [
                         "success",
                         "failed"
@@ -549,33 +547,25 @@
                 },
                 {
                     "data_path": "action_result.parameter.vault_id",
-                    "data_type": "string",
-                    "column_name": "Vault ID",
-                    "column_order": 1
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.parameter.api_version",
-                    "data_type": "string",
-                    "column_name": "API Version",
-                    "column_order": 0
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.parameter.filename",
-                    "data_type": "string",
-                    "column_name": "Filename",
-                    "column_order": 1
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.data.0.id",
-                    "data_type": "string",
-                    "column_name": "Attachment ID",
-                    "column_order": 2
+                    "data_type": "string"
                 },
                 {
                     "data_path": "action_result.data.0.url",
                     "data_type": "string",
                     "column_name": "Attachment URL",
-                    "column_order": 3
+                    "column_order": 0
                 },
                 {
                     "data_path": "action_result.data",

@@ -478,7 +478,7 @@ class AzureDevopsConnector(BaseConnector):
         filename = param['filename']
 
         try:
-            success, msg, vault_info = phantom_rules.vault_info(vault_id=vault_id, file_name=filename)
+            success, msg, vault_info = phantom_rules.vault_info(vault_id=vault_id)
         except Exception:
             return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching the vault information of the specified Vault ID")
 
