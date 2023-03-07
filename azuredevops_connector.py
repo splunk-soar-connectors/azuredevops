@@ -128,7 +128,7 @@ class AzureDevopsConnector(BaseConnector):
 
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
 
-    def _make_rest_call(self, endpoint, action_result, method="get", **kwargs):
+    def _make_rest_call(self, endpoint, action_result, method="get", api_version=None, **kwargs):
         # **kwargs can be any additional parameters that requests.request accepts
 
         config = self.get_config()
@@ -145,17 +145,8 @@ class AzureDevopsConnector(BaseConnector):
 
         # Create a URL to connect to
         url = self._base_url + endpoint
-        self.debug_print(url)
-        self.debug_print(kwargs)
-        if "params" in kwargs:
-            if kwargs["params"] is not None:
-                pass
-            else:
-                kwargs.pop("params")
-                kwargs = {"params": {
-                    "api-version": config["api version"]
-                    }
-                }
+        if api_version:
+            kwargs["params"] = {"api-version": api_version}
         else:
             kwargs["params"] = {"api-version": config["api version"]}
 
@@ -472,12 +463,12 @@ class AzureDevopsConnector(BaseConnector):
                 return action_result.set_status(phantom.APP_ERROR, "Unable to open vault file: {}".format(error_message))
                 
 
-        params = {
-            "api-version": param["api_version"]
-        }
-
         headers = {
             "Content-Type": "application/octet-stream"
+        }
+
+        params = {
+            "fileName": filename
         }
 
         # Optional values should use the .get() function
@@ -485,8 +476,8 @@ class AzureDevopsConnector(BaseConnector):
 
         # make rest call
         ret_val, response = self._make_rest_call(
-            '/_apis/wit/attachments', action_result, params=params, headers=headers, method="post",
-            data=vault_file
+            '/_apis/wit/attachments', action_result, headers=headers, method="post", params=params, 
+            data=vault_file, api_version=param["api_version"]
         )
 
         if phantom.is_fail(ret_val):
