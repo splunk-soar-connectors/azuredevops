@@ -1,6 +1,6 @@
 # File: azuredevops_connector.py
 #
-# Copyright (c) 2022 Splunk Inc.
+# Copyright (c) 2023 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,6 +23,9 @@ import requests
 from bs4 import BeautifulSoup
 from phantom.action_result import ActionResult
 from phantom.base_connector import BaseConnector
+
+# Constants imports
+from azuredevops_consts import *
 
 
 class RetVal(tuple):
@@ -65,7 +68,7 @@ class AzureDevopsConnector(BaseConnector):
             split_lines = error_text.split('\n')
             split_lines = [x.strip() for x in split_lines if x.strip()]
             error_text = '\n'.join(split_lines)
-        except:
+        except Exception:
             error_text = "Cannot parse error details"
 
         message = "Status Code: {0}. Data from server:\n{1}\n".format(status_code, error_text)
@@ -128,7 +131,35 @@ class AzureDevopsConnector(BaseConnector):
 
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
 
-    def _make_rest_call(self, endpoint, action_result, method="get", api_version=None, **kwargs):
+    def _get_error_message_from_exception(self, e):
+        """ This method is used to get appropriate error message from the exception.
+        :param e: Exception object
+        :return: error message
+        """
+
+        error_code = None
+        error_message = AZUREDEVOPS_ERROR_MESSAGE_UNAVAILABLE
+
+        self.error_print("Error occurred.", e)
+
+        try:
+            if hasattr(e, "args"):
+                if len(e.args) > 1:
+                    error_code = e.args[0]
+                    error_message = e.args[1]
+                elif len(e.args) == 1:
+                    error_message = e.args[0]
+        except Exception as e:
+            self.error_print("Error occurred while fetching exception information. Details: {}".format(str(e)))
+
+        if not error_code:
+            error_text = "Error Message: {}".format(error_message)
+        else:
+            error_text = "Error Code: {}. Error Message: {}".format(error_code, error_message)
+
+        return error_text
+
+    def _make_rest_call(self, endpoint, action_result, method="get", **kwargs):
         # **kwargs can be any additional parameters that requests.request accepts
 
         config = self.get_config()
@@ -279,7 +310,7 @@ class AzureDevopsConnector(BaseConnector):
 
         try:
             post_body_json = json.loads(param["post_body"], strict=False)
-        except:
+        except Exception:
             return action_result.set_status(phantom.APP_ERROR, "Failed to parse JSON")
 
         # make rest call
@@ -449,7 +480,7 @@ class AzureDevopsConnector(BaseConnector):
 
             return action_result.set_status(phantom.APP_ERROR, error_msg)
 
-        # Loop through the Vault infomation
+        # Loop through the Vault information
         for item in vault_info:
             vault_path = item.get('path')
             if vault_path is None:
@@ -521,7 +552,7 @@ class AzureDevopsConnector(BaseConnector):
 
         if action_id == 'add_comment':
             ret_val = self._handle_add_comment(param)
-        
+
         if action_id == 'add_attachment':
             ret_val = self._handle_add_attachment(param)
 
