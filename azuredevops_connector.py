@@ -159,7 +159,7 @@ class AzureDevopsConnector(BaseConnector):
 
         return error_text
 
-    def _make_rest_call(self, endpoint, action_result, method="get", **kwargs):
+    def _make_rest_call(self, endpoint, action_result, method="get", api_version=None, **kwargs):
         # **kwargs can be any additional parameters that requests.request accepts
 
         config = self.get_config()
@@ -492,7 +492,6 @@ class AzureDevopsConnector(BaseConnector):
             except Exception as e:
                 error_message = self._get_error_message_from_exception(e)
                 return action_result.set_status(phantom.APP_ERROR, "Unable to open vault file: {}".format(error_message))
-                
 
         headers = {
             "Content-Type": "application/octet-stream"
@@ -507,7 +506,7 @@ class AzureDevopsConnector(BaseConnector):
 
         # make rest call
         ret_val, response = self._make_rest_call(
-            '/_apis/wit/attachments', action_result, headers=headers, method="post", params=params, 
+            '/_apis/wit/attachments', action_result, headers=headers, method="post", params=params,
             data=vault_file, api_version=param["api_version"]
         )
 
