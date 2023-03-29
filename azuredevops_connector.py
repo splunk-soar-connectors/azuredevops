@@ -250,6 +250,7 @@ class AzureDevopsConnector(BaseConnector):
         if fields:
             params["fields"] = fields
 
+        self.save_progress("Fetching work item")
         # make rest call
         ret_val, response = self._make_rest_call(
             '/_apis/wit/workitems/{0:n}'.format(id), action_result, params=params, headers=None
@@ -313,6 +314,7 @@ class AzureDevopsConnector(BaseConnector):
         except Exception:
             return action_result.set_status(phantom.APP_ERROR, "Failed to parse JSON")
 
+        self.save_progress("Adding work item")
         # make rest call
         ret_val, response = self._make_rest_call(
             '/_apis/wit/workitems/${}'.format(work_item_type), action_result, params=params, headers=headers, method="post",
@@ -370,6 +372,7 @@ class AzureDevopsConnector(BaseConnector):
         else:
             endpoint = '/_apis/work/teamsettings/iterations'
 
+        self.save_progress("Fetching iterations")
         # make rest call
         ret_val, response = self._make_rest_call(
             endpoint, action_result, params=params, headers=None
@@ -425,6 +428,7 @@ class AzureDevopsConnector(BaseConnector):
         # Optional values should use the .get() function
         # optional_parameter = param.get('optional_parameter', 'default_value')
 
+        self.save_progress("Adding comment")
         # make rest call
         ret_val, response = self._make_rest_call(
             '/_apis/wit/workItems/{}/comments'.format(work_item_id), action_result, params=params, headers=headers, method="post",
