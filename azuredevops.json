@@ -23,41 +23,31 @@
             "description": "The name of the Azure DevOps organization",
             "data_type": "string",
             "required": true,
-            "order": 0,
-            "name": "organization",
-            "id": 0
+            "order": 0
         },
         "project": {
             "description": "Project ID or project name",
             "data_type": "string",
             "required": true,
-            "order": 1,
-            "name": "project",
-            "id": 1
+            "order": 1
         },
         "api version": {
             "description": "Version of the API to use",
             "data_type": "string",
             "required": true,
-            "order": 2,
-            "name": "api version",
-            "id": 2
+            "order": 2
         },
         "username": {
             "description": "User name for the access token",
             "data_type": "string",
             "required": true,
-            "order": 3,
-            "name": "username",
-            "id": 3
+            "order": 3
         },
         "access token": {
             "description": "Access token",
             "data_type": "password",
             "required": true,
-            "order": 4,
-            "name": "access token",
-            "id": 4
+            "order": 4
         }
     },
     "actions": [
@@ -82,10 +72,7 @@
                     "description": "The work item id",
                     "data_type": "numeric",
                     "required": true,
-                    "order": 0,
-                    "name": "id",
-                    "id": 1,
-                    "param_name": "id"
+                    "order": 0
                 },
                 "expand": {
                     "description": "The expand parameters for work item attributes (Possible options are { None, Relations, Fields, Links, All })",
@@ -99,26 +86,17 @@
                         "All"
                     ],
                     "default": "None",
-                    "order": 1,
-                    "name": "expand",
-                    "id": 2,
-                    "param_name": "expand"
+                    "order": 1
                 },
                 "asof": {
                     "description": "AsOf UTC date time string",
                     "data_type": "string",
-                    "order": 2,
-                    "name": "asof",
-                    "id": 3,
-                    "param_name": "asof"
+                    "order": 2
                 },
                 "fields": {
                     "description": "Comma-separated list of requested fields",
                     "data_type": "string",
-                    "order": 3,
-                    "name": "fields",
-                    "id": 4,
-                    "param_name": "fields"
+                    "order": 3
                 }
             },
             "output": [
@@ -199,10 +177,7 @@
                     "description": "The work item type of the work item to create",
                     "data_type": "string",
                     "required": true,
-                    "order": 0,
-                    "name": "work_item_type",
-                    "id": 1,
-                    "param_name": "work_item_type"
+                    "order": 0
                 },
                 "expand": {
                     "description": "The expand parameters for work item attributes (Possible options are { None, Relations, Fields, Links, All })",
@@ -215,43 +190,28 @@
                         "All"
                     ],
                     "default": "None",
-                    "order": 1,
-                    "name": "expand",
-                    "id": 2,
-                    "param_name": "expand"
+                    "order": 1
                 },
-                "bypassrules": {
+                "bypass_rules": {
                     "description": "Do not enforce the work item type rules on this update",
                     "data_type": "boolean",
-                    "order": 2,
-                    "name": "bypassrules",
-                    "id": 3,
-                    "param_name": "bypassrules"
+                    "order": 2
                 },
-                "suppressnotifications": {
+                "suppress_notifications": {
                     "description": "Do not fire any notifications for this change",
                     "data_type": "boolean",
-                    "order": 3,
-                    "name": "suppressnotifications",
-                    "id": 4,
-                    "param_name": "suppressnotifications"
+                    "order": 3
                 },
-                "validateonly": {
+                "validate_only": {
                     "description": "Indicate if you only want to validate the changes without saving the work item",
                     "data_type": "boolean",
-                    "order": 4,
-                    "name": "validateonly",
-                    "id": 5,
-                    "param_name": "validateonly"
+                    "order": 4
                 },
                 "post_body": {
                     "description": "Payload to be sent to be created",
                     "data_type": "string",
                     "required": true,
-                    "order": 5,
-                    "name": "post_body",
-                    "id": 6,
-                    "param_name": "post_body"
+                    "order": 5
                 }
             },
             "output": [
@@ -266,9 +226,9 @@
                     ]
                 },
                 {
-                    "data_path": "action_result.parameter.bypassrules",
+                    "data_path": "action_result.parameter.bypass_rules",
                     "data_type": "boolean",
-                    "column_name": "Bypassrules",
+                    "column_name": "Bypass Rules",
                     "column_order": 2,
                     "example_values": [
                         true,
@@ -288,9 +248,9 @@
                     "column_order": 5
                 },
                 {
-                    "data_path": "action_result.parameter.suppressnotifications",
+                    "data_path": "action_result.parameter.suppress_notifications",
                     "data_type": "boolean",
-                    "column_name": "Suppressnotifications",
+                    "column_name": "Suppress Notifications",
                     "column_order": 3,
                     "example_values": [
                         true,
@@ -298,9 +258,9 @@
                     ]
                 },
                 {
-                    "data_path": "action_result.parameter.validateonly",
+                    "data_path": "action_result.parameter.validate_only",
                     "data_type": "boolean",
-                    "column_name": "Validateonly",
+                    "column_name": "Validate Only",
                     "column_order": 4,
                     "example_values": [
                         true,
@@ -355,14 +315,12 @@
                 "team": {
                     "description": "Team ID or team name",
                     "data_type": "string",
-                    "order": 0,
-                    "name": "team"
+                    "order": 0
                 },
                 "timeframe": {
                     "description": "A filter for which iterations are returned based on relative time (Only Current is supported currently)",
                     "data_type": "string",
-                    "order": 1,
-                    "name": "timeframe"
+                    "order": 1
                 }
             },
             "output": [
@@ -431,15 +389,13 @@
                     "description": "Id of a work item",
                     "data_type": "string",
                     "required": true,
-                    "order": 0,
-                    "name": "work_item_id"
+                    "order": 0
                 },
                 "comment": {
                     "description": "The text of the comment",
                     "data_type": "string",
                     "required": true,
-                    "order": 1,
-                    "name": "comment"
+                    "order": 1
                 }
             },
             "output": [
@@ -620,7 +576,7 @@
             },
             {
                 "module": "urllib3",
-                "input_file": "wheels/shared/urllib3-1.26.14-py2.py3-none-any.whl"
+                "input_file": "wheels/shared/urllib3-1.26.15-py2.py3-none-any.whl"
             }
         ]
     },
@@ -652,7 +608,7 @@
             },
             {
                 "module": "urllib3",
-                "input_file": "wheels/shared/urllib3-1.26.14-py2.py3-none-any.whl"
+                "input_file": "wheels/shared/urllib3-1.26.15-py2.py3-none-any.whl"
             }
         ]
     }

@@ -292,17 +292,17 @@ class AzureDevopsConnector(BaseConnector):
 
         # Optional values should use the .get() function
         expand = param.get('expand', '')
-        bypassrules = param.get('bypassrules', '')
-        suppressnotifications = param.get('suppressnotifications', '')
-        validateonly = param.get('validateonly', '')
+        bypass_rules = param.get('bypass_rules', '')
+        suppress_notifications = param.get('suppress_notifications', '')
+        validate_only = param.get('validate_only', '')
 
         params = {"$expand": expand}
-        if bypassrules:
-            params["bypassrules"] = bypassrules
-        if suppressnotifications:
-            params["suppressnotifications"] = suppressnotifications
-        if validateonly:
-            params["validateonly"] = validateonly
+        if bypass_rules:
+            params["bypass_rules"] = bypass_rules
+        if suppress_notifications:
+            params["suppress_notifications"] = suppress_notifications
+        if validate_only:
+            params["validate_only"] = validate_only
 
         headers = {
             "Content-Type": "application/json-patch+json"
