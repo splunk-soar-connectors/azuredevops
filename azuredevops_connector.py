@@ -1,6 +1,6 @@
 # File: azuredevops_connector.py
 #
-# Copyright (c) 2022 Splunk Inc.
+# Copyright (c) 2023 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,10 +18,14 @@ import json
 import sys
 
 import phantom.app as phantom
+import phantom.rules as phantom_rules
 import requests
 from bs4 import BeautifulSoup
 from phantom.action_result import ActionResult
 from phantom.base_connector import BaseConnector
+
+# Constants imports
+from azuredevops_consts import *
 
 
 class RetVal(tuple):
@@ -64,7 +68,7 @@ class AzureDevopsConnector(BaseConnector):
             split_lines = error_text.split('\n')
             split_lines = [x.strip() for x in split_lines if x.strip()]
             error_text = '\n'.join(split_lines)
-        except:
+        except Exception:
             error_text = "Cannot parse error details"
 
         message = "Status Code: {0}. Data from server:\n{1}\n".format(status_code, error_text)
@@ -127,7 +131,35 @@ class AzureDevopsConnector(BaseConnector):
 
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
 
-    def _make_rest_call(self, endpoint, action_result, method="get", **kwargs):
+    def _get_error_message_from_exception(self, e):
+        """ This method is used to get appropriate error message from the exception.
+        :param e: Exception object
+        :return: error message
+        """
+
+        error_code = None
+        error_message = AZUREDEVOPS_ERROR_MESSAGE_UNAVAILABLE
+
+        self.error_print("Error occurred.", e)
+
+        try:
+            if hasattr(e, "args"):
+                if len(e.args) > 1:
+                    error_code = e.args[0]
+                    error_message = e.args[1]
+                elif len(e.args) == 1:
+                    error_message = e.args[0]
+        except Exception as e:
+            self.error_print("Error occurred while fetching exception information. Details: {}".format(str(e)))
+
+        if not error_code:
+            error_text = "Error Message: {}".format(error_message)
+        else:
+            error_text = "Error Code: {}. Error Message: {}".format(error_code, error_message)
+
+        return error_text
+
+    def _make_rest_call(self, endpoint, action_result, method="get", api_version=None, **kwargs):
         # **kwargs can be any additional parameters that requests.request accepts
 
         config = self.get_config()
@@ -144,12 +176,8 @@ class AzureDevopsConnector(BaseConnector):
 
         # Create a URL to connect to
         url = self._base_url + endpoint
-        self.debug_print(url)
-        if "params" in kwargs:
-            if "api-version" in kwargs["params"]:
-                pass
-            else:
-                kwargs["params"]["api-version"] = config["api version"]
+        if api_version:
+            kwargs["params"] = {"api-version": api_version}
         else:
             kwargs["params"] = {"api-version": config["api version"]}
 
@@ -181,7 +209,7 @@ class AzureDevopsConnector(BaseConnector):
         self.save_progress("Connecting to endpoint")
         # make rest call
         ret_val, response = self._make_rest_call(
-            '/endpoint', action_result, params=None, headers=None
+            '/_apis/wit/workitemtypecategories', action_result, params=None, headers=None
         )
 
         if phantom.is_fail(ret_val):
@@ -191,11 +219,12 @@ class AzureDevopsConnector(BaseConnector):
             # return action_result.get_status()
 
         # Return success
-        # self.save_progress("Test Connectivity Passed")
-        # return action_result.set_status(phantom.APP_SUCCESS)
+        if response:
+            self.save_progress("Test Connectivity Passed")
+            return action_result.set_status(phantom.APP_SUCCESS)
 
         # For now return Error with a message, in case of success we don't set the message, but use the summary
-        return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
+        # return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
 
     def _handle_get_work_item(self, param):
         # Implement the handler here
@@ -221,6 +250,7 @@ class AzureDevopsConnector(BaseConnector):
         if fields:
             params["fields"] = fields
 
+        self.save_progress("Fetching work item")
         # make rest call
         ret_val, response = self._make_rest_call(
             '/_apis/wit/workitems/{0:n}'.format(id), action_result, params=params, headers=None
@@ -263,17 +293,17 @@ class AzureDevopsConnector(BaseConnector):
 
         # Optional values should use the .get() function
         expand = param.get('expand', '')
-        bypassrules = param.get('bypassrules', '')
-        suppressnotifications = param.get('suppressnotifications', '')
-        validateonly = param.get('validateonly', '')
+        bypass_rules = param.get('bypass_rules', '')
+        suppress_notifications = param.get('suppress_notifications', '')
+        validate_only = param.get('validate_only', '')
 
         params = {"$expand": expand}
-        if bypassrules:
-            params["bypassrules"] = bypassrules
-        if suppressnotifications:
-            params["suppressnotifications"] = suppressnotifications
-        if validateonly:
-            params["validateonly"] = validateonly
+        if bypass_rules:
+            params["bypass_rules"] = bypass_rules
+        if suppress_notifications:
+            params["suppress_notifications"] = suppress_notifications
+        if validate_only:
+            params["validate_only"] = validate_only
 
         headers = {
             "Content-Type": "application/json-patch+json"
@@ -281,9 +311,10 @@ class AzureDevopsConnector(BaseConnector):
 
         try:
             post_body_json = json.loads(param["post_body"], strict=False)
-        except:
+        except Exception:
             return action_result.set_status(phantom.APP_ERROR, "Failed to parse JSON")
 
+        self.save_progress("Adding work item")
         # make rest call
         ret_val, response = self._make_rest_call(
             '/_apis/wit/workitems/${}'.format(work_item_type), action_result, params=params, headers=headers, method="post",
@@ -341,6 +372,7 @@ class AzureDevopsConnector(BaseConnector):
         else:
             endpoint = '/_apis/work/teamsettings/iterations'
 
+        self.save_progress("Fetching iterations")
         # make rest call
         ret_val, response = self._make_rest_call(
             endpoint, action_result, params=params, headers=None
@@ -396,10 +428,90 @@ class AzureDevopsConnector(BaseConnector):
         # Optional values should use the .get() function
         # optional_parameter = param.get('optional_parameter', 'default_value')
 
+        self.save_progress("Adding comment")
         # make rest call
         ret_val, response = self._make_rest_call(
             '/_apis/wit/workItems/{}/comments'.format(work_item_id), action_result, params=params, headers=headers, method="post",
             data=json.dumps(post_body)
+        )
+
+        if phantom.is_fail(ret_val):
+            # the call to the 3rd party device or service failed, action result should contain all the error details
+            # for now the return is commented out, but after implementation, return from here
+            return action_result.get_status()
+            # pass
+
+        # Now post process the data,  uncomment code as you deem fit
+
+        # Add the response into the data section
+        action_result.add_data(response)
+
+        # Add a dictionary that is made up of the most important values from data into the summary
+        # summary = action_result.update_summary({})
+        # summary['num_data'] = len(action_result['data'])
+
+        # Return success, no need to set the message, only the status
+        # BaseConnector will create a textual message based off of the summary dictionary
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+        # For now return Error with a message, in case of success we don't set the message, but use the summary
+        # return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
+
+    def _handle_add_attachment(self, param):
+        # Implement the handler here
+        # use self.save_progress(...) to send progress messages back to the platform
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        # Access action parameters passed in the 'param' dictionary
+
+        # Required values can be accessed directly
+        vault_id = param['vault_id']
+        filename = param['filename']
+
+        try:
+            success, msg, vault_info = phantom_rules.vault_info(vault_id=vault_id)
+        except Exception:
+            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching the vault information of the specified Vault ID")
+
+        if not vault_info:
+            try:
+                error_msg = "Error occurred while fetching the vault information of the Vault ID: {}".format(vault_id)
+            except Exception:
+                error_msg = "Error occurred while fetching the vault information of the specified Vault ID"
+
+            return action_result.set_status(phantom.APP_ERROR, error_msg)
+
+        # Loop through the Vault information
+        for item in vault_info:
+            vault_path = item.get('path')
+            if vault_path is None:
+                return action_result.set_status(phantom.APP_ERROR, "Could not find a path associated with the provided Vault ID")
+            try:
+                # Open the file
+                vault_file = open(vault_path, 'rb')
+                # Create the files data to send to the console
+            except Exception as e:
+                error_message = self._get_error_message_from_exception(e)
+                return action_result.set_status(phantom.APP_ERROR, "Unable to open vault file: {}".format(error_message))
+
+        headers = {
+            "Content-Type": "application/octet-stream"
+        }
+
+        params = {
+            "fileName": filename
+        }
+
+        # Optional values should use the .get() function
+        # optional_parameter = param.get('optional_parameter', 'default_value')
+
+        # make rest call
+        ret_val, response = self._make_rest_call(
+            '/_apis/wit/attachments', action_result, headers=headers, method="post", params=params,
+            data=vault_file, api_version=param["api_version"]
         )
 
         if phantom.is_fail(ret_val):
@@ -443,6 +555,9 @@ class AzureDevopsConnector(BaseConnector):
 
         if action_id == 'add_comment':
             ret_val = self._handle_add_comment(param)
+
+        if action_id == 'add_attachment':
+            ret_val = self._handle_add_attachment(param)
 
         if action_id == 'test_connectivity':
             ret_val = self._handle_test_connectivity(param)
