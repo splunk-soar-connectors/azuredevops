@@ -544,12 +544,14 @@ class AzureDevopsConnector(BaseConnector):
             params=urlparse.urlencode(params),
             data=data,
             json=json,
+            **kwargs
         )
 
         msg = action_result.get_message()
         if msg and any(
             failure_message in msg for failure_message in consts.AUTH_FAILURE_MESSAGES
         ):
+            self.debug_print("$$$$$$$$$$$$$$$$$$")
             self.save_progress("bad token")
 
             ret_val, resp_json = self.retry(
@@ -557,6 +559,7 @@ class AzureDevopsConnector(BaseConnector):
             )
 
         if phantom.is_fail(ret_val):
+            self.debug_print("$$$$$$$$$$$$$$$$$$ is fail")
             return action_result.get_status(), None
 
         return phantom.APP_SUCCESS, resp_json
@@ -614,7 +617,7 @@ class AzureDevopsConnector(BaseConnector):
             if not base_url:
                 return RetVal(
                     action_result.set_status(
-                        phantom.APP_ERROR, "Invalid action_id: {}".format(action_id)
+                        phantom.APP_ERROR, "–on_id: {}".format(action_id)
                     ),
                     None,
                 )
@@ -751,7 +754,7 @@ class AzureDevopsConnector(BaseConnector):
             self.save_progress("Connecting to endpoint")
             # make rest call
             ret_val, response = self._make_rest_call(
-               consts.ITERATIONS, action_result, params=None, headers=None
+                consts.ITERATIONS, action_result, params=None, headers=None
             )
 
             if phantom.is_fail(ret_val):
@@ -1128,7 +1131,7 @@ class AzureDevopsConnector(BaseConnector):
         # summary = action_result.update_summary({})
         # summary["status"] = "User deleted successfully"
 
-        return action_result.set_status(phantom.APP_SUCCESS, "User deleted successfully")
+        return action_result.set_status(phantom.APP_SUCCESS, "User has been deleted successfully")
 
     def _handle_add_user(self, param: dict):
 
@@ -1137,19 +1140,33 @@ class AzureDevopsConnector(BaseConnector):
         )
 
         action_result = self.add_action_result(ActionResult(dict(param)))
+        ret_val, response = self._make_rest_call_helper(
+            consts.GET_PROJECT_LIST_URL.format(organization=self._organization),
+            action_result,
+            method="get",
+            skip_base_url=True
+        )
+        self.debug_print(locals())
+        if phantom.is_fail(ret_val):
+            self.debug_print(locals())
+            return action_result.get_status()
 
         user_email = param["user_email"]
         account_license_type = param["account_license_type"]
         group_type = param["group_type"]
         project_name = param["project_name"]
 
+        for project in response["value"]:
+            if project_name == project["name"]:
+                project_id = project["id"]
+
         data = {
             "accessLevel": {"accountLicenseType": account_license_type},
             "user": {"principalName": user_email, "subjectKind": "user"},
-            "projectEntitlement": {
+            "projectEntitlements": [{
                 "group": {"groupType": group_type},
-                "projectRef": {"name": project_name},
-            },
+                "projectRef": {"id": project_id},
+            }],
         }
 
         # make the rest call
@@ -1159,7 +1176,7 @@ class AzureDevopsConnector(BaseConnector):
             data=json.dumps(data),
             method="post",
         )
-
+        self.debug_print(locals())
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
@@ -1171,7 +1188,7 @@ class AzureDevopsConnector(BaseConnector):
         # summary = action_result.update_summary({})
         # summary["status"] = "User with given data added successfully"
 
-        self.debug_print("User with given data added successfully")
+        self.debug_print("User has been added successfully")
 
         return action_result.set_status(phantom.APP_SUCCESS, "User with given data added successfully")
 
