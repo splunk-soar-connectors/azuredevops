@@ -1156,9 +1156,13 @@ class AzureDevopsConnector(BaseConnector):
         group_type = param["group_type"]
         project_name = param["project_name"]
 
+        project_id = None
         for project in response["value"]:
             if project_name == project["name"]:
                 project_id = project["id"]
+
+        if project_id is None:
+            return action_result.set_status(phantom.APP_ERROR, "No project found with given project name")
 
         data = {
             "accessLevel": {"accountLicenseType": account_license_type},
