@@ -24,6 +24,7 @@ import urllib.parse as urlparse
 
 import encryption_helper
 import phantom.app as phantom
+import phantom.rules as phantom_rules
 import requests
 from bs4 import BeautifulSoup
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseRedirect
@@ -134,7 +135,7 @@ def _handle_login_redirect(request, key):
 
     asset_id = request.GET.get("asset_id")
     if not asset_id:
-        return HttpResponseBadRequest(
+        return HttpResponseBadRequest(  # nosemgrep
             "ERROR: Asset ID not found in URL, {}".format(request.GET),
             content_type=consts.TEXT_PLAIN,
         )
@@ -164,7 +165,7 @@ def _handle_login_response(request):
 
     asset_id = request.GET.get("state")
     if not asset_id:
-        return HttpResponseBadRequest(
+        return HttpResponseBadRequest(  # nosemgrep
             "ERROR: Asset ID not found in URL, {}".format(request.GET),
             content_type=consts.TEXT_PLAIN,
         )
@@ -204,7 +205,7 @@ def _handle_login_response(request):
 
     _save_app_state(state, asset_id, None)
 
-    return HttpResponse(
+    return HttpResponse(  # nosemgrep
         "Code received. Please close this window, the action will continue to get new token.",
         content_type=consts.TEXT_PLAIN,
     )
@@ -238,7 +239,7 @@ def _handle_rest_request(request, path_parts):
     if call_type == "result":
         return_val = _handle_login_response(request)
 
-        asset_id = request.GET.get("state")
+        asset_id = request.GET.get("state")  # nosemgrep
         if asset_id and asset_id.isalnum():
             app_dir = os.path.dirname(os.path.abspath(__file__))
             auth_status_file_path = "{0}/{1}_{2}".format(
@@ -297,9 +298,6 @@ class AzureDevopsConnector(BaseConnector):
         :param encrypt_var: Variable needs to be encrypted
         :return: encrypted variable
         """
-        self.debug_print(
-            consts.AZURE_DEVOPS_ENCRYPT_TOKEN.format(token_name)
-        )  # nosemgrep
         return encryption_helper.encrypt(encrypt_var, self._asset_id)
 
     def decrypt_state(self, decrypt_var, token_name):
@@ -307,9 +305,6 @@ class AzureDevopsConnector(BaseConnector):
         :param decrypt_var: Variable needs to be decrypted
         :return: decrypted variable
         """
-        self.debug_print(
-            consts.AZURE_DEVOPS_DECRYPT_TOKEN.format(token_name)
-        )  # nosemgrep
         if self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED):
             return encryption_helper.decrypt(decrypt_var, self._asset_id)
         else:
@@ -336,8 +331,8 @@ class AzureDevopsConnector(BaseConnector):
             error_text = soup.text
             split_lines = error_text.split("\n")
             split_lines = [x.strip() for x in split_lines if x.strip()]
-            error_text = "\n".join(split_lines)
-        except:
+            error_text = '\n'.join(split_lines)
+        except Exception:
             error_text = "Cannot parse error details"
 
         message = "Status Code: {0}. Data from server:\n{1}\n".format(
@@ -408,7 +403,6 @@ class AzureDevopsConnector(BaseConnector):
         :param action_result: Object of action result
         :return: status(phantom.APP_SUCCESS/phantom.APP_ERROR)
         """
-
         app_state = _load_app_state(self.get_asset_id(), self)
 
         data = {
@@ -471,9 +465,6 @@ class AzureDevopsConnector(BaseConnector):
         """
         self._access_token = resp_json[consts.AZURE_DEVOPS_ACCESS_TOKEN_STRING]
         self._refresh_token = resp_json[consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING]
-
-        self._state[consts.AZURE_DEVOPS_ACCESS_TOKEN_STRING] = self._access_token
-        self._state[consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING] = self._refresh_token
         self._state[consts.AZURE_DEVOPS_TOKEN_STRING] = resp_json
 
         self.save_state(self._state)
@@ -517,7 +508,8 @@ class AzureDevopsConnector(BaseConnector):
 
         if not self._password:
             token = self._state.get("token", {})
-            if not token.get("access_token"):
+            # if not token.get("access_token"):
+            if "access_token" not in token:
                 ret_val = self._get_token(action_result)
 
                 if phantom.is_fail(ret_val):
@@ -544,22 +536,16 @@ class AzureDevopsConnector(BaseConnector):
             params=urlparse.urlencode(params),
             data=data,
             json=json,
-            **kwargs
         )
 
-        msg = action_result.get_message()
-        if msg and any(
-            failure_message in msg for failure_message in consts.AUTH_FAILURE_MESSAGES
-        ):
-            self.debug_print("$$$$$$$$$$$$$$$$$$")
+        if "203" in action_result.get_message():
             self.save_progress("bad token")
-
+            self._get_token(action_result=action_result)
             ret_val, resp_json = self.retry(
                 endpoint, action_result, verify, data, json, method, params
             )
 
         if phantom.is_fail(ret_val):
-            self.debug_print("$$$$$$$$$$$$$$$$$$ is fail")
             return action_result.get_status(), None
 
         return phantom.APP_SUCCESS, resp_json
@@ -595,7 +581,8 @@ class AzureDevopsConnector(BaseConnector):
 
         return ret_val, resp_json
 
-    def _make_rest_call(self, endpoint, action_result, method="get", **kwargs):
+    def _make_rest_call(self, endpoint, action_result, method="get", api_version=None, **kwargs):
+        # **kwargs can be any additional parameters that requests.request accepts
 
         skip_base_url = kwargs.pop("skip_base_url", False)
         action_id = self.get_action_identifier()
@@ -610,6 +597,7 @@ class AzureDevopsConnector(BaseConnector):
                 None,
             )
 
+        # Create a URL to connect to
         if skip_base_url:
             url = endpoint
         else:
@@ -622,6 +610,10 @@ class AzureDevopsConnector(BaseConnector):
                     None,
                 )
             url = f"{base_url}{endpoint}"
+        if api_version:
+            kwargs["params"] = {"api-version": api_version}
+        # else:
+        #     kwargs["params"] = {"api-version": self._api_version}
 
         # TODO: check authentication method, Basic or Oauth
         try:
@@ -634,7 +626,6 @@ class AzureDevopsConnector(BaseConnector):
             else:
                 r = request_func(
                     url,
-                    # auth=(self._username, self._password),  # basic authentication
                     **kwargs,
                 )
         except Exception as e:
@@ -645,7 +636,6 @@ class AzureDevopsConnector(BaseConnector):
                 ),
                 None,
             )
-
         return self._process_response(r, action_result)
 
     def _get_asset_name(self, action_result):
@@ -864,10 +854,8 @@ class AzureDevopsConnector(BaseConnector):
 
     def check_authorization(self, auth_status_file_path):
         """method that check for auth file creation
-
         Args:
             auth_status_file_path (str): auth file path string
-
         Returns:
             bool: True if file is found, else False
         """
@@ -1008,9 +996,8 @@ class AzureDevopsConnector(BaseConnector):
 
         summary = action_result.update_summary({})
         summary["total_iterations"] = action_result.get_data()[0]["count"]
-        # summary["status"] = "Data retrieved successfully"
 
-        self.debug_print("Data retrieved successfully",)
+        self.debug_print("Data retrieved successfully")
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -1030,6 +1017,7 @@ class AzureDevopsConnector(BaseConnector):
             "api-version": "7.1-preview.3"
         }
 
+        self.save_progress("Adding comment")
         # make rest call
         ret_val, response = self._make_rest_call_helper(
             consts.COMMENTS.format(work_item_id),
@@ -1103,7 +1091,6 @@ class AzureDevopsConnector(BaseConnector):
 
         summary = action_result.update_summary({})
         summary["total_users"] = len(action_result.get_data()[0]["items"])
-        # summary["status"] = "Data retrieved successfully"
 
         self.debug_print("Data retrieved successfully")
 
@@ -1128,9 +1115,6 @@ class AzureDevopsConnector(BaseConnector):
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
-        # summary = action_result.update_summary({})
-        # summary["status"] = "User deleted successfully"
-
         return action_result.set_status(phantom.APP_SUCCESS, "User has been deleted successfully")
 
     def _handle_add_user(self, param: dict):
@@ -1140,15 +1124,15 @@ class AzureDevopsConnector(BaseConnector):
         )
 
         action_result = self.add_action_result(ActionResult(dict(param)))
-        ret_val, response = self._make_rest_call_helper(
+        headers = self._get_request_headers()
+        ret_val, response = self._make_rest_call(
             consts.GET_PROJECT_LIST_URL.format(organization=self._organization),
             action_result,
             method="get",
-            skip_base_url=True
+            skip_base_url=True,
+            headers=headers
         )
-        self.debug_print(locals())
         if phantom.is_fail(ret_val):
-            self.debug_print(locals())
             return action_result.get_status()
 
         user_email = param["user_email"]
@@ -1180,7 +1164,6 @@ class AzureDevopsConnector(BaseConnector):
             data=json.dumps(data),
             method="post",
         )
-        self.debug_print(locals())
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
@@ -1188,9 +1171,6 @@ class AzureDevopsConnector(BaseConnector):
             return action_result.set_status(phantom.APP_ERROR, "data is invalid")
 
         action_result.add_data(response)
-
-        # summary = action_result.update_summary({})
-        # summary["status"] = "User with given data added successfully"
 
         self.debug_print("User has been added successfully")
 
@@ -1245,9 +1225,89 @@ class AzureDevopsConnector(BaseConnector):
             "list_iterations": self._base_url,
             "add_comment": self._base_url,
             "test_connectivity": self._base_url,
+            "add_attachment": self._base_url
         }
 
         return action_to_url_mapping_dict.get(action_id, None)
+
+    def _handle_add_attachment(self, param):
+        # Implement the handler here
+        # use self.save_progress(...) to send progress messages back to the platform
+        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        # Access action parameters passed in the 'param' dictionary
+
+        # Required values can be accessed directly
+        vault_id = param['vault_id']
+        filename = param['filename']
+
+        try:
+            success, msg, vault_info = phantom_rules.vault_info(vault_id=vault_id)
+        except Exception:
+            return action_result.set_status(phantom.APP_ERROR, "Error occurred while fetching the vault information of the specified Vault ID")
+
+        if not vault_info:
+            try:
+                error_msg = "Error occurred while fetching the vault information of the Vault ID: {}".format(vault_id)
+            except Exception:
+                error_msg = "Error occurred while fetching the vault information of the specified Vault ID"
+
+            return action_result.set_status(phantom.APP_ERROR, error_msg)
+
+        # Loop through the Vault information
+        for item in vault_info:
+            vault_path = item.get('path')
+            if vault_path is None:
+                return action_result.set_status(phantom.APP_ERROR, "Could not find a path associated with the provided Vault ID")
+            try:
+                # Open the file
+                vault_file = open(vault_path, 'r').read()
+                # Create the files data to send to the console
+            except Exception as e:
+                error_message = self._get_error_message_from_exception(e)
+                return action_result.set_status(phantom.APP_ERROR, "Unable to open vault file: {}".format(error_message))
+
+        headers = self._get_request_headers()
+        headers.update(headers)
+        headers["Content-Type"] = "application/octet-stream"
+
+        params = {
+            "fileName": filename
+        }
+
+        # Optional values should use the .get() function
+        # optional_parameter = param.get('optional_parameter', 'default_value')
+
+        # make rest call
+        ret_val, response = self._make_rest_call(
+            '/_apis/wit/attachments', action_result, headers=headers, method="post", params=params,
+            data=vault_file, api_version=param["api_version"]
+        )
+
+        if phantom.is_fail(ret_val):
+            # the call to the 3rd party device or service failed, action result should contain all the error details
+            # for now the return is commented out, but after implementation, return from here
+            return action_result.get_status()
+            # pass
+
+        # Now post process the data,  uncomment code as you deem fit
+
+        # Add the response into the data section
+        action_result.add_data(response)
+
+        # Add a dictionary that is made up of the most important values from data into the summary
+        # summary = action_result.update_summary({})
+        # summary['num_data'] = len(action_result['data'])
+
+        # Return success, no need to set the message, only the status
+        # BaseConnector will create a textual message based off of the summary dictionary
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+        # For now return Error with a message, in case of success we don't set the message, but use the summary
+        # return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
 
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
@@ -1278,7 +1338,10 @@ class AzureDevopsConnector(BaseConnector):
         if action_id == "add_user":
             ret_val = self._handle_add_user(param)
 
-        if action_id == "test_connectivity":
+        if action_id == 'add_attachment':
+            ret_val = self._handle_add_attachment(param)
+
+        if action_id == 'test_connectivity':
             ret_val = self._handle_test_connectivity(param)
 
         return ret_val

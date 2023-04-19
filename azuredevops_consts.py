@@ -52,13 +52,6 @@ AZURE_DEVOPS_TOKEN_STRING = "token"
 AZURE_DEVOPS_ACCESS_TOKEN_STRING = "access_token"
 AZURE_DEVOPS_REFRESH_TOKEN_STRING = "refresh_token"
 
-AUTH_FAILURE_MESSAGES = (
-    "token is invalid",
-    "token has expired",
-    "ExpiredAuthenticationToken",
-    "AuthenticationFailed",
-)
-
 JWT_BEARER_TOKEN = "urn:ietf:params:oauth:grant-type:jwt-bearer"
 
 CLIENT_ASSERTION = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
@@ -66,7 +59,6 @@ CLIENT_ASSERTION = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
 TEXT_PLAIN = "text/plain"
 APPLICATION_JSON = "application/json"
 FORM_URLENCODED = "application/x-www-form-urlencoded"
-DEFAULT = "*/*"
 
 ITERATIONS = "/_apis/work/teamsettings/iterations"
 ITERATIONS_TEAM = "/{team}/_apis/work/teamsettings/iterations"
@@ -79,3 +71,5 @@ USER_ENTITLEMENT_URL = "https://vsaex.dev.azure.com/{organization}"
 TOKEN_URL = "https://app.vssps.visualstudio.com/oauth2/token"
 AUTHORIZATION_URL = "https://app.vssps.visualstudio.com/oauth2/authorize"
 GET_PROJECT_LIST_URL = "https://dev.azure.com/{organization}/_apis/projects"
+# Consts for error messages
+AZUREDEVOPS_ERROR_MESSAGE_UNAVAILABLE = "Error message unavailable. Please check the asset configuration and|or the action parameters."

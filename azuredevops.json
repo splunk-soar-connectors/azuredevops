@@ -13,12 +13,12 @@
     "license": "Copyright (c) 2022-2023 Splunk Inc.",
     "app_version": "2.0.0",
     "latest_tested_versions": [
-        "Cloud, API api.crowdstrike.com, January 20 2023, API versions: v1, v2"
+        "Cloud, API api.crowdstrike.com, April 18 2023, API versions: v1, v2"
     ],
     "utctime_updated": "2022-10-17T09:45:50.000000Z",
     "package_name": "phantom_azuredevops",
     "main_module": "azuredevops_connector.py",
-    "min_phantom_version": "5.4.0",
+    "min_phantom_version": "5.5.0",
     "app_wizard_version": "1.0.0",
     "fips_compliant": false,
     "rest_handler": "azuredevops_connector._handle_rest_request",
@@ -27,17 +27,13 @@
             "description": "The name of the Azure DevOps organization",
             "data_type": "string",
             "required": true,
-            "order": 0,
-            "name": "organization",
-            "id": 0
+            "order": 0
         },
         "project": {
             "description": "Project name",
             "data_type": "string",
             "required": true,
-            "order": 1,
-            "name": "project",
-            "id": 1
+            "order": 1
         },
         "api_version": {
             "description": "Version of the API to use",
@@ -59,9 +55,7 @@
             "description": "User name for the access token / password",
             "data_type": "string",
             "required": true,
-            "order": 3,
-            "name": "username",
-            "id": 3
+            "order": 3
         },
         "password": {
             "description": "Access token / password in case of Basic Auth",
@@ -120,26 +114,17 @@
                         "All"
                     ],
                     "default": "None",
-                    "order": 1,
-                    "name": "expand",
-                    "id": 2,
-                    "param_name": "expand"
+                    "order": 1
                 },
                 "asof": {
                     "description": "AsOf UTC date time string",
                     "data_type": "string",
-                    "order": 2,
-                    "name": "asof",
-                    "id": 3,
-                    "param_name": "asof"
+                    "order": 2
                 },
                 "fields": {
                     "description": "Comma-separated list of requested fields",
                     "data_type": "string",
-                    "order": 3,
-                    "name": "fields",
-                    "id": 4,
-                    "param_name": "fields"
+                    "order": 3
                 }
             },
             "output": [
@@ -263,7 +248,7 @@
                     "data_path": "action_result.data.*.fields.System.AreaPath",
                     "data_type": "string",
                     "example_values": [
-                        "Phantom_test"
+                        "test"
                     ]
                 },
                 {
@@ -305,7 +290,7 @@
                     "data_path": "action_result.data.*.fields.System.ChangedBy.uniqueName",
                     "data_type": "string",
                     "example_values": [
-                        "test@phantomengineering2.onmicrosoft.com"
+                        "test@test.com"
                     ]
                 },
                 {
@@ -368,7 +353,7 @@
                     "data_path": "action_result.data.*.fields.System.CreatedBy.uniqueName",
                     "data_type": "string",
                     "example_values": [
-                        "test@phantomengineering2.onmicrosoft.com"
+                        "test@test.com"
                     ]
                 },
                 {
@@ -396,14 +381,14 @@
                     "data_path": "action_result.data.*.fields.System.History",
                     "data_type": "string",
                     "example_values": [
-                        "testing phantom"
+                        "test"
                     ]
                 },
                 {
                     "data_path": "action_result.data.*.fields.System.IterationPath",
                     "data_type": "string",
                     "example_values": [
-                        "Phantom_test"
+                        "test"
                     ]
                 },
                 {
@@ -424,7 +409,7 @@
                     "data_path": "action_result.data.*.fields.System.TeamProject",
                     "data_type": "string",
                     "example_values": [
-                        "Phantom_test"
+                        "test"
                     ]
                 },
                 {
@@ -446,6 +431,35 @@
                     "data_type": "numeric",
                     "example_values": [
                         1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.relations.*.attributes.isLocked",
+                    "data_type": "boolean",
+                    "example_values": [
+                        true,
+                        false
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.relations.*.attributes.name",
+                    "data_type": "string",
+                    "example_values": [
+                        "Child"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.relations.*.rel",
+                    "data_type": "string",
+                    "example_values": [
+                        "System.LinkTypes.Hierarchy-Forward"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.relations.*.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/abc/c24261f4-hkufh-kfhgi-2fcc3da9/_apis/wit/workItems/59"
                     ]
                 },
                 {
@@ -511,10 +525,7 @@
                     "description": "The work item type of the work item to create",
                     "data_type": "string",
                     "required": true,
-                    "order": 0,
-                    "name": "work_item_type",
-                    "id": 1,
-                    "param_name": "work_item_type"
+                    "order": 0
                 },
                 "expand": {
                     "description": "The expand parameters for work item attributes (Possible options are { None, Relations, Fields, Links, All })",
@@ -527,43 +538,28 @@
                         "All"
                     ],
                     "default": "None",
-                    "order": 1,
-                    "name": "expand",
-                    "id": 2,
-                    "param_name": "expand"
+                    "order": 1
                 },
-                "bypassrules": {
+                "bypass_rules": {
                     "description": "Do not enforce the work item type rules on this update",
                     "data_type": "boolean",
-                    "order": 2,
-                    "name": "bypassrules",
-                    "id": 3,
-                    "param_name": "bypassrules"
+                    "order": 2
                 },
-                "suppressnotifications": {
+                "suppress_notifications": {
                     "description": "Do not fire any notifications for this change",
                     "data_type": "boolean",
-                    "order": 3,
-                    "name": "suppressnotifications",
-                    "id": 4,
-                    "param_name": "suppressnotifications"
+                    "order": 3
                 },
-                "validateonly": {
+                "validate_only": {
                     "description": "Indicate if you only want to validate the changes without saving the work item",
                     "data_type": "boolean",
-                    "order": 4,
-                    "name": "validateonly",
-                    "id": 5,
-                    "param_name": "validateonly"
+                    "order": 4
                 },
                 "post_body": {
                     "description": "Payload to be sent to be created",
                     "data_type": "string",
                     "required": true,
-                    "order": 5,
-                    "name": "post_body",
-                    "id": 6,
-                    "param_name": "post_body"
+                    "order": 5
                 }
             },
             "output": [
@@ -578,8 +574,10 @@
                     ]
                 },
                 {
-                    "data_path": "action_result.parameter.bypassrules",
+                    "data_path": "action_result.parameter.bypass_rules",
                     "data_type": "boolean",
+                    "column_name": "Bypass Rules",
+                    "column_order": 2,
                     "example_values": [
                         true,
                         false
@@ -594,16 +592,20 @@
                     "data_type": "string"
                 },
                 {
-                    "data_path": "action_result.parameter.suppressnotifications",
+                    "data_path": "action_result.parameter.suppress_notifications",
                     "data_type": "boolean",
+                    "column_name": "Suppress Notifications",
+                    "column_order": 3,
                     "example_values": [
                         true,
                         false
                     ]
                 },
                 {
-                    "data_path": "action_result.parameter.validateonly",
+                    "data_path": "action_result.parameter.validate_only",
                     "data_type": "boolean",
+                    "column_name": "Validate Only",
+                    "column_order": 4,
                     "example_values": [
                         true,
                         false
@@ -681,10 +683,80 @@
                     ]
                 },
                 {
+                    "data_path": "action_result.data.*.fields.System.AreaId",
+                    "data_type": "numeric",
+                    "example_values": [
+                        4
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.AreaLevel1",
+                    "data_type": "string",
+                    "example_values": [
+                        "test"
+                    ]
+                },
+                {
                     "data_path": "action_result.data.*.fields.System.AreaPath",
                     "data_type": "string",
                     "example_values": [
-                        "Phantom_test"
+                        "test"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.AuthorizedAs._links.avatar.href",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/herman0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.AuthorizedAs.descriptor",
+                    "data_type": "string",
+                    "example_values": [
+                        "aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.AuthorizedAs.displayName",
+                    "data_type": "string",
+                    "example_values": [
+                        "ABC XYZ"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.AuthorizedAs.id",
+                    "data_type": "string",
+                    "example_values": [
+                        "a4587438-ef08-6c3a-bb0e-9426cff36a72"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.AuthorizedAs.imageUrl",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/abc/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.AuthorizedAs.uniqueName",
+                    "data_type": "string",
+                    "example_values": [
+                        "test@test.com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.AuthorizedAs.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://spsprodsin2.vssps.visualstudio.com/A0ec3bd2d-0567-4fc0-bd83-8a95ff980ce7/_apis/Identities/a4587438-ef08-6c3a-bb0e-9426cff36a72"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.AuthorizedDate",
+                    "data_type": "string",
+                    "example_values": [
+                        "2023-04-14T12:33:31.437Z"
                     ]
                 },
                 {
@@ -726,7 +798,7 @@
                     "data_path": "action_result.data.*.fields.System.ChangedBy.uniqueName",
                     "data_type": "string",
                     "example_values": [
-                        "test@phantomengineering2.onmicrosoft.com"
+                        "test@test.com"
                     ]
                 },
                 {
@@ -786,7 +858,7 @@
                     "data_path": "action_result.data.*.fields.System.CreatedBy.uniqueName",
                     "data_type": "string",
                     "example_values": [
-                        "test@phantomengineering2.onmicrosoft.com"
+                        "test@test.comment"
                     ]
                 },
                 {
@@ -811,10 +883,45 @@
                     ]
                 },
                 {
+                    "data_path": "action_result.data.*.fields.System.Id",
+                    "data_type": "numeric",
+                    "example_values": [
+                        61
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.IterationId",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.IterationLevel1",
+                    "data_type": "string",
+                    "example_values": [
+                        "test"
+                    ]
+                },
+                {
                     "data_path": "action_result.data.*.fields.System.IterationPath",
                     "data_type": "string",
                     "example_values": [
-                        "Phantom_test"
+                        "test"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.NodeName",
+                    "data_type": "string",
+                    "example_values": [
+                        "test"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.PersonId",
+                    "data_type": "numeric",
+                    "example_values": [
+                        253932606
                     ]
                 },
                 {
@@ -822,6 +929,20 @@
                     "data_type": "string",
                     "example_values": [
                         "Added to backlog"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.Rev",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.RevisedDate",
+                    "data_type": "string",
+                    "example_values": [
+                        "9999-01-01T00:00:00Z"
                     ]
                 },
                 {
@@ -835,7 +956,7 @@
                     "data_path": "action_result.data.*.fields.System.TeamProject",
                     "data_type": "string",
                     "example_values": [
-                        "Phantom_test"
+                        "test"
                     ]
                 },
                 {
@@ -843,6 +964,13 @@
                     "data_type": "string",
                     "example_values": [
                         "This task title is created via REST API"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System.Watermark",
+                    "data_type": "numeric",
+                    "example_values": [
+                        119
                     ]
                 },
                 {
@@ -858,7 +986,7 @@
                     "example_values": [
                         9
                     ],
-                    "column_name": "work item id",
+                    "column_name": "Work Item ID",
                     "column_order": 0
                 },
                 {
@@ -920,14 +1048,12 @@
                 "team": {
                     "description": "Team ID or team name",
                     "data_type": "string",
-                    "order": 0,
-                    "name": "team"
+                    "order": 0
                 },
                 "timeframe": {
                     "description": "A filter for which iterations are returned based on relative time (Only Current is supported currently)",
                     "data_type": "string",
-                    "order": 1,
-                    "name": "timeframe"
+                    "order": 1
                 }
             },
             "output": [
@@ -979,7 +1105,7 @@
                     "example_values": [
                         "8f75ec99-73f5-401c-8c9d-7ac14e9de431"
                     ],
-                    "column_name": "id",
+                    "column_name": "ID",
                     "column_order": 0
                 },
                 {
@@ -988,16 +1114,16 @@
                     "example_values": [
                         "Sprint 1"
                     ],
-                    "column_name": "name",
+                    "column_name": "Name",
                     "column_order": 1
                 },
                 {
                     "data_path": "action_result.data.*.value.*.path",
                     "data_type": "string",
                     "example_values": [
-                        "Phantom_test\\Sprint 1"
+                        "Sprint 1"
                     ],
-                    "column_name": "path",
+                    "column_name": "Path",
                     "column_order": 2
                 },
                 {
@@ -1023,6 +1149,13 @@
                     "data_type": "string",
                     "example_values": [
                         "Data retrieved successfully"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary.total_iterations",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
                     ]
                 },
                 {
@@ -1060,15 +1193,13 @@
                     "description": "Id of a work item",
                     "data_type": "string",
                     "required": true,
-                    "order": 0,
-                    "name": "work_item_id"
+                    "order": 0
                 },
                 "comment": {
                     "description": "The text of the comment",
                     "data_type": "string",
                     "required": true,
-                    "order": 1,
-                    "name": "comment"
+                    "order": 1
                 }
             },
             "output": [
@@ -1137,7 +1268,7 @@
                     "data_path": "action_result.data.*.createdBy.uniqueName",
                     "data_type": "string",
                     "example_values": [
-                        "test@phantomengineering2.onmicrosoft.com"
+                        "test@test.com"
                     ]
                 },
                 {
@@ -1160,7 +1291,7 @@
                     "example_values": [
                         1985876
                     ],
-                    "column_name": "comment id",
+                    "column_name": "Comment ID",
                     "column_order": 2
                 },
                 {
@@ -1202,7 +1333,7 @@
                     "data_path": "action_result.data.*.modifiedBy.uniqueName",
                     "data_type": "string",
                     "example_values": [
-                        "test@phantomengineering2.onmicrosoft.com"
+                        "test@test.com"
                     ]
                 },
                 {
@@ -1223,7 +1354,7 @@
                     "data_path": "action_result.data.*.text",
                     "data_type": "string",
                     "example_values": [
-                        "testing phantom"
+                        "test"
                     ]
                 },
                 {
@@ -1290,14 +1421,14 @@
             "read_only": false,
             "parameters": {
                 "user_email": {
-                    "description": "The email address of the user to add to the organization.",
+                    "description": "The email address of the user to add to the organization",
                     "data_type": "string",
                     "required": true,
                     "order": 0,
                     "name": "user_email"
                 },
                 "account_license_type": {
-                    "description": "The type of account license. Possible values are: express, stakeholder, advanced, earlyAdopter, professional.",
+                    "description": "The type of account license. Possible values are: express, stakeholder, advanced, earlyAdopter, professional",
                     "data_type": "string",
                     "value_list": [
                         "express",
@@ -1312,7 +1443,7 @@
                     "name": "account_license_type"
                 },
                 "group_type": {
-                    "description": "The project group type. Possible values are: projectReader, projectContributor, projectAdministrator, projectStakeholder.",
+                    "description": "The project group type. Possible values are: projectReader, projectContributor, projectAdministrator, projectStakeholder",
                     "data_type": "string",
                     "value_list": [
                         "projectReader",
@@ -1326,7 +1457,7 @@
                     "name": "group_type"
                 },
                 "project_name": {
-                    "description": "The name of the project.",
+                    "description": "The name of the project",
                     "data_type": "string",
                     "required": true,
                     "order": 3,
@@ -1341,7 +1472,7 @@
                         "success",
                         "failed"
                     ],
-                    "column_name": "status",
+                    "column_name": "Status",
                     "column_order": 2
                 },
                 {
@@ -1509,7 +1640,7 @@
                     "example_values": [
                         "test@testazure.com"
                     ],
-                    "column_name": "display name",
+                    "column_name": "Display Name",
                     "column_order": 1
                 },
                 {
@@ -1555,7 +1686,7 @@
                     "data_path": "action_result.data.*.operationResult.result.user.url",
                     "data_type": "string",
                     "example_values": [
-                        "https://www.google.com"
+                        "https://www.abc.com"
                     ]
                 },
                 {
@@ -1564,7 +1695,7 @@
                     "example_values": [
                         "1556eb14-2da0-46cb-8425-e9a11dcee3ac"
                     ],
-                    "column_name": "user id",
+                    "column_name": "User ID",
                     "column_order": 0,
                     "contains": [
                         "userid"
@@ -2001,7 +2132,7 @@
                 {
                     "data_path": "action_result.data.*.items.*.user.displayName",
                     "data_type": "string",
-                    "column_name": "display name",
+                    "column_name": "Display Name",
                     "column_order": 2,
                     "example_values": [
                         "test7user@user.com"
@@ -2020,7 +2151,7 @@
                     "example_values": [
                         "test7user@user.com"
                     ],
-                    "column_name": "EMAIL",
+                    "column_name": "Email",
                     "column_order": 1
                 },
                 {
@@ -2281,16 +2412,116 @@
                 "type": "table"
             },
             "versions": "EQ(*)"
+        },
+        {
+            "action": "add attachment",
+            "identifier": "add_attachment",
+            "description": "Add an attachment to a project",
+            "type": "generic",
+            "read_only": false,
+            "parameters": {
+                "vault_id": {
+                    "description": "SOAR Vault ID of the attachment",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 0,
+                    "primary": true,
+                    "contains": [
+                        "vault id"
+                    ]
+                },
+                "api_version": {
+                    "description": "Version of the API to use (overwrites config)",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 1,
+                    "default": "7.1-preview.3"
+                },
+                "filename": {
+                    "description": "Name of the file to be uploaded",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 2
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.api_version",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.filename",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.vault_id",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.id",
+                    "data_type": "string",
+                    "example_values": [
+                        "b95793e6-9b27-4ea0-92ea-431b3e048395"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/herman0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/attachments/b95793e6-9b27-4ea0-92ea-431b3e048395"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.0.id",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.0.url",
+                    "data_type": "string",
+                    "column_name": "Attachment URL",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.summary",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
         }
     ],
-    "custom_made": true,
-    "directory": "azuredevops_35cb5076-08b1-4165-a433-e0544664ce95",
-    "version": 1,
-    "appname": "-",
-    "executable": "spawn3",
-    "disabled": false,
-    "copied_from_id": 222,
-    "copied_from_version": "5.0.0",
     "pip_dependencies": {
         "wheel": [
             {
@@ -2319,7 +2550,39 @@
             },
             {
                 "module": "urllib3",
-                "input_file": "wheels/shared/urllib3-1.26.14-py2.py3-none-any.whl"
+                "input_file": "wheels/shared/urllib3-1.26.15-py2.py3-none-any.whl"
+            }
+        ]
+    },
+    "pip39_dependencies": {
+        "wheel": [
+            {
+                "module": "beautifulsoup4",
+                "input_file": "wheels/py3/beautifulsoup4-4.9.1-py3-none-any.whl"
+            },
+            {
+                "module": "certifi",
+                "input_file": "wheels/py3/certifi-2022.12.7-py3-none-any.whl"
+            },
+            {
+                "module": "chardet",
+                "input_file": "wheels/shared/chardet-3.0.4-py2.py3-none-any.whl"
+            },
+            {
+                "module": "idna",
+                "input_file": "wheels/shared/idna-2.10-py2.py3-none-any.whl"
+            },
+            {
+                "module": "requests",
+                "input_file": "wheels/shared/requests-2.25.0-py2.py3-none-any.whl"
+            },
+            {
+                "module": "soupsieve",
+                "input_file": "wheels/py3/soupsieve-2.4.1-py3-none-any.whl"
+            },
+            {
+                "module": "urllib3",
+                "input_file": "wheels/shared/urllib3-1.26.15-py2.py3-none-any.whl"
             }
         ]
     }
