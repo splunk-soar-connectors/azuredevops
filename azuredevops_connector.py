@@ -518,7 +518,7 @@ class AzureDevopsConnector(BaseConnector):
         # NOTE: always call this method after _get_token() method
         headers = self._get_request_headers()
         params = {"api-version": self._api_version}
-
+        skip_base_url = kwargs.get("skip_base_url", False)
         # if headers are already present, add them to headers dict
         if kwargs.get("headers"):
             headers.update(**kwargs.get("headers"))
@@ -536,13 +536,26 @@ class AzureDevopsConnector(BaseConnector):
             params=urlparse.urlencode(params),
             data=data,
             json=json,
+            skip_base_url=skip_base_url
         )
 
         if "203" in action_result.get_message():
             self.save_progress("bad token")
             self._get_token(action_result=action_result)
-            ret_val, resp_json = self.retry(
-                endpoint, action_result, verify, data, json, method, params
+            # ret_val, resp_json = self.retry(
+            #     endpoint, action_result, verify, data, json, method, params
+            # )
+            headers.update({'Authorization': 'Bearer {0}'.format(self._access_token)})
+            ret_val, resp_json = self._make_rest_call(
+                endpoint,
+                action_result,
+                method,
+                verify=verify,
+                headers=headers,
+                params=urlparse.urlencode(params),
+                data=data,
+                json=json,
+                skip_base_url=skip_base_url
             )
 
         if phantom.is_fail(ret_val):
@@ -1124,13 +1137,12 @@ class AzureDevopsConnector(BaseConnector):
         )
 
         action_result = self.add_action_result(ActionResult(dict(param)))
-        headers = self._get_request_headers()
-        ret_val, response = self._make_rest_call(
+        ret_val, response = self._make_rest_call_helper(
             consts.GET_PROJECT_LIST_URL.format(organization=self._organization),
             action_result,
             method="get",
             skip_base_url=True,
-            headers=headers
+            # headers=headers
         )
         if phantom.is_fail(ret_val):
             return action_result.get_status()

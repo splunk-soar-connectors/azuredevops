@@ -1416,7 +1416,7 @@
         {
             "action": "add user",
             "identifier": "add_user",
-            "description": "Add a user",
+            "description": "Add a user to a project",
             "type": "generic",
             "read_only": false,
             "parameters": {
