@@ -624,7 +624,7 @@ class AzureDevopsConnector(BaseConnector):
                 )
             url = f"{base_url}{endpoint}"
         if api_version:
-            kwargs["params"] = {"api-version": api_version}
+            kwargs["params"].update({"api-version": api_version})
         # else:
         #     kwargs["params"] = {"api-version": self._api_version}
 
