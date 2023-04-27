@@ -1196,6 +1196,8 @@ class AzureDevopsConnector(BaseConnector):
         error_code = None
         error_message = consts.AZURE_DEVOPS_ERROR_MESSAGE_UNAVAILABLE
 
+        self.error_print("Error occurred: ", e)
+
         try:
             if hasattr(e, "args"):
                 if len(e.args) > 1:
@@ -1276,7 +1278,7 @@ class AzureDevopsConnector(BaseConnector):
                 return action_result.set_status(phantom.APP_ERROR, "Could not find a path associated with the provided Vault ID")
             try:
                 # Open the file
-                vault_file = open(vault_path, 'r').read()
+                vault_file = open(vault_path, 'rb').read()
                 # Create the files data to send to the console
             except Exception as e:
                 error_message = self._get_error_message_from_exception(e)
