@@ -964,17 +964,17 @@ class AzureDevopsConnector(BaseConnector):
 
     def get_work_item_optional_params(self, param: dict):
         expand = param.get("expand", "")
-        bypassrules = param.get("bypassrules", "")
-        suppressnotifications = param.get("suppressnotifications", "")
-        validateonly = param.get("validateonly", "")
+        bypassrules = param.get("bypass_rules", "")
+        suppressnotifications = param.get("suppress_notifications", "")
+        validateonly = param.get("validate_only", "")
 
         params = {"$expand": expand}
         if bypassrules:
-            params["bypassrules"] = bypassrules
+            params["bypassRules"] = bypassrules
         if suppressnotifications:
-            params["suppressnotifications"] = suppressnotifications
+            params["suppressNotifications"] = suppressnotifications
         if validateonly:
-            params["validateonly"] = validateonly
+            params["validateOnly"] = validateonly
         return params
 
     def _handle_list_iterations(self, param: dict):
