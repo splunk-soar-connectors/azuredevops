@@ -46,7 +46,6 @@
         "username": {
             "description": "User name for the access token / password",
             "data_type": "string",
-            "required": true,
             "order": 3
         },
         "password": {

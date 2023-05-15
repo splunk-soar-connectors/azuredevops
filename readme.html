@@ -22,7 +22,7 @@ and limitations under the License.
       <ol>
         <li><h3>Register your app</h3><br>
             <ul>
-                <li>Go to <a href="https://app.vsaex.visualstudio.com/app/register" target="_blank">https://app.vsaex.visualstudio.com/app/register</a> to register your app.<p>Add the Application website which will be under the "POST incoming for Azure DevOps to this location" field of your Splunk-SOAR asset. It would look like : <br>https://{phantom_instance}/rest/handler/{app_name}_{app_id}/{asset_name}<br>Authorisation URL would look like : <br>https://{phantom_instance}/rest/handler/{app_name}_{app_id}/{asset_name}/result</p></p></li>
+                <li>Go to <a href="https://app.vsaex.visualstudio.com/app/register" target="_blank">https://app.vsaex.visualstudio.com/app/register</a> to register your app.<p>Add the Application website which will be under the "POST incoming for Azure DevOps to this location" field of your Splunk-SOAR asset. It would look like : <br>https://{soar_instance}/rest/handler/{app_name}_{app_id}/{asset_name}<br>Authorisation URL would look like : <br>https://{soar_instance}/rest/handler/{app_name}_{app_id}/{asset_name}/result</p></p></li>
                 <li>Select the following scopes while registering your app: <br>vso.memberentitlementmanagement_write <br>vso.work_full <br>Use the same scopes when you authorize your app. If you registered your app using the preview APIs, re-register because the scopes that you used are now deprecated.</li>
                 <li>Select<b>Create Application</b></li>
             </ul>
@@ -88,7 +88,7 @@ and limitations under the License.
       After saving, a new field will appear in the <b>Asset Settings</b> tab. Take the URL found in the <b>POST incoming for Azure DevOps to this location</b> field and place it in the <b>Application website</b> field mentioned in a previous step.Add the same url to the <b>Authorization callback URL</b> and add <b>/result</b> to ths URL. After doing so the URL should look something like:
       <br><br>
       <p>
-        https://&lt;phantom_host&gt;/rest/handler/azureadgraph_c6d3b801-5c26-4abd-9e89-6d8007e2778f/&lt;asset_name&gt;/result
+        https://&lt;soar_host&gt;/rest/handler/azureadgraph_c6d3b801-5c26-4abd-9e89-6d8007e2778f/&lt;asset_name&gt;/result
       </p>
       <br>
       Once again, click on Save.
@@ -96,7 +96,10 @@ and limitations under the License.
     After setting up the asset and user, click the <b>TEST CONNECTIVITY</b> button. A window should pop up and display a URL. Navigate to this URL in a separate browser tab. This new tab will redirect to a Microsoft login page. Log in to a Microsoft account with administrator privileges to the Azure Devops environment. After logging in, review the requested permissions listed, then click <b>Accept</b>. Finally, close that tab. The test connectivity window should show a success.
       <br><br>
       The app should now be ready to use.
-
+      <br><br>
+      If username and password is entered than priority will be given to the basic auth than interactive auth.
+      <br><br>
+      We have tested all the action for the api version 7.0 but it might be supported in another versions as well.
     <h2>State File Permissions</h2>
       Please check the permissions for the state file as mentioned below.
       <h4>State Filepath</h4>

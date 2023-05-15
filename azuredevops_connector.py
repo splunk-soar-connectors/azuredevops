@@ -195,7 +195,7 @@ def _handle_login_response(request):
 
     state = _load_app_state(asset_id)
     try:
-        state["code"] = AzureDevopsConnector().encrypt_state(code, "code")
+        state["code"] = AzureDevopsConnector().encrypt_state(code)
         state["is_encrypted"] = True
     except Exception as e:
         return HttpResponseBadRequest(
@@ -293,20 +293,26 @@ class AzureDevopsConnector(BaseConnector):
         self._asset_id = self.get_asset_id()
         self._base_url = None
 
-    def encrypt_state(self, encrypt_var, token_name):
+    def encrypt_state(self, encrypt_var):
         """Handle encryption of token.
         :param encrypt_var: Variable needs to be encrypted
         :return: encrypted variable
         """
-        return encryption_helper.encrypt(encrypt_var, self._asset_id)
+        try:
+            return encryption_helper.encrypt(encrypt_var, self._asset_id)
+        except Exception:
+            self.save_progress("Error in encrypting variable")
 
-    def decrypt_state(self, decrypt_var, token_name):
+    def decrypt_state(self, decrypt_var):
         """Handle decryption of token.
         :param decrypt_var: Variable needs to be decrypted
         :return: decrypted variable
         """
         if self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED):
-            return encryption_helper.decrypt(decrypt_var, self._asset_id)
+            try:
+                return encryption_helper.decrypt(decrypt_var, self._asset_id)
+            except Exception:
+                self.save_progress("Error in decrypting variable")
         else:
             return decrypt_var
 
@@ -422,7 +428,7 @@ class AzureDevopsConnector(BaseConnector):
             )
         else:
             try:
-                code = self.decrypt_state(app_state["code"], "code") or None
+                code = self.decrypt_state(app_state.get("code")) or None
             except Exception as e:
                 self.error_print(
                     "{}: {}".format(
@@ -542,9 +548,6 @@ class AzureDevopsConnector(BaseConnector):
         if "203" in action_result.get_message():
             self.save_progress("bad token")
             self._get_token(action_result=action_result)
-            # ret_val, resp_json = self.retry(
-            #     endpoint, action_result, verify, data, json, method, params
-            # )
             headers.update({'Authorization': 'Bearer {0}'.format(self._access_token)})
             ret_val, resp_json = self._make_rest_call(
                 endpoint,
@@ -562,37 +565,6 @@ class AzureDevopsConnector(BaseConnector):
             return action_result.get_status(), None
 
         return phantom.APP_SUCCESS, resp_json
-
-    def retry(self, endpoint, action_result, verify, data, json, method, params):
-        """method to retry the API call in case if the token was expired
-
-        Args:
-            endpoint (str): URL endpoint to make API call to
-            action_result (ActionResult): ActionResult Object
-            verify (bool): verify server certificate
-            data (dict/json): json data in case of POST, PUT or PATCH call
-            json (json): json data in case of POST, PUT or PATCH call
-            method (str): HTTP request method
-            params (dict): request params
-
-        Returns:
-            tuple: (ReturnVal (success / failure), json_response)
-        """
-        self._get_token(action_result)
-        headers = self._get_request_headers()
-
-        ret_val, resp_json = self._make_rest_call(
-            endpoint,
-            action_result,
-            method,
-            verify=verify,
-            headers=headers,
-            params=params,
-            data=data,
-            json=json,
-        )
-
-        return ret_val, resp_json
 
     def _make_rest_call(self, endpoint, action_result, method="get", api_version=None, **kwargs):
         # **kwargs can be any additional parameters that requests.request accepts
@@ -625,12 +597,9 @@ class AzureDevopsConnector(BaseConnector):
             url = f"{base_url}{endpoint}"
         if api_version:
             kwargs["params"].update({"api-version": api_version})
-        # else:
-        #     kwargs["params"] = {"api-version": self._api_version}
 
-        # TODO: check authentication method, Basic or Oauth
         try:
-            if self._password:
+            if self._password and self._username:
                 r = request_func(
                     url,
                     auth=(self._username, self._password),  # basic authentication
@@ -1394,7 +1363,7 @@ class AzureDevopsConnector(BaseConnector):
         )
         if self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED) and self._access_token:
             try:
-                self._access_token = self.decrypt_state(self._access_token, "access")
+                self._access_token = self.decrypt_state(self._access_token)
             except Exception as e:
                 self.error_print(
                     "{}: {}".format(
@@ -1411,7 +1380,7 @@ class AzureDevopsConnector(BaseConnector):
         )
         if self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED) and self._refresh_token:
             try:
-                self._refresh_token = self.decrypt_state(self._refresh_token, "refresh")
+                self._refresh_token = self.decrypt_state(self._refresh_token)
             except Exception as e:
                 self.error_print(
                     "{}: {}".format(
@@ -1432,7 +1401,7 @@ class AzureDevopsConnector(BaseConnector):
             ):
                 self._state[consts.AZURE_DEVOPS_TOKEN_STRING][
                     consts.AZURE_DEVOPS_ACCESS_TOKEN_STRING
-                ] = self.encrypt_state(self._access_token, "access")
+                ] = self.encrypt_state(self._access_token)
         except Exception as e:
             self.error_print(
                 "{}: {}".format(
@@ -1450,7 +1419,7 @@ class AzureDevopsConnector(BaseConnector):
             ):
                 self._state[consts.AZURE_DEVOPS_TOKEN_STRING][
                     consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING
-                ] = self.encrypt_state(self._refresh_token, "refresh")
+                ] = self.encrypt_state(self._refresh_token)
         except Exception as e:
             self.error_print(
                 "{}: {}".format(
@@ -1466,7 +1435,7 @@ class AzureDevopsConnector(BaseConnector):
             try:
                 if self._state.get("code"):
                     self._state["code"] = self.encrypt_state(
-                        self._state["code"], "code"
+                        self._state["code"]
                     )
             except Exception as e:
                 self.error_print(
