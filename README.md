@@ -37,11 +37,12 @@ This app requires creating an app on Microsoft Azure Application. To register yo
 
         Add the Application website which will be under the "POST incoming for Azure DevOps to this
         location" field of your Splunk-SOAR asset. It would look like :  
-        https://{phantom_instance}/rest/handler/{app_name}\_{app_id}/{asset_name}  
+        https://{soar_instance}/rest/handler/{app_name}\_{app_id}/{asset_name}  
         Authorisation URL would look like :  
-        https://{phantom_instance}/rest/handler/{app_name}\_{app_id}/{asset_name}/result
+        https://{soar_instance}/rest/handler/{app_name}\_{app_id}/{asset_name}/result
 
     -   Select the following scopes while registering your app:  
+        vso.entitlements  
         vso.memberentitlementmanagement_write  
         vso.work_full  
         Use the same scopes when you authorize your app. If you registered your app using the
@@ -100,7 +101,7 @@ This app requires creating an app on Microsoft Azure Application. To register yo
     URL** and add **/result** to ths URL. After doing so the URL should look something like:  
       
 
-    https://\<phantom_host>/rest/handler/azureadgraph_c6d3b801-5c26-4abd-9e89-6d8007e2778f/\<asset_name>/result
+    https://\<soar_host>/rest/handler/azureadgraph_c6d3b801-5c26-4abd-9e89-6d8007e2778f/\<asset_name>/result
 
       
     Once again, click on Save.
@@ -113,7 +114,13 @@ This app requires creating an app on Microsoft Azure Application. To register yo
     Azure Devops environment. After logging in, review the requested permissions listed, then click
     **Accept** . Finally, close that tab. The test connectivity window should show a success.  
       
-    The app should now be ready to use.
+    The app should now be ready to use.  
+      
+    If username and password is entered than priority will be given to the basic auth then
+    interactive auth.  
+      
+    We have tested all the action for the api version 7.0 but it might be supported in another
+    versions as well.
 
     ## State File Permissions
 
@@ -142,6 +149,15 @@ This app requires creating an app on Microsoft Azure Application. To register yo
     |         http         | tcp                | 80   |
     |         https        | tcp                | 443  |
 
+    ## Basic Authentication
+
+    This app requires two params for the basic authentication which is username and access
+    token(password). username will be email id. To generate the access token follow
+    [this](https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows#create-a-pat)
+    steps and select Entitlements - Read (vso.entitlements), User Profile -
+    Read&Write(vso.memberentitlementmanagement_write) and work item - Read&Write(vso.work_full)
+    scopes.
+
 
 ### Configuration Variables
 The below configuration variables are required for this Connector to operate.  These variables are specified when configuring a Azure DevOps asset in SOAR.
@@ -150,9 +166,10 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 -------- | -------- | ---- | -----------
 **organization** |  required  | string | The name of the Azure DevOps organization
 **project** |  required  | string | Project name
-**api_version** |  required  | string | Version of the API to use
-**username** |  required  | string | User name for the access token / password
-**password** |  optional  | password | Access token / password in case of Basic Auth
+**api version** |  required  | string | Version of the API to use
+**auth_type** |  required  | string | Auth type
+**username** |  optional  | string | User name for the access token / password
+**access token** |  optional  | password | Access token / password in case of Basic Auth
 **client_id** |  optional  | string | Client ID
 **client_secret** |  optional  | password | Client Secret
 
@@ -188,7 +205,7 @@ Read only: **True**
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 --------- | -------- | ----------- | ---- | --------
-**work_item_id** |  required  | The work item id | numeric | 
+**work_item_id** |  required  | The work item id | numeric |  `work item id` 
 **expand** |  required  | The expand parameters for work item attributes (Possible options are { None, Relations, Fields, Links, All }) | string | 
 **asof** |  optional  | AsOf UTC date time string | string | 
 **fields** |  optional  | Comma-separated list of requested fields | string | 
@@ -200,7 +217,7 @@ action_result.status | string |  |   success  failed
 action_result.parameter.asof | string |  |  
 action_result.parameter.expand | string |  |  
 action_result.parameter.fields | string |  |  
-action_result.parameter.work_item_id | numeric |  |  
+action_result.parameter.work_item_id | numeric |  |   123 
 action_result.data | string |  |  
 action_result.data.\*._links.fields.href | string |  |   https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/fields 
 action_result.data.\*._links.html.href | string |  |   https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_workitems/edit/1 
@@ -263,11 +280,11 @@ Read only: **False**
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 --------- | -------- | ----------- | ---- | --------
 **work_item_type** |  required  | The work item type of the work item to create | string | 
+**post_body** |  required  | Payload to be sent to be created | string | 
 **expand** |  optional  | The expand parameters for work item attributes (Possible options are { None, Relations, Fields, Links, All }) | string | 
 **bypass_rules** |  optional  | Do not enforce the work item type rules on this update | boolean | 
 **suppress_notifications** |  optional  | Do not fire any notifications for this change | boolean | 
 **validate_only** |  optional  | Indicate if you only want to validate the changes without saving the work item | boolean | 
-**post_body** |  required  | Payload to be sent to be created | string | 
 
 #### Action Output
 DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
@@ -318,7 +335,7 @@ action_result.data.\*.fields.System.CreatedBy.uniqueName | string |  |   test@te
 action_result.data.\*.fields.System.CreatedBy.url | string |  |   https://spsprodsin2.vssps.visualstudio.com/A0ec3bd2d-0567-4fc0-bd83-8a95ff980ce7/_apis/Identities/a4587438-ef08-6c3a-bb0e-9426cff36a72 
 action_result.data.\*.fields.System.CreatedDate | string |  |   2023-02-07T08:34:37.39Z 
 action_result.data.\*.fields.System.Description | string |  |   <div>This is a sample description added via REST API </div> 
-action_result.data.\*.fields.System.Id | numeric |  |   61 
+action_result.data.\*.fields.System.Id | numeric |  `work item id`  |   61 
 action_result.data.\*.fields.System.IterationId | numeric |  |   1 
 action_result.data.\*.fields.System.IterationLevel1 | string |  |   test 
 action_result.data.\*.fields.System.IterationPath | string |  |   test 
@@ -385,7 +402,7 @@ Read only: **False**
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 --------- | -------- | ----------- | ---- | --------
-**work_item_id** |  required  | Id of a work item | string | 
+**work_item_id** |  required  | Id of a work item | numeric | 
 **comment** |  required  | The text of the comment | string | 
 
 #### Action Output
@@ -431,7 +448,7 @@ Read only: **False**
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 --------- | -------- | ----------- | ---- | --------
-**user_email** |  required  | The email address of the user to add to the organization | string | 
+**user_email** |  required  | The email address of the user to add to the organization | string |  `email` 
 **account_license_type** |  required  | The type of account license. Possible values are: express, stakeholder, advanced, earlyAdopter, professional | string | 
 **group_type** |  required  | The project group type. Possible values are: projectReader, projectContributor, projectAdministrator, projectStakeholder | string | 
 **project_name** |  required  | The name of the project | string | 
@@ -443,7 +460,7 @@ action_result.status | string |  |   success  failed
 action_result.parameter.account_license_type | string |  |  
 action_result.parameter.group_type | string |  |  
 action_result.parameter.project_name | string |  |  
-action_result.parameter.user_email | string |  |  
+action_result.parameter.user_email | string |  `email`  |  
 action_result.data.\*.isSuccess | boolean |  |   True  False 
 action_result.data.\*.operationResult.errors.\*.key | numeric |  |   5000 
 action_result.data.\*.operationResult.errors.\*.value | string |  |   abc 
@@ -563,7 +580,7 @@ action_result.data.\*.items.\*.user.descriptor | string |  |   aad.NmZmNDFiNDktY
 action_result.data.\*.items.\*.user.directoryAlias | string |  |   test7user_user.com#EXT# 
 action_result.data.\*.items.\*.user.displayName | string |  |   test7user@user.com 
 action_result.data.\*.items.\*.user.domain | string |  |   140fe46d-819d-4b6d-b7ef-1c0a8270f4f0 
-action_result.data.\*.items.\*.user.mailAddress | string |  |   test7user@user.com 
+action_result.data.\*.items.\*.user.mailAddress | string |  `email`  |   test7user@user.com 
 action_result.data.\*.items.\*.user.metaType | string |  |   member 
 action_result.data.\*.items.\*.user.origin | string |  |   aad 
 action_result.data.\*.items.\*.user.originId | string |  |   c760eedc-c387-48d5-b736-ad415114c523 
