@@ -23,7 +23,8 @@ and limitations under the License.
         <li><h3>Register your app</h3><br>
             <ul>
                 <li>Go to <a href="https://app.vsaex.visualstudio.com/app/register" target="_blank">https://app.vsaex.visualstudio.com/app/register</a> to register your app.<p>Add the Application website which will be under the "POST incoming for Azure DevOps to this location" field of your Splunk-SOAR asset. It would look like : <br>https://{soar_instance}/rest/handler/{app_name}_{app_id}/{asset_name}<br>Authorisation URL would look like : <br>https://{soar_instance}/rest/handler/{app_name}_{app_id}/{asset_name}/result</p></p></li>
-                <li>Select the following scopes while registering your app: <br>vso.memberentitlementmanagement_write <br>vso.work_full <br>Use the same scopes when you authorize your app. If you registered your app using the preview APIs, re-register because the scopes that you used are now deprecated.</li>
+                <li>Select the following scopes while registering your app: <br>
+                  vso.entitlements<br>vso.memberentitlementmanagement_write <br>vso.work_full <br>Use the same scopes when you authorize your app. If you registered your app using the preview APIs, re-register because the scopes that you used are now deprecated.</li>
                 <li>Select<b>Create Application</b></li>
             </ul>
         </li>
@@ -133,6 +134,8 @@ and limitations under the License.
 			</tr>
 		</table>
 	</p>
+  <h2>Basic Authentication</h2>
+    <p>This app requires two params for the basic authentication which is username and access token(password). username will be email id. To generate the access token follow <a href="https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows#create-a-pat" target="_blank">this</a> steps and select Entitlements - Read (vso.entitlements), User Profile - Read&Write(vso.memberentitlementmanagement_write) and work item - Read&Write(vso.work_full) scopes.</p>
 
   </body>
 </html>

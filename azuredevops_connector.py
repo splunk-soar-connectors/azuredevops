@@ -93,8 +93,7 @@ def _load_app_state(asset_id, app_connector=None):
     state = {}
     try:
         with open(real_state_file_path, "r") as state_file_obj:
-            state_file_data = state_file_obj.read()
-            state = json.loads(state_file_data)
+            state = json.load(state_file_obj)
     except Exception as e:
         if app_connector:
             app_connector.debug_print(
@@ -268,6 +267,9 @@ def _handle_rest_request(request, path_parts):
 
 
 def change_file_mode_and_permission(auth_status_file_path):
+    """changes the permission and mode of the file located at the given address.
+    :param auth_status_file_path (string): file path
+    """
     uid = pwd.getpwnam("apache").pw_uid
     gid = grp.getgrnam("phantom").gr_gid
     os.chown(auth_status_file_path, uid, gid)
@@ -514,8 +516,7 @@ class AzureDevopsConnector(BaseConnector):
 
         if not self._password:
             token = self._state.get("token", {})
-            # if not token.get("access_token"):
-            if "access_token" not in token:
+            if consts.AZURE_DEVOPS_ACCESS_TOKEN_STRING not in token:
                 ret_val = self._get_token(action_result)
 
                 if phantom.is_fail(ret_val):
@@ -545,7 +546,7 @@ class AzureDevopsConnector(BaseConnector):
             skip_base_url=skip_base_url
         )
 
-        if "203" in action_result.get_message():
+        if consts.BAD_TOKEN_MATCH_STRING in action_result.get_message():
             self.save_progress("bad token")
             self._get_token(action_result=action_result)
             headers.update({'Authorization': 'Bearer {0}'.format(self._access_token)})
@@ -594,18 +595,22 @@ class AzureDevopsConnector(BaseConnector):
                     ),
                     None,
                 )
-            url = f"{base_url}{endpoint}"
+            url = "{0}{1}".format(base_url, endpoint)
         if api_version:
             kwargs["params"].update({"api-version": api_version})
 
         try:
-            if self._password and self._username:
+            if self._auth_type == "basic auth":
+                if not self._username or not self._password:
+                    raise Exception("username or password not found for basic auth")
                 r = request_func(
                     url,
                     auth=(self._username, self._password),  # basic authentication
                     **kwargs
                 )
             else:
+                if not self._client_id or not self._client_secret:
+                    raise Exception("Client id or client secret not found of interactive auth")
                 r = request_func(
                     url,
                     **kwargs,
@@ -836,10 +841,8 @@ class AzureDevopsConnector(BaseConnector):
 
     def check_authorization(self, auth_status_file_path):
         """method that check for auth file creation
-        Args:
-            auth_status_file_path (str): auth file path string
-        Returns:
-            bool: True if file is found, else False
+        :param auth_status_file_path (str): auth file path string
+        :return: bool: True if file is found, else False
         """
         completed = False
         for i in range(0, 40):
@@ -884,9 +887,9 @@ class AzureDevopsConnector(BaseConnector):
         action_result.add_data(response)
 
         summary = action_result.update_summary({})
-        summary["status"] = f"Work item {work_item_id} retrieved successfully"
+        summary["status"] = "Work item {0} retrieved successfully".format(work_item_id)
 
-        self.debug_print(f"Work item {work_item_id} retrieved successfully")
+        self.debug_print("Work item {0} retrieved successfully".format(work_item_id))
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
@@ -902,7 +905,7 @@ class AzureDevopsConnector(BaseConnector):
 
         params = self.get_work_item_optional_params(param)
 
-        headers = {"Content-Type": "application/json-patch+json"}
+        headers = {"Content-Type": consts.APPLICATION_JSON_PATCH_HEADER}
 
         try:
             post_body_json = json.loads(param["post_body"], strict=False)
@@ -911,7 +914,7 @@ class AzureDevopsConnector(BaseConnector):
 
         # make rest call
         ret_val, response = self._make_rest_call_helper(
-            f"{consts.WORK_ITEMS}/${work_item_type}",
+            "{0}/${1}".format(consts.WORK_ITEMS, work_item_type),
             action_result,
             method="post",
             data=json.dumps(post_body_json),
@@ -933,17 +936,17 @@ class AzureDevopsConnector(BaseConnector):
 
     def get_work_item_optional_params(self, param: dict):
         expand = param.get("expand", "")
-        bypassrules = param.get("bypass_rules", "")
-        suppressnotifications = param.get("suppress_notifications", "")
-        validateonly = param.get("validate_only", "")
+        bypass_rules = param.get("bypass_rules", "")
+        suppress_notifications = param.get("suppress_notifications", "")
+        validate_only = param.get("validate_only", "")
 
         params = {"$expand": expand}
-        if bypassrules:
-            params["bypassRules"] = bypassrules
-        if suppressnotifications:
-            params["suppressNotifications"] = suppressnotifications
-        if validateonly:
-            params["validateOnly"] = validateonly
+        if bypass_rules:
+            params["bypassRules"] = bypass_rules
+        if suppress_notifications:
+            params["suppressNotifications"] = suppress_notifications
+        if validate_only:
+            params["validateOnly"] = validate_only
         return params
 
     def _handle_list_iterations(self, param: dict):
@@ -954,8 +957,8 @@ class AzureDevopsConnector(BaseConnector):
 
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        team = param.get("team", None)
-        time_frame = param.get("timeframe", None)
+        team = param.get("team")
+        time_frame = param.get("timeframe")
 
         if time_frame:
             params = {"$timeframe": time_frame}
@@ -963,7 +966,7 @@ class AzureDevopsConnector(BaseConnector):
             params = {}
 
         if team:
-            endpoint = consts.ITERATIONS_TEAM.format(team)
+            endpoint = consts.ITERATIONS_TEAM.format(team=team)
         else:
             endpoint = consts.ITERATIONS
 
@@ -977,7 +980,11 @@ class AzureDevopsConnector(BaseConnector):
         action_result.add_data(response)
 
         summary = action_result.update_summary({})
-        summary["total_iterations"] = action_result.get_data()[0]["count"]
+        try:
+            summary["total_iterations"] = action_result.get_data()[0]["count"]
+        except Exception:
+            self.save_progress("Iteration not found")
+            return action_result.set_status(phantom.APP_ERROR)
 
         self.debug_print("Data retrieved successfully")
 
@@ -1046,8 +1053,8 @@ class AzureDevopsConnector(BaseConnector):
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
-        user_data["members"].extend(response.get("members"))
-        user_data["items"].extend(response.get("items"))
+        user_data["members"].extend(response.get("members", []))
+        user_data["items"].extend(response.get("items", []))
 
         while True:
 
@@ -1066,8 +1073,8 @@ class AzureDevopsConnector(BaseConnector):
                 if phantom.is_fail(ret_val):
                     return action_result.get_status()
 
-                user_data["members"].extend(response.get("members"))
-                user_data["items"].extend(response.get("items"))
+                user_data["members"].extend(response.get("members", []))
+                user_data["items"].extend(response.get("items", []))
 
         action_result.add_data(user_data)
 
@@ -1088,11 +1095,14 @@ class AzureDevopsConnector(BaseConnector):
 
         user_id = param["user_id"]
 
-        ret_val, _ = self._make_rest_call_helper(
-            f"{consts.USER_ENTITLEMENTS}/{user_id}",
+        ret_val, resp = self._make_rest_call_helper(
+            "{0}/{1}".format(consts.USER_ENTITLEMENTS, user_id),
             action_result,
             method="delete",
         )
+
+        if "Status Code: 404" in action_result.get_message():
+            return RetVal(action_result.set_status(phantom.APP_ERROR, "user with given id not found"), None)
 
         if phantom.is_fail(ret_val):
             return action_result.get_status()
@@ -1111,7 +1121,6 @@ class AzureDevopsConnector(BaseConnector):
             action_result,
             method="get",
             skip_base_url=True,
-            # headers=headers
         )
         if phantom.is_fail(ret_val):
             return action_result.get_status()
@@ -1122,7 +1131,7 @@ class AzureDevopsConnector(BaseConnector):
         project_name = param["project_name"]
 
         project_id = None
-        for project in response["value"]:
+        for project in response.get("value", []):
             if project_name == project["name"]:
                 project_id = project["id"]
 
@@ -1142,14 +1151,14 @@ class AzureDevopsConnector(BaseConnector):
         ret_val, response = self._make_rest_call_helper(
             consts.USER_ENTITLEMENTS,
             action_result,
-            data=json.dumps(data),
+            json=data,
             method="post",
         )
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
         if not bool(response.get("operationResult", {}).get("isSuccess", True)):
-            return action_result.set_status(phantom.APP_ERROR, "data is invalid")
+            return action_result.set_status(phantom.APP_ERROR, "Could not create a user")
 
         action_result.add_data(response)
 
@@ -1191,13 +1200,9 @@ class AzureDevopsConnector(BaseConnector):
         return error_text
 
     def _get_base_url(self, action_id):
-        """Utility method to get the base url for a given action
-
-        Args:
-            action_id (str): action identifier
-
-        Returns:
-            str: base url string
+        """Utility method to get the base url for a given action.
+        :param action_id (str): action identifier
+        :return str: base url string
         """
         action_to_url_mapping_dict = {
             "delete_user": self._user_entitlement_base_url,
@@ -1255,7 +1260,7 @@ class AzureDevopsConnector(BaseConnector):
 
         headers = self._get_request_headers()
         headers.update(headers)
-        headers["Content-Type"] = "application/octet-stream"
+        headers["Content-Type"] = consts.OCTANT_HEADER_STRING
 
         params = {
             "fileName": filename
@@ -1287,7 +1292,7 @@ class AzureDevopsConnector(BaseConnector):
 
         # Return success, no need to set the message, only the status
         # BaseConnector will create a textual message based off of the summary dictionary
-        return action_result.set_status(phantom.APP_SUCCESS)
+        return action_result.set_status(phantom.APP_SUCCESS, "Successfully added the attachment")
 
         # For now return Error with a message, in case of success we don't set the message, but use the summary
         # return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
@@ -1346,11 +1351,12 @@ class AzureDevopsConnector(BaseConnector):
 
         self._organization = config["organization"]
         self._project = config["project"]
-        self._api_version = config["api_version"]
+        self._api_version = config["api version"]
         self._client_id = config.get("client_id", None)
         self._client_secret = config.get("client_secret", None)
-        self._username = config["username"]
-        self._password = config.get("password", None)
+        self._username = config.get("username", None)
+        self._password = config.get("access token", None)
+        self._auth_type = config.get("auth_type")
         self._base_url = consts.PROJECT_BASE_URL.format(
             organization=self._organization, project=self._project
         )

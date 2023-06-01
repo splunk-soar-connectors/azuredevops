@@ -35,35 +35,44 @@
             "required": true,
             "order": 1
         },
-        "api_version": {
+        "api version": {
             "description": "Version of the API to use",
             "data_type": "string",
             "required": true,
             "order": 2,
-            "name": "api_version",
             "id": 2
+        },
+        "auth_type": {
+            "description": "Auth type",
+            "data_type": "string",
+            "value_list": [
+                "basic auth",
+                "interactive auth"
+            ],
+            "order": 3,
+            "default": "basic auth",
+            "required": true
         },
         "username": {
             "description": "User name for the access token / password",
             "data_type": "string",
-            "order": 3
+            "order": 4
         },
-        "password": {
+        "access token": {
             "description": "Access token / password in case of Basic Auth",
             "data_type": "password",
-            "order": 4,
-            "name": "password",
+            "order": 5,
             "id": 4
         },
         "client_id": {
             "description": "Client ID",
             "data_type": "string",
-            "order": 5
+            "order": 6
         },
         "client_secret": {
             "description": "Client Secret",
             "data_type": "password",
-            "order": 6
+            "order": 7
         }
     },
     "actions": [
@@ -91,7 +100,11 @@
                     "order": 0,
                     "name": "work_item_id",
                     "id": 1,
-                    "param_name": "work_item_id"
+                    "param_name": "work_item_id",
+                    "primary": true,
+                    "contains": [
+                        "work item id"
+                    ]
                 },
                 "expand": {
                     "description": "The expand parameters for work item attributes (Possible options are { None, Relations, Fields, Links, All })",
@@ -122,8 +135,6 @@
                 {
                     "data_path": "action_result.status",
                     "data_type": "string",
-                    "column_name": "Status",
-                    "column_order": 1,
                     "example_values": [
                         "success",
                         "failed"
@@ -145,7 +156,10 @@
                     "data_path": "action_result.parameter.work_item_id",
                     "data_type": "numeric",
                     "column_name": "Work Item ID",
-                    "column_order": 0
+                    "column_order": 0,
+                    "example_values": [
+                        "123"
+                    ]
                 },
                 {
                     "data_path": "action_result.data",
@@ -394,14 +408,18 @@
                     "data_type": "string",
                     "example_values": [
                         "To Do"
-                    ]
+                    ],
+                    "column_name": "",
+                    "column_order": 2
                 },
                 {
                     "data_path": "action_result.data.*.fields.System.TeamProject",
                     "data_type": "string",
                     "example_values": [
                         "test"
-                    ]
+                    ],
+                    "column_name": "project name",
+                    "column_order": 1
                 },
                 {
                     "data_path": "action_result.data.*.fields.System.Title",
@@ -415,7 +433,9 @@
                     "data_type": "string",
                     "example_values": [
                         "Epic"
-                    ]
+                    ],
+                    "column_name": "work item type",
+                    "column_order": 3
                 },
                 {
                     "data_path": "action_result.data.*.id",
@@ -518,6 +538,12 @@
                     "required": true,
                     "order": 0
                 },
+                "post_body": {
+                    "description": "Payload to be sent to be created",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 1
+                },
                 "expand": {
                     "description": "The expand parameters for work item attributes (Possible options are { None, Relations, Fields, Links, All })",
                     "data_type": "string",
@@ -529,27 +555,21 @@
                         "All"
                     ],
                     "default": "None",
-                    "order": 1
+                    "order": 2
                 },
                 "bypass_rules": {
                     "description": "Do not enforce the work item type rules on this update",
                     "data_type": "boolean",
-                    "order": 2
+                    "order": 3
                 },
                 "suppress_notifications": {
                     "description": "Do not fire any notifications for this change",
                     "data_type": "boolean",
-                    "order": 3
+                    "order": 4
                 },
                 "validate_only": {
                     "description": "Indicate if you only want to validate the changes without saving the work item",
                     "data_type": "boolean",
-                    "order": 4
-                },
-                "post_body": {
-                    "description": "Payload to be sent to be created",
-                    "data_type": "string",
-                    "required": true,
                     "order": 5
                 }
             },
@@ -557,8 +577,6 @@
                 {
                     "data_path": "action_result.status",
                     "data_type": "string",
-                    "column_name": "Status",
-                    "column_order": 1,
                     "example_values": [
                         "success",
                         "failed"
@@ -567,8 +585,6 @@
                 {
                     "data_path": "action_result.parameter.bypass_rules",
                     "data_type": "boolean",
-                    "column_name": "Bypass Rules",
-                    "column_order": 2,
                     "example_values": [
                         true,
                         false
@@ -585,8 +601,6 @@
                 {
                     "data_path": "action_result.parameter.suppress_notifications",
                     "data_type": "boolean",
-                    "column_name": "Suppress Notifications",
-                    "column_order": 3,
                     "example_values": [
                         true,
                         false
@@ -595,8 +609,6 @@
                 {
                     "data_path": "action_result.parameter.validate_only",
                     "data_type": "boolean",
-                    "column_name": "Validate Only",
-                    "column_order": 4,
                     "example_values": [
                         true,
                         false
@@ -878,7 +890,12 @@
                     "data_type": "numeric",
                     "example_values": [
                         61
-                    ]
+                    ],
+                    "contains": [
+                        "work item id"
+                    ],
+                    "column_name": "work item id",
+                    "column_order": 0
                 },
                 {
                     "data_path": "action_result.data.*.fields.System.IterationId",
@@ -948,14 +965,18 @@
                     "data_type": "string",
                     "example_values": [
                         "test"
-                    ]
+                    ],
+                    "column_name": "Project",
+                    "column_order": 1
                 },
                 {
                     "data_path": "action_result.data.*.fields.System.Title",
                     "data_type": "string",
                     "example_values": [
                         "This task title is created via REST API"
-                    ]
+                    ],
+                    "column_name": "Title",
+                    "column_order": 2
                 },
                 {
                     "data_path": "action_result.data.*.fields.System.Watermark",
@@ -969,7 +990,9 @@
                     "data_type": "string",
                     "example_values": [
                         "Epic"
-                    ]
+                    ],
+                    "column_name": "work item type",
+                    "column_order": 3
                 },
                 {
                     "data_path": "action_result.data.*.id",
@@ -1182,7 +1205,7 @@
             "parameters": {
                 "work_item_id": {
                     "description": "Id of a work item",
-                    "data_type": "string",
+                    "data_type": "numeric",
                     "required": true,
                     "order": 0
                 },
@@ -1416,7 +1439,11 @@
                     "data_type": "string",
                     "required": true,
                     "order": 0,
-                    "name": "user_email"
+                    "name": "user_email",
+                    "primary": true,
+                    "contains": [
+                        "email"
+                    ]
                 },
                 "account_license_type": {
                     "description": "The type of account license. Possible values are: express, stakeholder, advanced, earlyAdopter, professional",
@@ -1480,7 +1507,10 @@
                 },
                 {
                     "data_path": "action_result.parameter.user_email",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "contains": [
+                        "email"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.isSuccess",
@@ -2143,7 +2173,10 @@
                         "test7user@user.com"
                     ],
                     "column_name": "Email",
-                    "column_order": 1
+                    "column_order": 1,
+                    "contains": [
+                        "email"
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.items.*.user.metaType",

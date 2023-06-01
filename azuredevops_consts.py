@@ -73,3 +73,6 @@ AUTHORIZATION_URL = "https://app.vssps.visualstudio.com/oauth2/authorize"
 GET_PROJECT_LIST_URL = "https://dev.azure.com/{organization}/_apis/projects"
 # Consts for error messages
 AZUREDEVOPS_ERROR_MESSAGE_UNAVAILABLE = "Error message unavailable. Please check the asset configuration and|or the action parameters."
+BAD_TOKEN_MATCH_STRING = "203"
+APPLICATION_JSON_PATCH_HEADER = "application/json-patch+json"
+OCTANT_HEADER_STRING = "application/octet-stream"
