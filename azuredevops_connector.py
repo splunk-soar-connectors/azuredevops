@@ -722,7 +722,7 @@ class AzureDevopsConnector(BaseConnector):
         # self.save_progress("Generating Authentication URL")
         app_state = {}
         action_result = self.add_action_result(ActionResult(dict(param)))
-        if self._password:
+        if self._auth_type == "basic auth":
             # NOTE: test connectivity does _NOT_ take any parameters
             # i.e. the param dictionary passed to this handler will be empty.
             # Also typically it does not add any data into an action_result either.
