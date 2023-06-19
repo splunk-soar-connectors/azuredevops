@@ -166,8 +166,8 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 **project** |  required  | string | Project name
 **api version** |  required  | string | Version of the API to use
 **auth_type** |  required  | string | Auth Type
-**username** |  optional  | string | User name for the access token in case of Basic Auth
-**access token** |  optional  | password | Access token in case of Basic Auth
+**username** |  optional  | string | User name (Basic Auth)
+**access token** |  optional  | password | Access token (Basic Auth)
 **client_id** |  optional  | string | Client ID (Interactive Auth)
 **client_secret** |  optional  | password | Client Secret (Interactive Auth)
 
