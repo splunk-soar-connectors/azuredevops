@@ -1,6 +1,6 @@
 # File: azuredevops_connector.py
 #
-# Copyright (c) 2019-2023 Splunk Inc.
+# Copyright (c) 2022-2023 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -597,7 +597,7 @@ class AzureDevopsConnector(BaseConnector):
         try:
             if self._auth_type == "Basic Auth":
                 if not self._username or not self._password:
-                    self.save_progress("username or access token not found for basic auth")
+                    self.save_progress("Please provide username and access token for Basic Auth")
                     return phantom.APP_ERROR, None
                 r = request_func(
                     url,
@@ -606,7 +606,7 @@ class AzureDevopsConnector(BaseConnector):
                 )
             else:
                 if not self._client_id or not self._client_secret:
-                    self.save_progress("Client id or client secret not found of interactive auth")
+                    self.save_progress("Please provide Client ID or Client Secret for Interactive Auth")
                     return phantom.APP_ERROR, None
                 r = request_func(
                     url,
@@ -1080,7 +1080,8 @@ class AzureDevopsConnector(BaseConnector):
             summary["total_users"] = len(action_result.get_data()[0]["items"])
         except Exception:
             self.save_progress("Items not found")
-            return action_result.set_status(phantom.APP_ERROR)
+            summary["total_users"] = 0
+            return action_result.set_status(phantom.APP_SUCCESS, "Items not found")
 
         self.debug_print("Data retrieved successfully")
 
