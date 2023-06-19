@@ -1,6 +1,6 @@
 # File: azuredevops_connector.py
 #
-# Copyright (c) 2023 Splunk Inc.
+# Copyright (c) 2019-2023 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ def _save_app_state(state, asset_id, app_connector):
     asset_id = str(asset_id)
     if not asset_id or not asset_id.isalnum():
         debug_print_invalid_asset_id(app_connector)
-        return {}
+        return
 
     app_dir = os.path.split(__file__)[0]
     state_file = "{0}/{1}_state.json".format(app_dir, asset_id)
@@ -54,19 +54,18 @@ def _save_app_state(state, asset_id, app_connector):
     real_state_file_path = os.path.abspath(state_file)
     if os.path.dirname(real_state_file_path) != app_dir:
         debug_print_invalid_asset_id(app_connector)
-        return {}
+        return
 
     if app_connector:
         app_connector.debug_print("Saving state: ", state)
 
     try:
-        with open(real_state_file_path, "w+") as state_file_obj:
+        with open(real_state_file_path, "w") as state_file_obj:
             state_file_obj.write(json.dumps(state))
     except Exception as e:
         if app_connector:
             app_connector.error_print("Unable to save state file: {0}".format(str(e)))
-
-    return phantom.APP_SUCCESS
+    return
 
 
 def _load_app_state(asset_id, app_connector=None):
@@ -108,7 +107,7 @@ def _load_app_state(asset_id, app_connector=None):
 
 def debug_print_invalid_asset_id(app_connector):
     if app_connector:
-        app_connector.debug_print("In _load_app_state: Invalid asset_id")
+        app_connector.debug_print("Invalid asset_id")
 
 
 def _get_dir_name_from_app_name(app_name):
@@ -319,13 +318,13 @@ class AzureDevopsConnector(BaseConnector):
             return decrypt_var
 
     def _process_empty_response(self, response, action_result):
-        # status_code 204 to handle empty response in case of a `DELETE` request
+        # status_code 204 or 200 to handle empty response in case of a `DELETE` request
         if response.status_code in [200, 204]:
             return RetVal(phantom.APP_SUCCESS, {})
 
         return RetVal(
             action_result.set_status(
-                phantom.APP_ERROR, "Empty response and no information in the header"
+                phantom.APP_ERROR, f"Empty response and no information in the header with status code {response.status_code}"
             ),
             None,
         )
@@ -337,6 +336,8 @@ class AzureDevopsConnector(BaseConnector):
         try:
             soup = BeautifulSoup(response.text, "html.parser")
             error_text = soup.text
+            for element in soup(["script", "style", "footer", "nav"]):
+                element.extract()
             split_lines = error_text.split("\n")
             split_lines = [x.strip() for x in split_lines if x.strip()]
             error_text = '\n'.join(split_lines)
@@ -405,7 +406,7 @@ class AzureDevopsConnector(BaseConnector):
 
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
 
-    def _get_token(self, action_result, from_action=False):
+    def _get_token(self, action_result):
         """This function is used to get a token via REST Call.
 
         :param action_result: Object of action result
@@ -421,7 +422,7 @@ class AzureDevopsConnector(BaseConnector):
 
         # If refresh_token is available, then use it to get new <access_token, refresh_token> pair
         # Else use code to get the same
-        if from_action or self._refresh_token:
+        if self.get_action_identifier() != "test_connectivity" and self._refresh_token:
             data.update(
                 {
                     "grant_type": consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING,
@@ -475,8 +476,6 @@ class AzureDevopsConnector(BaseConnector):
         self._refresh_token = resp_json[consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING]
         self._state[consts.AZURE_DEVOPS_TOKEN_STRING] = resp_json
 
-        self.save_state(self._state)
-
     def _get_request_headers(self):
         """Utility method that returns request headers.
         NOTE: always call this method after _get_token() method
@@ -504,8 +503,6 @@ class AzureDevopsConnector(BaseConnector):
         """Function that helps setting REST call to the app.
         :param endpoint: REST endpoint that needs to appended to the service address
         :param action_result: object of ActionResult class
-        :param headers: request headers
-        :param params: request parameters
         :param data: request body
         :param json: JSON object
         :param method: GET/POST/PUT/DELETE/PATCH (Default will be GET)
@@ -521,8 +518,6 @@ class AzureDevopsConnector(BaseConnector):
 
                 if phantom.is_fail(ret_val):
                     return action_result.get_status(), None
-
-        # NOTE: always call this method after _get_token() method
         headers = self._get_request_headers()
         params = {"api-version": self._api_version}
         skip_base_url = kwargs.get("skip_base_url", False)
@@ -600,9 +595,10 @@ class AzureDevopsConnector(BaseConnector):
             kwargs["params"].update({"api-version": api_version})
 
         try:
-            if self._auth_type == "basic auth":
+            if self._auth_type == "Basic Auth":
                 if not self._username or not self._password:
-                    raise Exception("username or password not found for basic auth")
+                    self.save_progress("username or access token not found for basic auth")
+                    return phantom.APP_ERROR, None
                 r = request_func(
                     url,
                     auth=(self._username, self._password),  # basic authentication
@@ -610,7 +606,8 @@ class AzureDevopsConnector(BaseConnector):
                 )
             else:
                 if not self._client_id or not self._client_secret:
-                    raise Exception("Client id or client secret not found of interactive auth")
+                    self.save_progress("Client id or client secret not found of interactive auth")
+                    return phantom.APP_ERROR, None
                 r = request_func(
                     url,
                     **kwargs,
@@ -722,7 +719,7 @@ class AzureDevopsConnector(BaseConnector):
         # self.save_progress("Generating Authentication URL")
         app_state = {}
         action_result = self.add_action_result(ActionResult(dict(param)))
-        if self._auth_type == "basic auth":
+        if self._auth_type == "Basic Auth":
             # NOTE: test connectivity does _NOT_ take any parameters
             # i.e. the param dictionary passed to this handler will be empty.
             # Also typically it does not add any data into an action_result either.
@@ -866,8 +863,8 @@ class AzureDevopsConnector(BaseConnector):
         work_item_id = param["work_item_id"]
         expand = param["expand"]
 
-        asof = param.get("asof", "")
-        fields = param.get("fields", "")
+        asof = param.get("asof")
+        fields = param.get("fields")
 
         params = {"$expand": expand}
         if asof:
@@ -935,10 +932,10 @@ class AzureDevopsConnector(BaseConnector):
         return action_result.set_status(phantom.APP_SUCCESS)
 
     def get_work_item_optional_params(self, param: dict):
-        expand = param.get("expand", "")
-        bypass_rules = param.get("bypass_rules", "")
-        suppress_notifications = param.get("suppress_notifications", "")
-        validate_only = param.get("validate_only", "")
+        expand = param.get("expand")
+        bypass_rules = param.get("bypass_rules")
+        suppress_notifications = param.get("suppress_notifications")
+        validate_only = param.get("validate_only")
 
         params = {"$expand": expand}
         if bypass_rules:
@@ -1078,8 +1075,12 @@ class AzureDevopsConnector(BaseConnector):
 
         action_result.add_data(user_data)
 
-        summary = action_result.update_summary({})
-        summary["total_users"] = len(action_result.get_data()[0]["items"])
+        try:
+            summary = action_result.update_summary({})
+            summary["total_users"] = len(action_result.get_data()[0]["items"])
+        except Exception:
+            self.save_progress("Items not found")
+            return action_result.set_status(phantom.APP_ERROR)
 
         self.debug_print("Data retrieved successfully")
 
@@ -1102,7 +1103,7 @@ class AzureDevopsConnector(BaseConnector):
         )
 
         if "Status Code: 404" in action_result.get_message():
-            return RetVal(action_result.set_status(phantom.APP_ERROR, "user with given id not found"), None)
+            return RetVal(action_result.set_status(phantom.APP_ERROR, "User with given id not found"), None)
 
         if phantom.is_fail(ret_val):
             return action_result.get_status()
@@ -1132,8 +1133,9 @@ class AzureDevopsConnector(BaseConnector):
 
         project_id = None
         for project in response.get("value", []):
-            if project_name == project["name"]:
+            if project_name.lower() == project["name"].lower():
                 project_id = project["id"]
+                break
 
         if project_id is None:
             return action_result.set_status(phantom.APP_ERROR, "No project found with given project name")
@@ -1404,55 +1406,31 @@ class AzureDevopsConnector(BaseConnector):
         try:
             if self._state.get(consts.AZURE_DEVOPS_TOKEN_STRING, {}).get(
                 consts.AZURE_DEVOPS_ACCESS_TOKEN_STRING
-            ):
+            ) and self._state.get(consts.AZURE_DEVOPS_TOKEN_STRING, {}).get(
+                consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING
+            ) and not self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED):
                 self._state[consts.AZURE_DEVOPS_TOKEN_STRING][
                     consts.AZURE_DEVOPS_ACCESS_TOKEN_STRING
                 ] = self.encrypt_state(self._access_token)
-        except Exception as e:
-            self.error_print(
-                "{}: {}".format(
-                    consts.AZURE_DEVOPS_ENCRYPTION_ERROR,
-                    self._get_error_message_from_exception(e),
-                )
-            )
-            return self.set_status(
-                phantom.APP_ERROR, consts.AZURE_DEVOPS_ENCRYPTION_ERROR
-            )
 
-        try:
-            if self._state.get(consts.AZURE_DEVOPS_TOKEN_STRING, {}).get(
-                consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING
-            ):
                 self._state[consts.AZURE_DEVOPS_TOKEN_STRING][
                     consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING
                 ] = self.encrypt_state(self._refresh_token)
-        except Exception as e:
-            self.error_print(
-                "{}: {}".format(
-                    consts.AZURE_DEVOPS_ENCRYPTION_ERROR,
-                    self._get_error_message_from_exception(e),
-                )
-            )
-            return self.set_status(
-                phantom.APP_ERROR, consts.AZURE_DEVOPS_ENCRYPTION_ERROR
-            )
 
-        if not self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED):
-            try:
                 if self._state.get("code"):
                     self._state["code"] = self.encrypt_state(
                         self._state["code"]
                     )
-            except Exception as e:
-                self.error_print(
-                    "{}: {}".format(
-                        consts.AZURE_DEVOPS_ENCRYPTION_ERROR,
-                        self._get_error_message_from_exception(e),
-                    )
+        except Exception as e:
+            self.error_print(
+                "{}: {}".format(
+                    consts.AZURE_DEVOPS_ENCRYPTION_ERROR,
+                    self._get_error_message_from_exception(e),
                 )
-                return self.set_status(
-                    phantom.APP_ERROR, consts.AZURE_DEVOPS_ENCRYPTION_ERROR
-                )
+            )
+            return self.set_status(
+                phantom.APP_ERROR, consts.AZURE_DEVOPS_ENCRYPTION_ERROR
+            )
 
         # Save the state, this data is saved across actions and app upgrades
         self._state[consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED] = True

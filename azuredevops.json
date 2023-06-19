@@ -10,7 +10,7 @@
     "python_version": "3",
     "product_version_regex": ".*",
     "publisher": "Splunk",
-    "license": "Copyright (c) 2022-2023 Splunk Inc.",
+    "license": "Copyright (c) 2019-2023 Splunk Inc.",
     "app_version": "2.0.0",
     "latest_tested_versions": [
         "Cloud, API api.crowdstrike.com, April 18 2023, API versions: v1, v2"
@@ -18,7 +18,7 @@
     "utctime_updated": "2022-10-17T09:45:50.000000Z",
     "package_name": "phantom_azuredevops",
     "main_module": "azuredevops_connector.py",
-    "min_phantom_version": "5.5.0",
+    "min_phantom_version": "6.0.0",
     "app_wizard_version": "1.0.0",
     "fips_compliant": false,
     "rest_handler": "azuredevops_connector._handle_rest_request",
@@ -43,34 +43,33 @@
             "id": 2
         },
         "auth_type": {
-            "description": "Auth type",
+            "description": "Auth Type",
             "data_type": "string",
             "value_list": [
-                "basic auth",
-                "interactive auth"
+                "Basic Auth",
+                "Interactive Auth"
             ],
             "order": 3,
-            "default": "basic auth",
+            "default": "Basic Auth",
             "required": true
         },
         "username": {
-            "description": "User name for the access token / password",
+            "description": "User name for the access token in case of Basic Auth",
             "data_type": "string",
             "order": 4
         },
         "access token": {
-            "description": "Access token / password in case of Basic Auth",
+            "description": "Access token in case of Basic Auth",
             "data_type": "password",
-            "order": 5,
-            "id": 4
+            "order": 5
         },
         "client_id": {
-            "description": "Client ID",
+            "description": "Client ID (Interactive Auth)",
             "data_type": "string",
             "order": 6
         },
         "client_secret": {
-            "description": "Client Secret",
+            "description": "Client Secret (Interactive Auth)",
             "data_type": "password",
             "order": 7
         }
@@ -98,8 +97,6 @@
                     "data_type": "numeric",
                     "required": true,
                     "order": 0,
-                    "name": "work_item_id",
-                    "id": 1,
                     "param_name": "work_item_id",
                     "primary": true,
                     "contains": [
@@ -1439,7 +1436,6 @@
                     "data_type": "string",
                     "required": true,
                     "order": 0,
-                    "name": "user_email",
                     "primary": true,
                     "contains": [
                         "email"
@@ -1457,8 +1453,7 @@
                     ],
                     "default": "stakeholder",
                     "required": true,
-                    "order": 1,
-                    "name": "account_license_type"
+                    "order": 1
                 },
                 "group_type": {
                     "description": "The project group type. Possible values are: projectReader, projectContributor, projectAdministrator, projectStakeholder",
@@ -1471,15 +1466,13 @@
                     ],
                     "default": "projectReader",
                     "required": true,
-                    "order": 2,
-                    "name": "group_type"
+                    "order": 2
                 },
                 "project_name": {
                     "description": "The name of the project",
                     "data_type": "string",
                     "required": true,
-                    "order": 3,
-                    "name": "project_name"
+                    "order": 3
                 }
             },
             "output": [
@@ -1927,7 +1920,7 @@
             "read_only": true,
             "parameters": {
                 "user_id": {
-                    "description": "Id of the user",
+                    "description": "ID of the user",
                     "data_type": "string",
                     "required": true,
                     "order": 0,
@@ -2002,8 +1995,7 @@
                 "filter": {
                     "description": "Equality operators relating to searching user entitlements separated by and clauses",
                     "data_type": "string",
-                    "order": 0,
-                    "name": "filter"
+                    "order": 0
                 }
             },
             "output": [
@@ -2016,21 +2008,9 @@
                     ]
                 },
                 {
-                    "data_path": "action_result.status",
-                    "data_type": "string",
-                    "example_values": [
-                        "success",
-                        "failed"
-                    ]
-                },
-                {
-                    "data_path": "action_result.parameter.filter",
-                    "data_type": "string"
-                },
-                {
                     "data_path": "action_result.parameter.filter",
                     "data_type": "string",
-                    "example_value": ""
+                    "example_values": []
                 },
                 {
                     "data_path": "action_result.data.*.items.*.accessLevel.accountLicenseType",
@@ -2553,28 +2533,8 @@
                 "input_file": "wheels/py3/beautifulsoup4-4.9.1-py3-none-any.whl"
             },
             {
-                "module": "certifi",
-                "input_file": "wheels/py3/certifi-2023.5.7-py3-none-any.whl"
-            },
-            {
-                "module": "chardet",
-                "input_file": "wheels/shared/chardet-3.0.4-py2.py3-none-any.whl"
-            },
-            {
-                "module": "idna",
-                "input_file": "wheels/shared/idna-2.10-py2.py3-none-any.whl"
-            },
-            {
-                "module": "requests",
-                "input_file": "wheels/shared/requests-2.25.0-py2.py3-none-any.whl"
-            },
-            {
                 "module": "soupsieve",
                 "input_file": "wheels/py3/soupsieve-2.3.2.post1-py3-none-any.whl"
-            },
-            {
-                "module": "urllib3",
-                "input_file": "wheels/shared/urllib3-1.26.15-py2.py3-none-any.whl"
             }
         ]
     },
@@ -2585,28 +2545,8 @@
                 "input_file": "wheels/py3/beautifulsoup4-4.9.1-py3-none-any.whl"
             },
             {
-                "module": "certifi",
-                "input_file": "wheels/py3/certifi-2023.5.7-py3-none-any.whl"
-            },
-            {
-                "module": "chardet",
-                "input_file": "wheels/shared/chardet-3.0.4-py2.py3-none-any.whl"
-            },
-            {
-                "module": "idna",
-                "input_file": "wheels/shared/idna-2.10-py2.py3-none-any.whl"
-            },
-            {
-                "module": "requests",
-                "input_file": "wheels/shared/requests-2.25.0-py2.py3-none-any.whl"
-            },
-            {
                 "module": "soupsieve",
                 "input_file": "wheels/py3/soupsieve-2.4.1-py3-none-any.whl"
-            },
-            {
-                "module": "urllib3",
-                "input_file": "wheels/shared/urllib3-1.26.15-py2.py3-none-any.whl"
             }
         ]
     }
