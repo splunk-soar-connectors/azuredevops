@@ -6,12 +6,12 @@ Connector Version: 2.0.0
 Product Vendor: Microsoft  
 Product Name: Azure DevOps  
 Product Version Supported (regex): ".\*"  
-Minimum Product Version: 5.5.0  
+Minimum Product Version: 6.0.0  
 
 This app integrates with Azure DevOps to perform investigative and generic actions
 
 [comment]: # " File: README.md"
-[comment]: # "  Copyright (c) 2019-2022 Splunk Inc."
+[comment]: # "  Copyright (c) 2022-2023 Splunk Inc."
 [comment]: # ""
 [comment]: # "Licensed under the Apache License, Version 2.0 (the 'License');"
 [comment]: # "you may not use this file except in compliance with the License."
@@ -51,8 +51,6 @@ This app requires creating an app on Microsoft Azure Application. To register yo
     -   Select **Create Application**
 
 2.  ### Authorize your app
-
-      
 
     Call the authorization URL and pass your app ID and authorized scopes when you want to have a
     user authorize your app to access their organization. Call the access token URL when you want to
@@ -117,7 +115,7 @@ This app requires creating an app on Microsoft Azure Application. To register yo
     The app should now be ready to use.  
       
     If username and password is entered than priority will be given to the basic auth then
-    interactive auth.  
+    Interactive Auth.  
       
     We have tested all the action for the api version 7.0 but it might be supported in another
     versions as well.
@@ -167,11 +165,11 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 **organization** |  required  | string | The name of the Azure DevOps organization
 **project** |  required  | string | Project name
 **api version** |  required  | string | Version of the API to use
-**auth_type** |  required  | string | Auth type
-**username** |  optional  | string | User name for the access token / password
-**access token** |  optional  | password | Access token / password in case of Basic Auth
-**client_id** |  optional  | string | Client ID
-**client_secret** |  optional  | password | Client Secret
+**auth_type** |  required  | string | Auth Type
+**username** |  optional  | string | User name for the access token in case of Basic Auth
+**access token** |  optional  | password | Access token in case of Basic Auth
+**client_id** |  optional  | string | Client ID (Interactive Auth)
+**client_secret** |  optional  | password | Client Secret (Interactive Auth)
 
 ### Supported Actions  
 [test connectivity](#action-test-connectivity) - Validate the asset configuration for connectivity using supplied configuration  
@@ -530,7 +528,7 @@ Read only: **True**
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 --------- | -------- | ----------- | ---- | --------
-**user_id** |  required  | Id of the user | string |  `userid` 
+**user_id** |  required  | ID of the user | string |  `userid` 
 
 #### Action Output
 DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
@@ -558,8 +556,6 @@ PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
 --------- | ---- | -------- | --------------
 action_result.status | string |  |   success  failed 
-action_result.status | string |  |   success  failed 
-action_result.parameter.filter | string |  |  
 action_result.parameter.filter | string |  |  
 action_result.data.\*.items.\*.accessLevel.accountLicenseType | string |  |   stakeholder 
 action_result.data.\*.items.\*.accessLevel.assignmentSource | string |  |   unknown 
