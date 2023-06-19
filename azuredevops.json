@@ -54,12 +54,12 @@
             "required": true
         },
         "username": {
-            "description": "User name for the access token in case of Basic Auth",
+            "description": "User name (Basic Auth)",
             "data_type": "string",
             "order": 4
         },
         "access token": {
-            "description": "Access token in case of Basic Auth",
+            "description": "Access token (Basic Auth)",
             "data_type": "password",
             "order": 5
         },
