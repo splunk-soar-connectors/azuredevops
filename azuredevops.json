@@ -39,8 +39,7 @@
             "description": "Version of the API to use",
             "data_type": "string",
             "required": true,
-            "order": 2,
-            "id": 2
+            "order": 2
         },
         "auth_type": {
             "description": "Auth Type",
@@ -156,6 +155,9 @@
                     "column_order": 0,
                     "example_values": [
                         "123"
+                    ],
+                    "contains": [
+                        "work item id"
                     ]
                 },
                 {
@@ -890,9 +892,7 @@
                     ],
                     "contains": [
                         "work item id"
-                    ],
-                    "column_name": "work item id",
-                    "column_order": 0
+                    ]
                 },
                 {
                     "data_path": "action_result.data.*.fields.System.IterationId",
@@ -2467,7 +2467,10 @@
                 },
                 {
                     "data_path": "action_result.parameter.vault_id",
-                    "data_type": "string"
+                    "data_type": "string",
+                    "contains": [
+                        "vault id"
+                    ]
                 },
                 {
                     "data_path": "action_result.data",
