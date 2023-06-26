@@ -215,7 +215,7 @@ action_result.status | string |  |   success  failed
 action_result.parameter.asof | string |  |  
 action_result.parameter.expand | string |  |  
 action_result.parameter.fields | string |  |  
-action_result.parameter.work_item_id | numeric |  |   123 
+action_result.parameter.work_item_id | numeric |  `work item id`  |   123 
 action_result.data | string |  |  
 action_result.data.\*._links.fields.href | string |  |   https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/fields 
 action_result.data.\*._links.html.href | string |  |   https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_workitems/edit/1 
@@ -634,7 +634,7 @@ DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
 action_result.status | string |  |   success  failed 
 action_result.parameter.api_version | string |  |  
 action_result.parameter.filename | string |  |  
-action_result.parameter.vault_id | string |  |  
+action_result.parameter.vault_id | string |  `vault id`  |  
 action_result.data | string |  |  
 action_result.data.\*.id | string |  |   b95793e6-9b27-4ea0-92ea-431b3e048395 
 action_result.data.\*.url | string |  |   https://dev.azure.com/herman0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/attachments/b95793e6-9b27-4ea0-92ea-431b3e048395 
