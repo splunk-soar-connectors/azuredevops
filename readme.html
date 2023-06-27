@@ -51,7 +51,7 @@ and limitations under the License.
                     <tr>
                         <td>client_id</td>
                         <td>GUID</td>
-                        <td>he ID assigned to your app when it was registered.</td>
+                        <td>The ID assigned to your app when it was registered.</td>
                     </tr>
                     <tr>
                         <td>response_type</td>
@@ -66,7 +66,7 @@ and limitations under the License.
                     <tr>
                         <td>scope</td>
                         <td>string</td>
-                        <td>Scopes registered with the app. Space separated. </td>
+                        <td>Scopes registered with the app. Space-separated. </td>
                     </tr>
                     <tr>
                         <td>redirect_uri</td>
@@ -84,9 +84,9 @@ and limitations under the License.
             </ul>
         </li>
     <h2>Configure the Azure Devops Splunk SOAR app Asset</h2>
-      When creating an asset for the <b>Azure Devops</b> app,go to asset settings and place the <b>Application ID</b> of the app created during the previous step in the <b>Client ID</b> field and place the Client Secret generated during the previous step in the <b>Client Secret</b> field. Then, after filling out the <b>The name of the Azure DevOps organization</b> and <b>Project name</b> fields , click <b>SAVE</b>.
+      When creating an asset for the <b>Azure Devops</b> app, go to asset settings and place the <b>Application ID</b> of the app created during the previous step in the <b>Client ID</b> field and place the Client Secret generated during the previous step in the <b>Client Secret</b> field. Then, after filling out the <b>The name of the Azure DevOps organization</b> and <b>Project name</b> fields , click <b>SAVE</b>.
       <br><br>
-      After saving, a new field will appear in the <b>Asset Settings</b> tab. Take the URL found in the <b>POST incoming for Azure DevOps to this location</b> field and place it in the <b>Application website</b> field mentioned in a previous step.Add the same url to the <b>Authorization callback URL</b> and add <b>/result</b> to ths URL. After doing so the URL should look something like:
+      After saving, a new field will appear in the <b>Asset Settings</b> tab. Take the URL found in the <b>POST incoming for Azure DevOps to this location</b> field and place it in the <b>Application website</b> field mentioned in a previous step. Add the same url to the <b>Authorization callback URL</b> and add <b>/result</b> to ths URL. After doing so the URL should look something like:
       <br><br>
       <p>
         https://&lt;soar_host&gt;/rest/handler/azureadgraph_c6d3b801-5c26-4abd-9e89-6d8007e2778f/&lt;asset_name&gt;/result
@@ -100,7 +100,7 @@ and limitations under the License.
       <br><br>
       If username and password is entered than priority will be given to the basic auth then Interactive Auth.
       <br><br>
-      We have tested all the action for the api version 7.0 but it might be supported in another versions as well.
+      We have tested all action for the api version 7.0 but it might be supported in other versions as well.
     <h2>State File Permissions</h2>
       Please check the permissions for the state file as mentioned below.
       <h4>State Filepath</h4>
