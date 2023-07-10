@@ -71,10 +71,10 @@ This app requires creating an app on Microsoft Azure Application. To register yo
 
     | Parameter     | Type   | Notes                                                                                                                        |
     |---------------|--------|------------------------------------------------------------------------------------------------------------------------------|
-    | client_id     | GUID   | he ID assigned to your app when it was registered.                                                                           |
+    | client_id     | GUID   | The ID assigned to your app when it was registered.                                                                          |
     | response_type | string | Assertion                                                                                                                    |
     | state         | string | Can be any value. Typically a generated string value that correlates the callback with its associated authorization request. |
-    | scope         | string | Scopes registered with the app. Space separated.                                                                             |
+    | scope         | string | Scopes registered with the app. Space-separated.                                                                             |
     | redirect_uri  | URL    | Callback URL for your app. Must exactly match the URL registered with the app.                                               |
 
 3.  Assuming the user accepts, Azure DevOps Services redirects the user's browser to your callback
@@ -87,7 +87,7 @@ This app requires creating an app on Microsoft Azure Application. To register yo
 
     ## Configure the Azure Devops Splunk SOAR app Asset
 
-    When creating an asset for the **Azure Devops** app,go to asset settings and place the
+    When creating an asset for the **Azure Devops** app, go to asset settings and place the
     **Application ID** of the app created during the previous step in the **Client ID** field and
     place the Client Secret generated during the previous step in the **Client Secret** field. Then,
     after filling out the **The name of the Azure DevOps organization** and **Project name** fields
@@ -95,7 +95,7 @@ This app requires creating an app on Microsoft Azure Application. To register yo
       
     After saving, a new field will appear in the **Asset Settings** tab. Take the URL found in the
     **POST incoming for Azure DevOps to this location** field and place it in the **Application
-    website** field mentioned in a previous step.Add the same url to the **Authorization callback
+    website** field mentioned in a previous step. Add the same url to the **Authorization callback
     URL** and add **/result** to ths URL. After doing so the URL should look something like:  
       
 
@@ -117,8 +117,8 @@ This app requires creating an app on Microsoft Azure Application. To register yo
     If username and password is entered than priority will be given to the basic auth then
     Interactive Auth.  
       
-    We have tested all the action for the api version 7.0 but it might be supported in another
-    versions as well.
+    We have tested all action for the api version 7.0 but it might be supported in other versions as
+    well.
 
     ## State File Permissions
 
