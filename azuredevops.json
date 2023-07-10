@@ -1917,7 +1917,7 @@
             "identifier": "delete_user",
             "description": "Delete a user",
             "type": "generic",
-            "read_only": true,
+            "read_only": false,
             "parameters": {
                 "user_id": {
                     "description": "ID of the user",
