@@ -880,7 +880,12 @@ class AzureDevopsConnector(BaseConnector):
 
         if phantom.is_fail(ret_val):
             return action_result.get_status()
-
+        temp_fields = {}
+        for key, val in response.get("fields").items():
+            temp_key = key.replace(".", "-")
+            temp_fields[temp_key] = val
+        response["fields"] = temp_fields
+        self.debug_print("jay1", response)
         action_result.add_data(response)
 
         summary = action_result.update_summary({})
@@ -922,6 +927,13 @@ class AzureDevopsConnector(BaseConnector):
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
+        temp_fields = {}
+        self.debug_print("jay", response)
+        for key, val in response.get("fields").items():
+            temp_key = key.replace(".", "-")
+            temp_fields[temp_key] = val
+        response["fields"] = temp_fields
+        self.debug_print("jay1", response)
         action_result.add_data(response)
 
         summary = action_result.update_summary({})
