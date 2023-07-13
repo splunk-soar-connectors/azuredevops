@@ -229,32 +229,32 @@ action_result.data.\*.commentVersionRef.url | string |  |   https://dev.azure.co
 action_result.data.\*.commentVersionRef.version | numeric |  |   1 
 action_result.data.\*.fields.Microsoft.VSTS.Common.Priority | numeric |  |   1 
 action_result.data.\*.fields.Microsoft.VSTS.Common.StateChangeDate | string |  |   2023-01-02T11:53:05.303Z 
-action_result.data.\*.fields.System.AreaPath | string |  |   test 
-action_result.data.\*.fields.System.ChangedBy._links.avatar.href | string |  |   https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
-action_result.data.\*.fields.System.ChangedBy.descriptor | string |  |   aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
-action_result.data.\*.fields.System.ChangedBy.displayName | string |  |   test Edwards 
-action_result.data.\*.fields.System.ChangedBy.id | string |  |   a4587438-ef08-6c3a-bb0e-9426cff36a72 
-action_result.data.\*.fields.System.ChangedBy.imageUrl | string |  |   https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
-action_result.data.\*.fields.System.ChangedBy.uniqueName | string |  |   test@test.com 
-action_result.data.\*.fields.System.ChangedBy.url | string |  |   https://spsprodsin2.vssps.visualstudio.com/A0ec3bd2d-0567-4fc0-bd83-8a95ff980ce7/_apis/Identities/a4587438-ef08-6c3a-bb0e-9426cff36a72 
-action_result.data.\*.fields.System.ChangedDate | string |  |   2023-02-07T08:33:56.447Z 
-action_result.data.\*.fields.System.CommentCount | numeric |  |   5 
-action_result.data.\*.fields.System.CreatedBy._links.avatar.href | string |  |   https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
-action_result.data.\*.fields.System.CreatedBy.descriptor | string |  |   aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
-action_result.data.\*.fields.System.CreatedBy.displayName | string |  |   test Edwards 
-action_result.data.\*.fields.System.CreatedBy.id | string |  |   a4587438-ef08-6c3a-bb0e-9426cff36a72 
-action_result.data.\*.fields.System.CreatedBy.imageUrl | string |  |   https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
-action_result.data.\*.fields.System.CreatedBy.uniqueName | string |  |   test@test.com 
-action_result.data.\*.fields.System.CreatedBy.url | string |  |   https://spsprodsin2.vssps.visualstudio.com/A0ec3bd2d-0567-4fc0-bd83-8a95ff980ce7/_apis/Identities/a4587438-ef08-6c3a-bb0e-9426cff36a72 
-action_result.data.\*.fields.System.CreatedDate | string |  |   2023-01-02T11:53:05.303Z 
-action_result.data.\*.fields.System.Description | string |  |   <div>Test description </div> 
-action_result.data.\*.fields.System.History | string |  |   test 
-action_result.data.\*.fields.System.IterationPath | string |  |   test 
-action_result.data.\*.fields.System.Reason | string |  |   Added to backlog 
-action_result.data.\*.fields.System.State | string |  |   To Do 
-action_result.data.\*.fields.System.TeamProject | string |  |   test 
-action_result.data.\*.fields.System.Title | string |  |   Test Epic Title 
-action_result.data.\*.fields.System.WorkItemType | string |  |   Epic 
+action_result.data.\*.fields.System-AreaPath | string |  |   test 
+action_result.data.\*.fields.System-ChangedBy._links.avatar.href | string |  |   https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
+action_result.data.\*.fields.System-ChangedBy.descriptor | string |  |   aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
+action_result.data.\*.fields.System-ChangedBy.displayName | string |  |   test Edwards 
+action_result.data.\*.fields.System-ChangedBy.id | string |  |   a4587438-ef08-6c3a-bb0e-9426cff36a72 
+action_result.data.\*.fields.System-ChangedBy.imageUrl | string |  |   https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
+action_result.data.\*.fields.System-ChangedBy.uniqueName | string |  |   test@test.com 
+action_result.data.\*.fields.System-ChangedBy.url | string |  |   https://spsprodsin2.vssps.visualstudio.com/A0ec3bd2d-0567-4fc0-bd83-8a95ff980ce7/_apis/Identities/a4587438-ef08-6c3a-bb0e-9426cff36a72 
+action_result.data.\*.fields.System-ChangedDate | string |  |   2023-02-07T08:33:56.447Z 
+action_result.data.\*.fields.System-CommentCount | numeric |  |   5 
+action_result.data.\*.fields.System-CreatedBy._links.avatar.href | string |  |   https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
+action_result.data.\*.fields.System-CreatedBy.descriptor | string |  |   aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
+action_result.data.\*.fields.System-CreatedBy.displayName | string |  |   test Edwards 
+action_result.data.\*.fields.System-CreatedBy.id | string |  |   a4587438-ef08-6c3a-bb0e-9426cff36a72 
+action_result.data.\*.fields.System-CreatedBy.imageUrl | string |  |   https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
+action_result.data.\*.fields.System-CreatedBy.uniqueName | string |  |   test@test.com 
+action_result.data.\*.fields.System-CreatedBy.url | string |  |   https://spsprodsin2.vssps.visualstudio.com/A0ec3bd2d-0567-4fc0-bd83-8a95ff980ce7/_apis/Identities/a4587438-ef08-6c3a-bb0e-9426cff36a72 
+action_result.data.\*.fields.System-CreatedDate | string |  |   2023-01-02T11:53:05.303Z 
+action_result.data.\*.fields.System-Description | string |  |   <div>Test description </div> 
+action_result.data.\*.fields.System-History | string |  |   test 
+action_result.data.\*.fields.System-IterationPath | string |  |   test 
+action_result.data.\*.fields.System-Reason | string |  |   Added to backlog 
+action_result.data.\*.fields.System-State | string |  |   To Do 
+action_result.data.\*.fields.System-TeamProject | string |  |   test 
+action_result.data.\*.fields.System-Title | string |  |   Test Epic Title 
+action_result.data.\*.fields.System-WorkItemType | string |  |   Epic 
 action_result.data.\*.id | numeric |  |   1 
 action_result.data.\*.relations.\*.attributes.isLocked | boolean |  |   True  False 
 action_result.data.\*.relations.\*.attributes.name | string |  |   Child 
@@ -304,49 +304,49 @@ action_result.data.\*._links.workItemType.href | string |  |   https://dev.azure
 action_result.data.\*._links.workItemUpdates.href | string |  |   https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/workItems/9/updates 
 action_result.data.\*.fields.Microsoft.VSTS.Common.Priority | numeric |  |   2 
 action_result.data.\*.fields.Microsoft.VSTS.Common.StateChangeDate | string |  |   2023-02-07T08:34:37.39Z 
-action_result.data.\*.fields.System.AreaId | numeric |  |   4 
-action_result.data.\*.fields.System.AreaLevel1 | string |  |   test 
-action_result.data.\*.fields.System.AreaPath | string |  |   test 
-action_result.data.\*.fields.System.AuthorizedAs._links.avatar.href | string |  |   https://dev.azure.com/herman0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
-action_result.data.\*.fields.System.AuthorizedAs.descriptor | string |  |   aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
-action_result.data.\*.fields.System.AuthorizedAs.displayName | string |  |   ABC XYZ 
-action_result.data.\*.fields.System.AuthorizedAs.id | string |  |   a4587438-ef08-6c3a-bb0e-9426cff36a72 
-action_result.data.\*.fields.System.AuthorizedAs.imageUrl | string |  |   https://dev.azure.com/abc/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
-action_result.data.\*.fields.System.AuthorizedAs.uniqueName | string |  |   test@test.com 
-action_result.data.\*.fields.System.AuthorizedAs.url | string |  |   https://spsprodsin2.vssps.visualstudio.com/A0ec3bd2d-0567-4fc0-bd83-8a95ff980ce7/_apis/Identities/a4587438-ef08-6c3a-bb0e-9426cff36a72 
-action_result.data.\*.fields.System.AuthorizedDate | string |  |   2023-04-14T12:33:31.437Z 
-action_result.data.\*.fields.System.ChangedBy._links.avatar.href | string |  |   https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
-action_result.data.\*.fields.System.ChangedBy.descriptor | string |  |   aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
-action_result.data.\*.fields.System.ChangedBy.displayName | string |  |   test Edwards 
-action_result.data.\*.fields.System.ChangedBy.id | string |  |   a4587438-ef08-6c3a-bb0e-9426cff36a72 
-action_result.data.\*.fields.System.ChangedBy.imageUrl | string |  |   https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
-action_result.data.\*.fields.System.ChangedBy.uniqueName | string |  |   test@test.com 
-action_result.data.\*.fields.System.ChangedBy.url | string |  |   https://spsprodsin2.vssps.visualstudio.com/A0ec3bd2d-0567-4fc0-bd83-8a95ff980ce7/_apis/Identities/a4587438-ef08-6c3a-bb0e-9426cff36a72 
-action_result.data.\*.fields.System.ChangedDate | string |  |   2023-02-07T08:34:37.39Z 
-action_result.data.\*.fields.System.CommentCount | numeric |  |  
-action_result.data.\*.fields.System.CreatedBy._links.avatar.href | string |  |   https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
-action_result.data.\*.fields.System.CreatedBy.descriptor | string |  |   aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
-action_result.data.\*.fields.System.CreatedBy.displayName | string |  |   test Edwards 
-action_result.data.\*.fields.System.CreatedBy.id | string |  |   a4587438-ef08-6c3a-bb0e-9426cff36a72 
-action_result.data.\*.fields.System.CreatedBy.imageUrl | string |  |   https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
-action_result.data.\*.fields.System.CreatedBy.uniqueName | string |  |   test@test.comment 
-action_result.data.\*.fields.System.CreatedBy.url | string |  |   https://spsprodsin2.vssps.visualstudio.com/A0ec3bd2d-0567-4fc0-bd83-8a95ff980ce7/_apis/Identities/a4587438-ef08-6c3a-bb0e-9426cff36a72 
-action_result.data.\*.fields.System.CreatedDate | string |  |   2023-02-07T08:34:37.39Z 
-action_result.data.\*.fields.System.Description | string |  |   <div>This is a sample description added via REST API </div> 
-action_result.data.\*.fields.System.Id | numeric |  `work item id`  |   61 
-action_result.data.\*.fields.System.IterationId | numeric |  |   1 
-action_result.data.\*.fields.System.IterationLevel1 | string |  |   test 
-action_result.data.\*.fields.System.IterationPath | string |  |   test 
-action_result.data.\*.fields.System.NodeName | string |  |   test 
-action_result.data.\*.fields.System.PersonId | numeric |  |   253932606 
-action_result.data.\*.fields.System.Reason | string |  |   Added to backlog 
-action_result.data.\*.fields.System.Rev | numeric |  |   1 
-action_result.data.\*.fields.System.RevisedDate | string |  |   9999-01-01T00:00:00Z 
-action_result.data.\*.fields.System.State | string |  |   To Do 
-action_result.data.\*.fields.System.TeamProject | string |  |   test 
-action_result.data.\*.fields.System.Title | string |  |   This task title is created via REST API 
-action_result.data.\*.fields.System.Watermark | numeric |  |   119 
-action_result.data.\*.fields.System.WorkItemType | string |  |   Epic 
+action_result.data.\*.fields.System-AreaId | numeric |  |   4 
+action_result.data.\*.fields.System-AreaLevel1 | string |  |   test 
+action_result.data.\*.fields.System-AreaPath | string |  |   test 
+action_result.data.\*.fields.System-AuthorizedAs._links.avatar.href | string |  |   https://dev.azure.com/herman0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
+action_result.data.\*.fields.System-AuthorizedAs.descriptor | string |  |   aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
+action_result.data.\*.fields.System-AuthorizedAs.displayName | string |  |   ABC XYZ 
+action_result.data.\*.fields.System-AuthorizedAs.id | string |  |   a4587438-ef08-6c3a-bb0e-9426cff36a72 
+action_result.data.\*.fields.System-AuthorizedAs.imageUrl | string |  |   https://dev.azure.com/abc/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
+action_result.data.\*.fields.System-AuthorizedAs.uniqueName | string |  |   test@test.com 
+action_result.data.\*.fields.System-AuthorizedAs.url | string |  |   https://spsprodsin2.vssps.visualstudio.com/A0ec3bd2d-0567-4fc0-bd83-8a95ff980ce7/_apis/Identities/a4587438-ef08-6c3a-bb0e-9426cff36a72 
+action_result.data.\*.fields.System-AuthorizedDate | string |  |   2023-04-14T12:33:31.437Z 
+action_result.data.\*.fields.System-ChangedBy._links.avatar.href | string |  |   https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
+action_result.data.\*.fields.System-ChangedBy.descriptor | string |  |   aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
+action_result.data.\*.fields.System-ChangedBy.displayName | string |  |   test Edwards 
+action_result.data.\*.fields.System-ChangedBy.id | string |  |   a4587438-ef08-6c3a-bb0e-9426cff36a72 
+action_result.data.\*.fields.System-ChangedBy.imageUrl | string |  |   https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
+action_result.data.\*.fields.System-ChangedBy.uniqueName | string |  |   test@test.com 
+action_result.data.\*.fields.System-ChangedBy.url | string |  |   https://spsprodsin2.vssps.visualstudio.com/A0ec3bd2d-0567-4fc0-bd83-8a95ff980ce7/_apis/Identities/a4587438-ef08-6c3a-bb0e-9426cff36a72 
+action_result.data.\*.fields.System-ChangedDate | string |  |   2023-02-07T08:34:37.39Z 
+action_result.data.\*.fields.System-CommentCount | numeric |  |  
+action_result.data.\*.fields.System-CreatedBy._links.avatar.href | string |  |   https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
+action_result.data.\*.fields.System-CreatedBy.descriptor | string |  |   aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
+action_result.data.\*.fields.System-CreatedBy.displayName | string |  |   test Edwards 
+action_result.data.\*.fields.System-CreatedBy.id | string |  |   a4587438-ef08-6c3a-bb0e-9426cff36a72 
+action_result.data.\*.fields.System-CreatedBy.imageUrl | string |  |   https://dev.azure.com/test0828/_apis/GraphProfile/MemberAvatars/aad.YTQ1ODc0MzgtZWYwOC03YzNhLWJiMGUtOTQyNmNmZjM2YTcy 
+action_result.data.\*.fields.System-CreatedBy.uniqueName | string |  |   test@test.comment 
+action_result.data.\*.fields.System-CreatedBy.url | string |  |   https://spsprodsin2.vssps.visualstudio.com/A0ec3bd2d-0567-4fc0-bd83-8a95ff980ce7/_apis/Identities/a4587438-ef08-6c3a-bb0e-9426cff36a72 
+action_result.data.\*.fields.System-CreatedDate | string |  |   2023-02-07T08:34:37.39Z 
+action_result.data.\*.fields.System-Description | string |  |   <div>This is a sample description added via REST API </div> 
+action_result.data.\*.fields.System-Id | numeric |  `work item id`  |   61 
+action_result.data.\*.fields.System-IterationId | numeric |  |   1 
+action_result.data.\*.fields.System-IterationLevel1 | string |  |   test 
+action_result.data.\*.fields.System-IterationPath | string |  |   test 
+action_result.data.\*.fields.System-NodeName | string |  |   test 
+action_result.data.\*.fields.System-PersonId | numeric |  |   253932606 
+action_result.data.\*.fields.System-Reason | string |  |   Added to backlog 
+action_result.data.\*.fields.System-Rev | numeric |  |   1 
+action_result.data.\*.fields.System-RevisedDate | string |  |   9999-01-01T00:00:00Z 
+action_result.data.\*.fields.System-State | string |  |   To Do 
+action_result.data.\*.fields.System-TeamProject | string |  |   test 
+action_result.data.\*.fields.System-Title | string |  |   This task title is created via REST API 
+action_result.data.\*.fields.System-Watermark | numeric |  |   119 
+action_result.data.\*.fields.System-WorkItemType | string |  |   Epic 
 action_result.data.\*.id | numeric |  |   9 
 action_result.data.\*.rev | numeric |  |   1 
 action_result.data.\*.url | string |  |   https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/workItems/9 
@@ -523,7 +523,7 @@ summary.total_objects_successful | numeric |  |   1
 Delete a user
 
 Type: **generic**  
-Read only: **True**
+Read only: **False**
 
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
