@@ -1,0 +1,141 @@
+<!-- File: readme.html
+  Copyright (c) 2022-2023 Splunk Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under
+the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+either express or implied. See the License for the specific language governing permissions
+and limitations under the License.
+-->
+
+<html>
+  <head></head>
+  <body>
+    <h2>Interactive Auth</h2>
+      <p>This app requires creating an app on Microsoft Azure Application. To register your app, navigate to <a href="https://app.vsaex.visualstudio.com/app/register" target="_blank">https://app.vsaex.visualstudio.com/app/register</a> in a browser and log in with a Microsoft account.</p>
+
+      <ol>
+        <li><h3>Register your app</h3><br>
+            <ul>
+                <li>Go to <a href="https://app.vsaex.visualstudio.com/app/register" target="_blank">https://app.vsaex.visualstudio.com/app/register</a> to register your app.<p>Add the Application website which will be under the "POST incoming for Azure DevOps to this location" field of your Splunk-SOAR asset. It would look like : <br>https://{soar_instance}/rest/handler/{app_name}_{app_id}/{asset_name}<br>Authorisation URL would look like : <br>https://{soar_instance}/rest/handler/{app_name}_{app_id}/{asset_name}/result</p></p></li>
+                <li>Select the following scopes while registering your app: <br>
+                  vso.entitlements<br>vso.memberentitlementmanagement_write <br>vso.work_full <br>Use the same scopes when you authorize your app. If you registered your app using the preview APIs, re-register because the scopes that you used are now deprecated.</li>
+                <li>Select<b>Create Application</b></li>
+            </ul>
+        </li>
+        <li><h3>Authorize your app</h3>
+        <p>Call the authorization URL and pass your app ID and authorized scopes when you want to have a user authorize your app to access their organization. Call the access token URL when you want to get an access token to call an Azure DevOps Services REST API.</p>
+            <ul>
+            <li>If your user hasn't yet authorized your app to access their organization, call the authorization URL. It calls you back with an authorization code, if the user approves the authorization.</li>
+            <blockquote>
+            <p>https://app.vssps.visualstudio.com/oauth2/authorize<br>
+                ?client_id={app ID}<br>
+                &response_type={Assertion}<br>
+                &state={state}<br>
+                &scope={scope}<br>
+                &redirect_uri={callback URL}
+            </p>
+            </blockquote>
+            </ul>
+                <table>
+                    <tr class=plain>
+                        <th>Parameter</th>
+                        <th>Type</th>
+                        <th>Notes</th>
+                    </tr>
+                    <tr>
+                        <td>client_id</td>
+                        <td>GUID</td>
+                        <td>The ID assigned to your app when it was registered.</td>
+                    </tr>
+                    <tr>
+                        <td>response_type</td>
+                        <td>string</td>
+                        <td>Assertion</td>
+                    </tr>
+                    <tr>
+                        <td>state</td>
+                        <td>string</td>
+                        <td>Can be any value. Typically a generated string value that correlates the callback with its associated authorization request.</td>
+                    </tr>
+                    <tr>
+                        <td>scope</td>
+                        <td>string</td>
+                        <td>Scopes registered with the app. Space-separated. </td>
+                    </tr>
+                    <tr>
+                        <td>redirect_uri</td>
+                        <td>URL</td>
+                        <td>	Callback URL for your app. Must exactly match the URL registered with the app.</td>
+                    </tr>
+                </table>
+                <li>Assuming the user accepts, Azure DevOps Services redirects the user's browser to your callback URL, including a short-lived authorization code and the state value provided in the authorization URL:</li>
+                <blockquote>
+                <p>https://fabrikam.azurewebsites.net/myapp/oauth-callback<br>
+                    ?code={authorization code}<br>
+                    &state=User1
+                </p>
+                </blockquote>
+            </ul>
+        </li>
+    <h2>Configure the Azure Devops Splunk SOAR app Asset</h2>
+      When creating an asset for the <b>Azure Devops</b> app, go to asset settings and place the <b>Application ID</b> of the app created during the previous step in the <b>Client ID</b> field and place the Client Secret generated during the previous step in the <b>Client Secret</b> field. Then, after filling out the <b>The name of the Azure DevOps organization</b> and <b>Project name</b> fields , click <b>SAVE</b>.
+      <br><br>
+      After saving, a new field will appear in the <b>Asset Settings</b> tab. Take the URL found in the <b>POST incoming for Azure DevOps to this location</b> field and place it in the <b>Application website</b> field mentioned in a previous step. Add the same url to the <b>Authorization callback URL</b> and add <b>/result</b> to ths URL. After doing so the URL should look something like:
+      <br><br>
+      <p>
+        https://&lt;soar_host&gt;/rest/handler/azureadgraph_c6d3b801-5c26-4abd-9e89-6d8007e2778f/&lt;asset_name&gt;/result
+      </p>
+      <br>
+      Once again, click on Save.
+    <h2>Method to Run Test Connectivity</h2>
+    After setting up the asset and user, click the <b>TEST CONNECTIVITY</b> button. A window should pop up and display a URL. Navigate to this URL in a separate browser tab. This new tab will redirect to a Microsoft login page. Log in to a Microsoft account with administrator privileges to the Azure Devops environment. After logging in, review the requested permissions listed, then click <b>Accept</b>. Finally, close that tab. The test connectivity window should show a success.
+      <br><br>
+      The app should now be ready to use.
+      <br><br>
+      If username and password is entered than priority will be given to the basic auth then Interactive Auth.
+      <br><br>
+      We have tested all action for the api version 7.0 but it might be supported in other versions as well.
+    <h2>State File Permissions</h2>
+      Please check the permissions for the state file as mentioned below.
+      <h4>State Filepath</h4>
+      <ul>
+        <li>For Non-NRI Instance: /opt/phantom/local_data/app_states/c6d3b801-5c26-4abd-9e89-6d8007e2778f/{asset_id}_state.json</li>
+        <li>For NRI Instance: /&lt;PHANTOM_HOME_DIRECTORY&gt;/local_data/app_states/c6d3b801-5c26-4abd-9e89-6d8007e2778f/{asset_id}_state.json</li>
+      </ul>
+      <h4>State File Permissions</h4>
+      <ul>
+        <li>File Rights: rw-rw-r-- (664) (The phantom user should have read and write access for the state file)</li>
+        <li>File Owner: appropriate phantom user</li>
+      </ul>
+      <h2>Port Information</h2>
+	<p>
+		The app uses HTTP/ HTTPS protocol for communicating with the Azure AD server. Below are the default ports used by Splunk SOAR.
+		<table>
+			<tr class=plain>
+				<th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Service Name</th>
+				<th>Transport Protocol</th>
+				<th>Port</th>
+			</tr>
+			<tr>
+				<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;http</td>
+				<td>tcp</td>
+				<td>80</td>
+			</tr>
+			<tr>
+				<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;https</td>
+				<td>tcp</td>
+				<td>443</td>
+			</tr>
+		</table>
+	</p>
+  <h2>Basic Authentication</h2>
+    <p>This app requires two params for the basic authentication which is username and access token(password). username will be email id. To generate the access token follow <a href="https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows#create-a-pat" target="_blank">this</a> steps and select Entitlements - Read (vso.entitlements), User Profile - Read&Write(vso.memberentitlementmanagement_write) and work item - Read&Write(vso.work_full) scopes.</p>
+
+  </body>
+</html>
