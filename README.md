@@ -2,7 +2,7 @@
 # Azure DevOps
 
 Publisher: Splunk  
-Connector Version: 2.0.0  
+Connector Version: 2.0.1  
 Product Vendor: Microsoft  
 Product Name: Azure DevOps  
 Product Version Supported (regex): ".\*"  
