@@ -10,8 +10,8 @@
     "python_version": "3",
     "product_version_regex": ".*",
     "publisher": "Splunk",
-    "license": "Copyright (c) 2022-2023 Splunk Inc.",
-    "app_version": "2.0.0",
+    "license": "Copyright (c) 2022-2024 Splunk Inc.",
+    "app_version": "2.0.1",
     "latest_tested_versions": [
         "Cloud 19 June 2023, API Version: 7.0"
     ],
@@ -2549,7 +2549,7 @@
             },
             {
                 "module": "soupsieve",
-                "input_file": "wheels/py3/soupsieve-2.4.1-py3-none-any.whl"
+                "input_file": "wheels/py3/soupsieve-2.5-py3-none-any.whl"
             }
         ]
     }
