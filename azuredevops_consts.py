@@ -1,6 +1,6 @@
 # File: azuredevops_consts.py
 #
-# Copyright (c) 2022-2024 Splunk Inc.
+# Copyright (c) 2022-2025 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,9 +20,7 @@ AZURE_DEVOPS_PHANTOM_ASSET_INFO_URL = "/asset/{asset_id}"
 AZURE_DEVOPS_PHANTOM_SYS_INFO_URL = "/system_info"
 AZURE_DEVOPS_BASE_URL_NOT_FOUND_MESSAGE = "Phantom Base URL not found in System Settings. Please specify this value in System Settings."
 AZURE_DEVOPS_ERROR_MESSAGE_UNAVAILABLE = "Error message unavailable. Please check the asset configuration and|or action parameters."
-AZURE_DEVOPS_STATE_FILE_CORRUPT_ERROR = (
-    "Error occurred while loading the state file due to its unexpected format."
-)
+AZURE_DEVOPS_STATE_FILE_CORRUPT_ERROR = "Error occurred while loading the state file due to its unexpected format."
 
 AZURE_DEVOPS_AUTHORIZE_TROUBLESHOOT_MESSAGE = (
     "If authorization URL fails to communicate with your Phantom instance, check whether you have:  "
@@ -33,9 +31,7 @@ AZURE_DEVOPS_DEVOPS_DECRYPTION_ERROR = "Error occurred while decrypting the stat
 AZURE_DEVOPS_REST_URL_NOT_AVAILABLE_MESSAGE = "Rest URL not available. Error: {error}"
 AZURE_DEVOPS_GENERATING_ACCESS_TOKEN_MESSAGE = "Generating access token"
 AZURE_DEVOPS_OAUTH_URL_MESSAGE = "Using OAuth URL:\n"
-AZURE_DEVOPS_CODE_GENERATION_SCOPE = (
-    "vso.entitlements vso.memberentitlementmanagement_write vso.work_full"
-)
+AZURE_DEVOPS_CODE_GENERATION_SCOPE = "vso.entitlements vso.memberentitlementmanagement_write vso.work_full"
 PERMISSION_CODE = "0664"
 AZURE_DEVOPS_TC_STATUS_SLEEP = 2
 
