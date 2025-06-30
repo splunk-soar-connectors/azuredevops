@@ -15,6 +15,12 @@
 
 TC_FILE = "oauth_task.out"
 
+# Microsoft Entra ID OAuth (New preferred method as of April 2025)
+ENTRA_ID_TOKEN_URL = "https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token"
+ENTRA_ID_AUTHORIZATION_URL = "https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/authorize"
+AZURE_DEVOPS_RESOURCE_ID = "499b84ac-1321-427f-aa17-267ca6975798"
+AZURE_DEVOPS_RESOURCE_URI = "https://app.vssps.visualstudio.com"
+
 AZURE_DEVOPS_PHANTOM_BASE_URL = "{phantom_base_url}rest"
 AZURE_DEVOPS_PHANTOM_ASSET_INFO_URL = "/asset/{asset_id}"
 AZURE_DEVOPS_PHANTOM_SYS_INFO_URL = "/system_info"
@@ -72,3 +78,14 @@ AZUREDEVOPS_ERROR_MESSAGE_UNAVAILABLE = "Error message unavailable. Please check
 BAD_TOKEN_MATCH_STRING = "203"
 APPLICATION_JSON_PATCH_HEADER = "application/json-patch+json"
 OCTANT_HEADER_STRING = "application/octet-stream"
+
+# Authentication types
+AUTH_TYPE_BASIC = "Basic Auth"
+AUTH_TYPE_INTERACTIVE_LEGACY = "Interactive Auth (Legacy)"
+AUTH_TYPE_INTERACTIVE_ENTRA = "Interactive Auth (Entra ID)"
+
+# Backward compatibility constants for existing configurations
+AUTH_TYPE_INTERACTIVE_OLD = "Interactive Auth"
+
+# Default scopes for Azure DevOps access
+AZURE_DEVOPS_DEFAULT_SCOPE = "https://app.vssps.visualstudio.com/.default"

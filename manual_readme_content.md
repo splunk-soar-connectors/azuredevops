@@ -1,125 +1,102 @@
 ## Interactive Auth
 
-This app requires creating an app on Microsoft Azure Application. To register your app, navigate to
-<https://app.vsaex.visualstudio.com/app/register> in a browser and log in with a Microsoft account.
+**IMPORTANT NOTICE**: As of April 2025, Microsoft is no longer accepting new Azure DevOps OAuth app registrations. All new integrations must use Microsoft Entra ID OAuth. Existing Azure DevOps OAuth integrations will continue to work until the end-of-life date (announced for 2026).
 
-1. ### Register your app
+### For New Integrations (Microsoft Entra ID OAuth)
 
-   - Go to <https://app.vsaex.visualstudio.com/app/register> to register your app.
+This app now supports Microsoft Entra ID OAuth for new integrations. To register your app:
 
-     Add the Application website which will be under the "POST incoming for Azure DevOps to this
-     location" field of your Splunk-SOAR asset. It would look like :\
-     https://{soar_instance}/rest/handler/{app_name}\_{app_id}/{asset_name}\
-     Authorisation URL would look like :\
-     https://{soar_instance}/rest/handler/{app_name}\_{app_id}/{asset_name}/result
+1. Navigate to the [Microsoft Entra admin center](https://entra.microsoft.com) and register a new application
+1. Go to **App registrations** -> **New registration**
+1. Provide a name for your application
+1. **Leave the redirect URI empty for now** - you'll add it after creating the Splunk SOAR asset
+1. Record your **Application (client) ID** and **Directory (tenant) ID**
+1. Create a **Client secret** under **Certificates & secrets**
+1. Under **API permissions**, add delegated permissions for **Azure DevOps**:
+   - Click **"Add a permission"**
+   - Select **"Microsoft APIs"** → **"Azure DevOps"** (or search for "Azure DevOps")
+   - Choose **"Delegated permissions"**
+   - Select the following permissions:
+     - ✅ `vso.work` (Work items - Read & Write)
+     - ✅ `vso.entitlements` (User entitlements - Read)
+     - ✅ `vso.memberentitlementmanagement_write` (User Profile - Read & Write)
+   - Click **"Add permissions"**
+   - Click **"Grant admin consent"** (if you have admin privileges)
 
-   - Select the following scopes while registering your app:\
-     vso.entitlements\
-     vso.memberentitlementmanagement_write\
-     vso.work_full\
-     Use the same scopes when you authorize your app. If you registered your app using the
-     preview APIs, re-register because the scopes that you used are now deprecated.
+### For Existing Integrations (Legacy Support)
 
-   - Select **Create Application**
+**Note**: This app continues to support existing Azure DevOps OAuth integrations created before April 2025. If you have an existing registration, you can continue using it unchanged. However, all new integrations should use the Entra ID method above.
 
-1. ### Authorize your app
+## Configure the Azure DevOps Splunk SOAR app Asset
 
-   Call the authorization URL and pass your app ID and authorized scopes when you want to have a
-   user authorize your app to access their organization. Call the access token URL when you want to
-   get an access token to call an Azure DevOps Services REST API.
+When creating an asset for the **Azure DevOps** app, fill in:
 
-   - If your user hasn't yet authorized your app to access their organization, call the
-     authorization URL. It calls you back with an authorization code, if the user approves the
-     authorization.
+- **Organization**: Your Azure DevOps organization name
+- **Project**: Your project name
+- **API Version**: "7.0"
+- **Auth Type**: "Interactive Auth (Entra ID)" for new integrations
+- **Client ID**: From your Entra app registration
+- **Client Secret**: From your Entra app registration
+- **Tenant ID**: From your Entra app registration (required for Entra ID)
 
-     > https://app.vssps.visualstudio.com/oauth2/authorize\
-     > ?client_id={app ID}\
-     > &response_type={Assertion}\
-     > &state={state}\
-     > &scope={scope}\
-     > &redirect_uri={callback URL}
+After saving, copy the callback URL from the **POST incoming for Azure DevOps to this location** field and add it as a redirect URI in your app registration:
 
-   | Parameter | Type | Notes |
-   |---------------|--------|------------------------------------------------------------------------------------------------------------------------------|
-   | client_id | GUID | The ID assigned to your app when it was registered. |
-   | response_type | string | Assertion |
-   | state | string | Can be any value. Typically a generated string value that correlates the callback with its associated authorization request. |
-   | scope | string | Scopes registered with the app. Space-separated. |
-   | redirect_uri | URL | Callback URL for your app. Must exactly match the URL registered with the app. |
+1. Go back to your app registration in the [Microsoft Entra admin center](https://entra.microsoft.com)
+1. Navigate to **Authentication** in the left menu
+1. Under **Platform configurations**, click **"Add a platform"**
+1. Select **"Web"**
+1. In the **Redirect URIs** section, paste the callback URL you copied from Splunk SOAR
+1. Click **"Configure"**
+1. Click **"Save"**
 
-1. Assuming the user accepts, Azure DevOps Services redirects the user's browser to your callback
-   URL, including a short-lived authorization code and the state value provided in the
-   authorization URL:
+## Method to Run Test Connectivity
 
-   > https://fabrikam.azurewebsites.net/myapp/oauth-callback\
-   > ?code={authorization code}\
-   > &state=User1
+After setting up the asset and user, click the **TEST CONNECTIVITY** button. A window should pop
+up and display a URL. Navigate to this URL in a separate browser tab. This new tab will redirect
+to a Microsoft login page. Log in to a Microsoft account with administrator privileges to the
+Azure Devops environment. After logging in, review the requested permissions listed, then click
+**Accept** . Finally, close that tab. The test connectivity window should show a success.
 
-   ## Configure the Azure Devops Splunk SOAR app Asset
+The app should now be ready to use.
 
-   When creating an asset for the **Azure Devops** app, go to asset settings and place the
-   **Application ID** of the app created during the previous step in the **Client ID** field and
-   place the Client Secret generated during the previous step in the **Client Secret** field. Then,
-   after filling out the **The name of the Azure DevOps organization** and **Project name** fields
-   , click **SAVE** .
+If username and password is entered than priority will be given to the basic auth then
+Interactive Auth.
 
-   After saving, a new field will appear in the **Asset Settings** tab. Take the URL found in the
-   **POST incoming for Azure DevOps to this location** field and place it in the **Application
-   website** field mentioned in a previous step. Add the same url to the **Authorization callback
-   URL** and add **/result** to ths URL. After doing so the URL should look something like:
+We have tested all action for the api version 7.0 but it might be supported in other versions as
+well.
 
-   https://\<soar_host>/rest/handler/azureadgraph_c6d3b801-5c26-4abd-9e89-6d8007e2778f/\<asset_name>/result
+## State File Permissions
 
-   Once again, click on Save.
+Please check the permissions for the state file as mentioned below.
 
-   ## Method to Run Test Connectivity
+#### State Filepath
 
-   After setting up the asset and user, click the **TEST CONNECTIVITY** button. A window should pop
-   up and display a URL. Navigate to this URL in a separate browser tab. This new tab will redirect
-   to a Microsoft login page. Log in to a Microsoft account with administrator privileges to the
-   Azure Devops environment. After logging in, review the requested permissions listed, then click
-   **Accept** . Finally, close that tab. The test connectivity window should show a success.
+- For Non-NRI Instance:
+  /opt/phantom/local_data/app_states/c6d3b801-5c26-4abd-9e89-6d8007e2778f/{asset_id}\_state.json
+- For NRI Instance:
+  /\<PHANTOM_HOME_DIRECTORY>/local_data/app_states/c6d3b801-5c26-4abd-9e89-6d8007e2778f/{asset_id}\_state.json
 
-   The app should now be ready to use.
+#### State File Permissions
 
-   If username and password is entered than priority will be given to the basic auth then
-   Interactive Auth.
+- File Rights: rw-rw-r-- (664) (The phantom user should have read and write access for the
+  state file)
+- File Owner: appropriate phantom user
 
-   We have tested all action for the api version 7.0 but it might be supported in other versions as
-   well.
+## Port Information
 
-   ## State File Permissions
+The app uses HTTP/ HTTPS protocol for communicating with the Azure AD server. Below are the
+default ports used by Splunk SOAR.
 
-   Please check the permissions for the state file as mentioned below.
+|         Service Name | Transport Protocol | Port |
+|----------------------|--------------------|------|
+|         http | tcp | 80 |
+|         https | tcp | 443 |
 
-   #### State Filepath
+## Basic Authentication
 
-   - For Non-NRI Instance:
-     /opt/phantom/local_data/app_states/c6d3b801-5c26-4abd-9e89-6d8007e2778f/{asset_id}\_state.json
-   - For NRI Instance:
-     /\<PHANTOM_HOME_DIRECTORY>/local_data/app_states/c6d3b801-5c26-4abd-9e89-6d8007e2778f/{asset_id}\_state.json
-
-   #### State File Permissions
-
-   - File Rights: rw-rw-r-- (664) (The phantom user should have read and write access for the
-     state file)
-   - File Owner: appropriate phantom user
-
-   ## Port Information
-
-   The app uses HTTP/ HTTPS protocol for communicating with the Azure AD server. Below are the
-   default ports used by Splunk SOAR.
-
-   |         Service Name | Transport Protocol | Port |
-   |----------------------|--------------------|------|
-   |         http | tcp | 80 |
-   |         https | tcp | 443 |
-
-   ## Basic Authentication
-
-   This app requires two params for the basic authentication which is username and access
-   token(password). username will be email id. To generate the access token follow
-   [this](https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows#create-a-pat)
-   steps and select Entitlements - Read (vso.entitlements), User Profile -
-   Read&Write(vso.memberentitlementmanagement_write) and work item - Read&Write(vso.work_full)
-   scopes.
+This app requires two params for the basic authentication which is username and access
+token(password). username will be email id. To generate the access token follow
+[this](https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows#create-a-pat)
+steps and select Entitlements - Read (vso.entitlements), User Profile -
+Read&Write(vso.memberentitlementmanagement_write) and work item - Read&Write(vso.work_full)
+scopes.
