@@ -1,3 +1,1 @@
 **Unreleased**
-
-* Added needed support for Microsoft Entra ID OAuth authentication for new integrations

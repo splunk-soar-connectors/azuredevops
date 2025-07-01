@@ -15,7 +15,7 @@
     "latest_tested_versions": [
         "Cloud 19 June 2023, API Version: 7.0"
     ],
-    "utctime_updated": "2022-10-17T09:45:50.000000Z",
+    "utctime_updated": "2025-07-01T18:31:20.051863Z",
     "package_name": "phantom_azuredevops",
     "main_module": "azuredevops_connector.py",
     "min_phantom_version": "6.0.0",
