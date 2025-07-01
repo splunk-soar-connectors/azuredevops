@@ -21,6 +21,11 @@ This app now supports Microsoft Entra ID OAuth for new integrations. To register
      - ✅ `vso.entitlements` (User entitlements - Read)
      - ✅ `vso.memberentitlementmanagement_write` (User Profile - Read & Write)
    - Click **"Add permissions"**
+   - **Add offline access permission** (required for token refresh):
+     - Click **"Add a permission"** again
+     - Select **"Microsoft Graph"** → **"Delegated permissions"**
+     - Search for and select **`offline_access`**
+     - Click **"Add permissions"**
    - Click **"Grant admin consent"** (if you have admin privileges)
 
 ### For Existing Integrations (Legacy Support)
@@ -57,7 +62,7 @@ to a Microsoft login page. Log in to a Microsoft account with administrator priv
 Azure Devops environment. After logging in, review the requested permissions listed, then click
 **Accept** . Finally, close that tab. The test connectivity window should show a success.
 
-The app should now be ready to use.
+The app should now be ready to use. Token will last for 90 days without the need to run test connectivity again.
 
 If username and password is entered than priority will be given to the basic auth then
 Interactive Auth.

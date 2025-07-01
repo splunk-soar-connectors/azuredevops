@@ -88,4 +88,4 @@ AUTH_TYPE_INTERACTIVE_ENTRA = "Interactive Auth (Entra ID)"
 AUTH_TYPE_INTERACTIVE_OLD = "Interactive Auth"
 
 # Default scopes for Azure DevOps access
-AZURE_DEVOPS_DEFAULT_SCOPE = "https://app.vssps.visualstudio.com/.default"
+AZURE_DEVOPS_DEFAULT_SCOPE = "https://app.vssps.visualstudio.com/.default offline_access"
