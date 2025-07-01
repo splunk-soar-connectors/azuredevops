@@ -11,7 +11,7 @@
     "product_version_regex": ".*",
     "publisher": "Splunk",
     "license": "Copyright (c) 2022-2025 Splunk Inc.",
-    "app_version": "2.0.1",
+    "app_version": "2.1.0",
     "latest_tested_versions": [
         "Cloud 19 June 2023, API Version: 7.0"
     ],
@@ -46,7 +46,8 @@
             "data_type": "string",
             "value_list": [
                 "Basic Auth",
-                "Interactive Auth"
+                "Interactive Auth (Legacy)",
+                "Interactive Auth (Entra ID)"
             ],
             "order": 3,
             "default": "Basic Auth",
@@ -71,6 +72,11 @@
             "description": "Client Secret (Interactive Auth)",
             "data_type": "password",
             "order": 7
+        },
+        "tenant_id": {
+            "description": "Tenant ID (Required for Entra ID Interactive Auth)",
+            "data_type": "string",
+            "order": 8
         }
     },
     "actions": [
