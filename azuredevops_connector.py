@@ -283,6 +283,8 @@ class AzureDevopsConnector(BaseConnector):
         self._refresh_token = None
         self._asset_id = self.get_asset_id()
         self._base_url = None
+        self._auth_type = None
+        self._tenant_id = None
 
     def encrypt_state(self, encrypt_var):
         """Handle encryption of token.
@@ -394,11 +396,23 @@ class AzureDevopsConnector(BaseConnector):
 
     def _get_token(self, action_result):
         """This function is used to get a token via REST Call.
+        Supports both Azure DevOps OAuth (legacy) and Microsoft Entra ID OAuth.
 
         :param action_result: Object of action result
         :return: status(phantom.APP_SUCCESS/phantom.APP_ERROR)
         """
         app_state = _load_app_state(self.get_asset_id(), self)
+
+        # Determine which OAuth flow to use
+        if self._auth_type == consts.AUTH_TYPE_INTERACTIVE_ENTRA:
+            return self._get_token_entra_id(action_result, app_state)
+        else:
+            # Default to legacy Azure DevOps OAuth for backward compatibility
+            return self._get_token_legacy(action_result, app_state)
+
+    def _get_token_legacy(self, action_result, app_state):
+        """Get token using legacy Azure DevOps OAuth."""
+        self.save_progress("Acquiring access token using Azure DevOps OAuth...")
 
         data = {
             "client_assertion_type": consts.CLIENT_ASSERTION,
@@ -440,7 +454,60 @@ class AzureDevopsConnector(BaseConnector):
             return action_result.get_status()
 
         self.update_state_from_response(resp_json)
-        self.save_progress("Access token generated successfully")
+        self.save_progress("Access token generated successfully (Legacy OAuth)")
+
+        return phantom.APP_SUCCESS
+
+    def _get_token_entra_id(self, action_result, app_state):
+        """Get token using Microsoft Entra ID OAuth."""
+        self.save_progress("Acquiring access token using Microsoft Entra ID OAuth...")
+
+        data = {
+            "client_id": self._client_id,
+            "client_secret": self._client_secret,
+            "redirect_uri": self._state.get("redirect_uri"),
+        }
+
+        if self.get_action_identifier() != "test_connectivity" and self._refresh_token:
+            data.update(
+                {
+                    "grant_type": "refresh_token",
+                    "refresh_token": self._refresh_token,
+                    "scope": consts.AZURE_DEVOPS_DEFAULT_SCOPE,
+                }
+            )
+        else:
+            try:
+                code = self.decrypt_state(app_state.get("code")) or None
+            except Exception as e:
+                self.error_print(f"{consts.AZURE_DEVOPS_DECRYPTION_ERROR}: {self._get_error_message_from_exception(e)}")
+                return action_result.set_status(phantom.APP_ERROR, consts.AZURE_DEVOPS_DECRYPTION_ERROR)
+
+            data.update(
+                {
+                    "grant_type": "authorization_code",
+                    "code": code,
+                    "scope": consts.AZURE_DEVOPS_DEFAULT_SCOPE,
+                }
+            )
+
+        req_url = consts.ENTRA_ID_TOKEN_URL.format(tenant_id=self._tenant_id)
+        headers = {"Content-Type": consts.FORM_URLENCODED}
+
+        ret_val, resp_json = self._make_rest_call(
+            req_url,
+            action_result,
+            data=data,
+            method="post",
+            headers=headers,
+            skip_base_url=True,
+        )
+
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+
+        self.update_state_from_response(resp_json)
+        self.save_progress("Access token generated successfully (Entra ID OAuth)")
 
         return phantom.APP_SUCCESS
 
@@ -451,7 +518,7 @@ class AzureDevopsConnector(BaseConnector):
             resp_json (dict): response token data
         """
         self._access_token = resp_json[consts.AZURE_DEVOPS_ACCESS_TOKEN_STRING]
-        self._refresh_token = resp_json[consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING]
+        self._refresh_token = resp_json.get(consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING)
         self._state[consts.AZURE_DEVOPS_TOKEN_STRING] = resp_json
 
     def _get_request_headers(self):
@@ -673,7 +740,14 @@ class AzureDevopsConnector(BaseConnector):
         # self.save_progress("Generating Authentication URL")
         app_state = {}
         action_result = self.add_action_result(ActionResult(dict(param)))
-        if self._auth_type == "Basic Auth":
+
+        # Validate configuration for Entra ID authentication
+        if self._auth_type == consts.AUTH_TYPE_INTERACTIVE_ENTRA:
+            if not self._tenant_id:
+                self.save_progress("Tenant ID is required for Entra ID authentication")
+                return action_result.set_status(phantom.APP_ERROR, "Tenant ID is required when using Interactive Auth (Entra ID)")
+
+        if self._auth_type == consts.AUTH_TYPE_BASIC:
             # NOTE: test connectivity does _NOT_ take any parameters
             # i.e. the param dictionary passed to this handler will be empty.
             # Also typically it does not add any data into an action_result either.
@@ -710,19 +784,45 @@ class AzureDevopsConnector(BaseConnector):
         self.save_progress(consts.AZURE_DEVOPS_OAUTH_URL_MESSAGE)
         self.save_progress(redirect_uri)
 
-        app_authorization_base_url = consts.AUTHORIZATION_URL
+        # Generate authorization URL based on auth type
+        if self._auth_type == consts.AUTH_TYPE_INTERACTIVE_ENTRA:
+            if not self._tenant_id:
+                self.save_progress("Tenant ID is required for Entra ID authentication")
+                return action_result.set_status(phantom.APP_ERROR, "Tenant ID is required for Entra ID authentication")
 
-        # NOTE: do not change to urlencode, because the scope value changes its format.
-        app_authorization_url = (
-            "{base_url}?client_id={client_id}&state={state}&response_type={response_type}&scope={scope}&redirect_uri={redirect_uri}".format(
-                base_url=app_authorization_base_url,
-                client_id=self._client_id,
-                state=self.get_asset_id(),
-                response_type="Assertion",
-                scope=consts.AZURE_DEVOPS_CODE_GENERATION_SCOPE,
-                redirect_uri=redirect_uri,
+            self.save_progress("Using Microsoft Entra ID OAuth authentication")
+            app_authorization_base_url = consts.ENTRA_ID_AUTHORIZATION_URL.format(tenant_id=self._tenant_id)
+
+            app_authorization_url = (
+                "{base_url}?client_id={client_id}&state={state}&response_type={response_type}&scope={scope}&redirect_uri={redirect_uri}".format(
+                    base_url=app_authorization_base_url,
+                    client_id=self._client_id,
+                    state=self.get_asset_id(),
+                    response_type="code",
+                    scope=consts.AZURE_DEVOPS_DEFAULT_SCOPE,
+                    redirect_uri=redirect_uri,
+                )
             )
-        )
+        else:
+            # Default to legacy Azure DevOps OAuth for backward compatibility
+            # Show deprecation warning for legacy OAuth
+            if self._auth_type in [consts.AUTH_TYPE_INTERACTIVE_LEGACY, consts.AUTH_TYPE_INTERACTIVE_OLD]:
+                self.save_progress("WARNING: Using legacy Azure DevOps OAuth (deprecated in 2026)")
+                self.save_progress("Consider migrating to Interactive Auth (Entra ID) for new integrations")
+
+            self.save_progress("Using Azure DevOps OAuth authentication (legacy)")
+            app_authorization_base_url = consts.AUTHORIZATION_URL
+
+            app_authorization_url = (
+                "{base_url}?client_id={client_id}&state={state}&response_type={response_type}&scope={scope}&redirect_uri={redirect_uri}".format(
+                    base_url=app_authorization_base_url,
+                    client_id=self._client_id,
+                    state=self.get_asset_id(),
+                    response_type="Assertion",
+                    scope=consts.AZURE_DEVOPS_CODE_GENERATION_SCOPE,
+                    redirect_uri=redirect_uri,
+                )
+            )
 
         app_state["app_authorization_url"] = app_authorization_url
 
@@ -1278,6 +1378,7 @@ class AzureDevopsConnector(BaseConnector):
         self._username = config.get("username", None)
         self._password = config.get("access token", None)
         self._auth_type = config.get("auth_type")
+        self._tenant_id = config.get("tenant_id", None)
         self._base_url = consts.PROJECT_BASE_URL.format(organization=self._organization, project=self._project)
         self._user_entitlement_base_url = consts.USER_ENTITLEMENT_URL.format(organization=self._organization)
 
@@ -1301,14 +1402,17 @@ class AzureDevopsConnector(BaseConnector):
 
     def finalize(self):
         try:
-            if (
-                self._state.get(consts.AZURE_DEVOPS_TOKEN_STRING, {}).get(consts.AZURE_DEVOPS_ACCESS_TOKEN_STRING)
-                and self._state.get(consts.AZURE_DEVOPS_TOKEN_STRING, {}).get(consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING)
-                and not self._state.get(consts.AZURE_DEVOPS_STATE_IS_ENCRYPTED)
-            ):
+            if self._access_token:
+                if consts.AZURE_DEVOPS_TOKEN_STRING not in self._state:
+                    self._state[consts.AZURE_DEVOPS_TOKEN_STRING] = {}
+
                 self._state[consts.AZURE_DEVOPS_TOKEN_STRING][consts.AZURE_DEVOPS_ACCESS_TOKEN_STRING] = self.encrypt_state(self._access_token)
 
-                self._state[consts.AZURE_DEVOPS_TOKEN_STRING][consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING] = self.encrypt_state(self._refresh_token)
+                # Only encrypt refresh token if it exists (not always present)
+                if self._refresh_token:
+                    self._state[consts.AZURE_DEVOPS_TOKEN_STRING][consts.AZURE_DEVOPS_REFRESH_TOKEN_STRING] = self.encrypt_state(
+                        self._refresh_token
+                    )
 
                 if self._state.get("code"):
                     self._state["code"] = self.encrypt_state(self._state["code"])
