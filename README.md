@@ -1,7 +1,7 @@
 # Azure DevOps
 
 Publisher: Splunk <br>
-Connector Version: 2.1.0 <br>
+Connector Version: 2.1.1 <br>
 Product Vendor: Microsoft <br>
 Product Name: Azure DevOps <br>
 Minimum Product Version: 6.0.0
