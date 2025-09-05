@@ -1,9 +1,9 @@
 # Azure DevOps
 
-Publisher: Splunk \
-Connector Version: 2.1.0 \
-Product Vendor: Microsoft \
-Product Name: Azure DevOps \
+Publisher: Splunk <br>
+Connector Version: 2.1.0 <br>
+Product Vendor: Microsoft <br>
+Product Name: Azure DevOps <br>
 Minimum Product Version: 6.0.0
 
 This app integrates with Azure DevOps to perform investigative and generic actions
@@ -134,21 +134,21 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 
 ### Supported Actions
 
-[test connectivity](#action-test-connectivity) - Validate the asset configuration for connectivity using supplied configuration \
-[get work item](#action-get-work-item) - Get information about a single work item \
-[add work item](#action-add-work-item) - Creates a single work item \
-[list iterations](#action-list-iterations) - Get team's iteration \
-[add comment](#action-add-comment) - Add a comment on a work item \
-[add user](#action-add-user) - Add a user to a project \
-[delete user](#action-delete-user) - Delete a user \
-[search users](#action-search-users) - Search user(s) \
+[test connectivity](#action-test-connectivity) - Validate the asset configuration for connectivity using supplied configuration <br>
+[get work item](#action-get-work-item) - Get information about a single work item <br>
+[add work item](#action-add-work-item) - Creates a single work item <br>
+[list iterations](#action-list-iterations) - Get team's iteration <br>
+[add comment](#action-add-comment) - Add a comment on a work item <br>
+[add user](#action-add-user) - Add a user to a project <br>
+[delete user](#action-delete-user) - Delete a user <br>
+[search users](#action-search-users) - Search user(s) <br>
 [add attachment](#action-add-attachment) - Add an attachment to a project
 
 ## action: 'test connectivity'
 
 Validate the asset configuration for connectivity using supplied configuration
 
-Type: **test** \
+Type: **test** <br>
 Read only: **True**
 
 #### Action Parameters
@@ -163,7 +163,7 @@ No Output
 
 Get information about a single work item
 
-Type: **investigate** \
+Type: **investigate** <br>
 Read only: **True**
 
 #### Action Parameters
@@ -240,7 +240,7 @@ summary.total_objects_successful | numeric | | 1 |
 
 Creates a single work item
 
-Type: **generic** \
+Type: **generic** <br>
 Read only: **False**
 
 #### Action Parameters
@@ -331,7 +331,7 @@ summary.total_objects_successful | numeric | | 1 |
 
 Get team's iteration
 
-Type: **investigate** \
+Type: **investigate** <br>
 Read only: **True**
 
 #### Action Parameters
@@ -369,7 +369,7 @@ summary.total_objects_successful | numeric | | 1 |
 
 Add a comment on a work item
 
-Type: **generic** \
+Type: **generic** <br>
 Read only: **False**
 
 #### Action Parameters
@@ -418,7 +418,7 @@ summary.total_objects_successful | numeric | | 1 |
 
 Add a user to a project
 
-Type: **generic** \
+Type: **generic** <br>
 Read only: **False**
 
 #### Action Parameters
@@ -503,7 +503,7 @@ summary.total_objects_successful | numeric | | 1 |
 
 Delete a user
 
-Type: **generic** \
+Type: **generic** <br>
 Read only: **False**
 
 #### Action Parameters
@@ -528,7 +528,7 @@ summary.total_objects_successful | numeric | | 1 |
 
 Search user(s)
 
-Type: **investigate** \
+Type: **investigate** <br>
 Read only: **True**
 
 #### Action Parameters
@@ -605,7 +605,7 @@ summary.total_objects_successful | numeric | | 1 |
 
 Add an attachment to a project
 
-Type: **generic** \
+Type: **generic** <br>
 Read only: **False**
 
 #### Action Parameters
