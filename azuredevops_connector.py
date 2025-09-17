@@ -586,7 +586,7 @@ class AzureDevopsConnector(BaseConnector):
             skip_base_url=skip_base_url,
         )
 
-        if consts.BAD_TOKEN_MATCH_STRING in action_result.get_message():
+        if any(code in action_result.get_message() for code in consts.BAD_TOKEN_MATCH_STRINGS):
             self.save_progress("bad token")
             self._get_token(action_result=action_result)
             headers.update({"Authorization": f"Bearer {self._access_token}"})
