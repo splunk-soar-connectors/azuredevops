@@ -48,6 +48,7 @@ AZURE_DEVOPS_DECRYPT_TOKEN = "Decrypting the {} token"
 AZURE_DEVOPS_ENCRYPTION_ERROR = "Error occurred while encrypting the state file"
 AZURE_DEVOPS_DECRYPTION_ERROR = "Error occurred while decrypting the state file"
 AZURE_DEVOPS_STATE_IS_ENCRYPTED = "is_encrypted"
+AZURE_DEVOPS_OAUTH_STATE_NONCE = "oauth_state_nonce"
 
 
 AZURE_DEVOPS_TOKEN_STRING = "token"

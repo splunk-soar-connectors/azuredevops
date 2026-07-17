@@ -14,9 +14,11 @@
 # and limitations under the License.
 
 import grp
+import hmac
 import json
 import os
 import pwd
+import secrets
 import sys
 import time
 import urllib.parse as urlparse
@@ -45,6 +47,26 @@ def _parse_work_item_id(value, action_result):
     except (TypeError, ValueError):
         action_result.set_status(phantom.APP_ERROR, "Work item ID must be an integer")
         return None
+
+
+def _consume_oauth_state(oauth_state):
+    """Validate and consume the one-time OAuth state value."""
+    try:
+        asset_id, presented_nonce = oauth_state.rsplit("_", 1)
+    except (AttributeError, ValueError):
+        return None, None
+
+    if not asset_id.isalnum() or not presented_nonce:
+        return None, None
+
+    state = _load_app_state(asset_id)
+    stored_nonce = state.get(consts.AZURE_DEVOPS_OAUTH_STATE_NONCE)
+    if not stored_nonce or not hmac.compare_digest(stored_nonce, presented_nonce):
+        return None, None
+
+    state.pop(consts.AZURE_DEVOPS_OAUTH_STATE_NONCE, None)
+    _save_app_state(state, asset_id, None)
+    return asset_id, state
 
 
 def _save_app_state(state, asset_id, app_connector):
@@ -170,12 +192,13 @@ def _handle_login_response(request):
     :return: HttpResponse. The response displayed on authorization URL page
     """
 
-    asset_id = request.GET.get("state")
+    oauth_state = request.GET.get("state")
+    if not oauth_state:
+        return HttpResponseBadRequest("ERROR: OAuth state not found in URL", content_type=consts.TEXT_PLAIN)
+
+    asset_id, state = _consume_oauth_state(oauth_state)
     if not asset_id:
-        return HttpResponseBadRequest(  # nosemgrep
-            f"ERROR: Asset ID not found in URL, {request.GET}",
-            content_type=consts.TEXT_PLAIN,
-        )
+        return HttpResponseBadRequest("ERROR: Invalid or expired OAuth state", content_type=consts.TEXT_PLAIN)
 
     # Check for error in URL
     error = request.GET.get("error")
@@ -200,7 +223,6 @@ def _handle_login_response(request):
             content_type=consts.TEXT_PLAIN,
         )
 
-    state = _load_app_state(asset_id)
     try:
         state["code"] = AzureDevopsConnector().encrypt_state(code)
         state["is_encrypted"] = True
@@ -246,8 +268,9 @@ def _handle_rest_request(request, path_parts):
     if call_type == "result":
         return_val = _handle_login_response(request)
 
-        asset_id = request.GET.get("state")  # nosemgrep
-        if asset_id and asset_id.isalnum():
+        oauth_state = request.GET.get("state", "")
+        asset_id = oauth_state.rsplit("_", 1)[0] if "_" in oauth_state else None
+        if return_val.status_code < 400 and asset_id and asset_id.isalnum():
             app_dir = os.path.dirname(os.path.abspath(__file__))
             auth_status_file_path = f"{app_dir}/{asset_id}_{consts.TC_FILE}"
             real_auth_status_file_path = os.path.abspath(auth_status_file_path)
@@ -794,6 +817,8 @@ class AzureDevopsConnector(BaseConnector):
         # it later on
         redirect_uri = f"{app_rest_url}/result"
         app_state["redirect_uri"] = redirect_uri
+        oauth_state_nonce = secrets.token_hex(32)
+        oauth_state = f"{self.get_asset_id()}_{oauth_state_nonce}"
 
         self.save_progress(consts.AZURE_DEVOPS_OAUTH_URL_MESSAGE)
         self.save_progress(redirect_uri)
@@ -811,7 +836,7 @@ class AzureDevopsConnector(BaseConnector):
                 "{base_url}?client_id={client_id}&state={state}&response_type={response_type}&scope={scope}&redirect_uri={redirect_uri}".format(
                     base_url=app_authorization_base_url,
                     client_id=self._client_id,
-                    state=self.get_asset_id(),
+                    state=oauth_state,
                     response_type="code",
                     scope=consts.AZURE_DEVOPS_DEFAULT_SCOPE,
                     redirect_uri=redirect_uri,
@@ -831,7 +856,7 @@ class AzureDevopsConnector(BaseConnector):
                 "{base_url}?client_id={client_id}&state={state}&response_type={response_type}&scope={scope}&redirect_uri={redirect_uri}".format(
                     base_url=app_authorization_base_url,
                     client_id=self._client_id,
-                    state=self.get_asset_id(),
+                    state=oauth_state,
                     response_type="Assertion",
                     scope=consts.AZURE_DEVOPS_CODE_GENERATION_SCOPE,
                     redirect_uri=redirect_uri,
@@ -839,6 +864,7 @@ class AzureDevopsConnector(BaseConnector):
             )
 
         app_state["app_authorization_url"] = app_authorization_url
+        app_state[consts.AZURE_DEVOPS_OAUTH_STATE_NONCE] = oauth_state_nonce
 
         # The URL that the user should open in a different tab.
         # This is pointing to a REST endpoint that points to the app
