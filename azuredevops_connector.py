@@ -1135,25 +1135,49 @@ class AzureDevopsConnector(BaseConnector):
 
         user_data["members"].extend(response.get("members", []))
         user_data["items"].extend(response.get("items", []))
+        page_count = 1
+        seen_continuation_tokens = set()
+        total_items = max(len(user_data["members"]), len(user_data["items"]))
+        if total_items > consts.AZURE_DEVOPS_MAX_PAGINATION_ITEMS:
+            return action_result.set_status(
+                phantom.APP_ERROR,
+                f"Pagination stopped before exceeding {consts.AZURE_DEVOPS_MAX_PAGINATION_ITEMS} users",
+            )
 
         while True:
             continuation_token = response.get("continuationToken", None)
             if not continuation_token:
                 break
-            else:
-                param["continuationToken"] = continuation_token
-                ret_val, response = self._make_rest_call_helper(
-                    consts.USER_ENTITLEMENTS,
-                    action_result,
-                    method="get",
-                    params=param,
+
+            if continuation_token in seen_continuation_tokens:
+                return action_result.set_status(phantom.APP_ERROR, "Pagination stopped because the server repeated a continuation token")
+            if page_count >= consts.AZURE_DEVOPS_MAX_PAGINATION_PAGES:
+                return action_result.set_status(
+                    phantom.APP_ERROR,
+                    f"Pagination stopped after {consts.AZURE_DEVOPS_MAX_PAGINATION_PAGES} pages",
                 )
 
-                if phantom.is_fail(ret_val):
-                    return action_result.get_status()
+            seen_continuation_tokens.add(continuation_token)
+            param["continuationToken"] = continuation_token
+            ret_val, response = self._make_rest_call_helper(
+                consts.USER_ENTITLEMENTS,
+                action_result,
+                method="get",
+                params=param,
+            )
 
-                user_data["members"].extend(response.get("members", []))
-                user_data["items"].extend(response.get("items", []))
+            if phantom.is_fail(ret_val):
+                return action_result.get_status()
+
+            page_count += 1
+            user_data["members"].extend(response.get("members", []))
+            user_data["items"].extend(response.get("items", []))
+            total_items = max(len(user_data["members"]), len(user_data["items"]))
+            if total_items > consts.AZURE_DEVOPS_MAX_PAGINATION_ITEMS:
+                return action_result.set_status(
+                    phantom.APP_ERROR,
+                    f"Pagination stopped before exceeding {consts.AZURE_DEVOPS_MAX_PAGINATION_ITEMS} users",
+                )
 
         action_result.add_data(user_data)
 

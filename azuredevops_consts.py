@@ -40,6 +40,8 @@ AZURE_DEVOPS_OAUTH_URL_MESSAGE = "Using OAuth URL:\n"
 AZURE_DEVOPS_CODE_GENERATION_SCOPE = "vso.entitlements vso.memberentitlementmanagement_write vso.work_full"
 PERMISSION_CODE = "0664"
 AZURE_DEVOPS_TC_STATUS_SLEEP = 2
+AZURE_DEVOPS_MAX_PAGINATION_PAGES = 1000
+AZURE_DEVOPS_MAX_PAGINATION_ITEMS = 100000
 
 
 # For encryption and decryption
