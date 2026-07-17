@@ -40,6 +40,16 @@ def _quote_path_segment(value):
     return urlparse.quote(str(value), safe="").replace(".", "%2E")
 
 
+def _is_oauth_token_response(response):
+    """Return whether a response came from a configured OAuth token service."""
+    parsed_url = urlparse.urlparse(getattr(response, "url", ""))
+    host = (parsed_url.hostname or "").lower()
+    path = parsed_url.path.rstrip("/").lower()
+    legacy_token = host == "app.vssps.visualstudio.com" and path == "/oauth2/token"
+    entra_token = host == "login.microsoftonline.com" and path.endswith("/oauth2/v2.0/token")
+    return legacy_token or entra_token
+
+
 def _parse_work_item_id(value, action_result):
     """Return a validated integer work-item identifier."""
     try:
@@ -404,8 +414,9 @@ class AzureDevopsConnector(BaseConnector):
         # store the r_text in debug data, it will get dumped in the logs if the action fails
         if hasattr(action_result, "add_debug_data"):
             action_result.add_debug_data({"r_status_code": r.status_code})
-            action_result.add_debug_data({"r_text": r.text})
-            action_result.add_debug_data({"r_headers": r.headers})
+            if not _is_oauth_token_response(r):
+                action_result.add_debug_data({"r_text": r.text})
+                action_result.add_debug_data({"r_headers": r.headers})
 
         # Process each 'Content-Type' of response separately
 
