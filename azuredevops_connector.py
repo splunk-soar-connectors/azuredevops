@@ -33,6 +33,20 @@ from phantom.base_connector import BaseConnector
 import azuredevops_consts as consts
 
 
+def _quote_path_segment(value):
+    """Encode an action-supplied identifier as one URL path segment."""
+    return urlparse.quote(str(value), safe="").replace(".", "%2E")
+
+
+def _parse_work_item_id(value, action_result):
+    """Return a validated integer work-item identifier."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        action_result.set_status(phantom.APP_ERROR, "Work item ID must be an integer")
+        return None
+
+
 def _save_app_state(state, asset_id, app_connector):
     """This function is used to save current state in file.
 
@@ -899,7 +913,9 @@ class AzureDevopsConnector(BaseConnector):
 
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        work_item_id = param["work_item_id"]
+        work_item_id = _parse_work_item_id(param["work_item_id"], action_result)
+        if work_item_id is None:
+            return action_result.get_status()
         expand = param["expand"]
 
         asof = param.get("asof")
@@ -938,7 +954,7 @@ class AzureDevopsConnector(BaseConnector):
 
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        work_item_type = param["work_item_type"]
+        work_item_type = _quote_path_segment(param["work_item_type"])
 
         params = self.get_work_item_optional_params(param)
 
@@ -1005,7 +1021,7 @@ class AzureDevopsConnector(BaseConnector):
             params = {}
 
         if team:
-            endpoint = consts.ITERATIONS_TEAM.format(team=team)
+            endpoint = consts.ITERATIONS_TEAM.format(team=_quote_path_segment(team))
         else:
             endpoint = consts.ITERATIONS
 
@@ -1032,7 +1048,9 @@ class AzureDevopsConnector(BaseConnector):
 
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        work_item_id = param["work_item_id"]
+        work_item_id = _parse_work_item_id(param["work_item_id"], action_result)
+        if work_item_id is None:
+            return action_result.get_status()
         comment = param["comment"]
 
         post_body = {"text": comment}
@@ -1119,7 +1137,7 @@ class AzureDevopsConnector(BaseConnector):
 
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        user_id = param["user_id"]
+        user_id = _quote_path_segment(param["user_id"])
 
         ret_val, resp = self._make_rest_call_helper(
             f"{consts.USER_ENTITLEMENTS}/{user_id}",
