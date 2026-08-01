@@ -20,6 +20,7 @@ import os
 import pwd
 import secrets
 import sys
+import threading
 import time
 import urllib.parse as urlparse
 
@@ -696,6 +697,13 @@ class AzureDevopsConnector(BaseConnector):
         if api_version:
             kwargs["params"].update({"api-version": api_version})
         kwargs["stream"] = True
+        kwargs.setdefault(
+            "timeout",
+            (
+                consts.AZURE_DEVOPS_CONNECT_TIMEOUT_SECONDS,
+                consts.AZURE_DEVOPS_READ_TIMEOUT_SECONDS,
+            ),
+        )
 
         try:
             if self._auth_type == "Basic Auth":
@@ -738,6 +746,19 @@ class AzureDevopsConnector(BaseConnector):
                 None,
             )
 
+        deadline_reached = threading.Event()
+
+        def expire_response():
+            deadline_reached.set()
+            r.close()
+
+        deadline_timer = threading.Timer(
+            consts.AZURE_DEVOPS_RESPONSE_DEADLINE_SECONDS,
+            expire_response,
+        )
+        deadline_timer.daemon = True
+        deadline_timer.start()
+
         content = bytearray()
         try:
             for chunk in r.iter_content(chunk_size=64 * 1024):
@@ -751,6 +772,14 @@ class AzureDevopsConnector(BaseConnector):
                         None,
                     )
         except Exception as e:
+            if deadline_reached.is_set():
+                return RetVal(
+                    action_result.set_status(
+                        phantom.APP_ERROR,
+                        f"Response did not complete within {consts.AZURE_DEVOPS_RESPONSE_DEADLINE_SECONDS} seconds",
+                    ),
+                    None,
+                )
             return RetVal(
                 action_result.set_status(
                     phantom.APP_ERROR,
@@ -759,7 +788,17 @@ class AzureDevopsConnector(BaseConnector):
                 None,
             )
         finally:
+            deadline_timer.cancel()
             r.close()
+
+        if deadline_reached.is_set():
+            return RetVal(
+                action_result.set_status(
+                    phantom.APP_ERROR,
+                    f"Response did not complete within {consts.AZURE_DEVOPS_RESPONSE_DEADLINE_SECONDS} seconds",
+                ),
+                None,
+            )
 
         r._content = bytes(content)
         r._content_consumed = True

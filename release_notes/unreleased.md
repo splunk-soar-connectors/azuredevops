@@ -6,4 +6,5 @@
 * Prevented OAuth token responses and headers from being written to debug data.
 * Added page and result limits and loop detection to user-entitlement pagination.
 * Bounded individual HTTP responses and cumulative user-entitlement pagination data before retaining results.
+* Added finite connection, idle-read, and overall response deadlines for Azure DevOps requests.
 * Documented least-privilege Personal Access Token scopes for Basic Authentication.
