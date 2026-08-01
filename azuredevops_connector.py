@@ -344,6 +344,7 @@ class AzureDevopsConnector(BaseConnector):
         self._base_url = None
         self._auth_type = None
         self._tenant_id = None
+        self._last_response_size = 0
 
     def encrypt_state(self, encrypt_var):
         """Handle encryption of token.
@@ -694,6 +695,7 @@ class AzureDevopsConnector(BaseConnector):
             url = f"{base_url}{endpoint}"
         if api_version:
             kwargs["params"].update({"api-version": api_version})
+        kwargs["stream"] = True
 
         try:
             if self._auth_type == "Basic Auth":
@@ -721,6 +723,47 @@ class AzureDevopsConnector(BaseConnector):
                 ),
                 None,
             )
+
+        try:
+            content_length = int(r.headers.get("Content-Length", 0))
+        except (TypeError, ValueError):
+            content_length = 0
+        if content_length > consts.AZURE_DEVOPS_MAX_RESPONSE_BYTES:
+            r.close()
+            return RetVal(
+                action_result.set_status(
+                    phantom.APP_ERROR,
+                    f"Response exceeded {consts.AZURE_DEVOPS_MAX_RESPONSE_BYTES} bytes",
+                ),
+                None,
+            )
+
+        content = bytearray()
+        try:
+            for chunk in r.iter_content(chunk_size=64 * 1024):
+                content.extend(chunk)
+                if len(content) > consts.AZURE_DEVOPS_MAX_RESPONSE_BYTES:
+                    return RetVal(
+                        action_result.set_status(
+                            phantom.APP_ERROR,
+                            f"Response exceeded {consts.AZURE_DEVOPS_MAX_RESPONSE_BYTES} bytes",
+                        ),
+                        None,
+                    )
+        except Exception as e:
+            return RetVal(
+                action_result.set_status(
+                    phantom.APP_ERROR,
+                    f"Unable to read response. Details: {e!s}",
+                ),
+                None,
+            )
+        finally:
+            r.close()
+
+        r._content = bytes(content)
+        r._content_consumed = True
+        self._last_response_size = len(content)
         return self._process_response(r, action_result)
 
     def _get_asset_name(self, action_result):
@@ -1147,11 +1190,12 @@ class AzureDevopsConnector(BaseConnector):
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
+        cumulative_response_bytes = self._last_response_size
         user_data["members"].extend(response.get("members", []))
         user_data["items"].extend(response.get("items", []))
         page_count = 1
         seen_continuation_tokens = set()
-        total_items = max(len(user_data["members"]), len(user_data["items"]))
+        total_items = len(user_data["members"]) + len(user_data["items"])
         if total_items > consts.AZURE_DEVOPS_MAX_PAGINATION_ITEMS:
             return action_result.set_status(
                 phantom.APP_ERROR,
@@ -1184,9 +1228,15 @@ class AzureDevopsConnector(BaseConnector):
                 return action_result.get_status()
 
             page_count += 1
+            cumulative_response_bytes += self._last_response_size
+            if cumulative_response_bytes > consts.AZURE_DEVOPS_MAX_PAGINATION_BYTES:
+                return action_result.set_status(
+                    phantom.APP_ERROR,
+                    f"Pagination stopped before exceeding {consts.AZURE_DEVOPS_MAX_PAGINATION_BYTES} response bytes",
+                )
             user_data["members"].extend(response.get("members", []))
             user_data["items"].extend(response.get("items", []))
-            total_items = max(len(user_data["members"]), len(user_data["items"]))
+            total_items = len(user_data["members"]) + len(user_data["items"])
             if total_items > consts.AZURE_DEVOPS_MAX_PAGINATION_ITEMS:
                 return action_result.set_status(
                     phantom.APP_ERROR,

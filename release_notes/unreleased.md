@@ -5,4 +5,5 @@
 * Required a separate single-use launch secret before disclosing a pending OAuth authorization URL.
 * Prevented OAuth token responses and headers from being written to debug data.
 * Added page and result limits and loop detection to user-entitlement pagination.
+* Bounded individual HTTP responses and cumulative user-entitlement pagination data before retaining results.
 * Documented least-privilege Personal Access Token scopes for Basic Authentication.
