@@ -166,7 +166,7 @@ def _get_dir_name_from_app_name(app_name):
     return app_name
 
 
-def _handle_login_redirect(request, key):
+def _handle_login_redirect(request, key, launch_nonce_key=None):
     """This function is used to redirect login request to microsoft login page.
 
     :param request: Data given to REST endpoint
@@ -184,6 +184,14 @@ def _handle_login_redirect(request, key):
     state = _load_app_state(asset_id)
     if not state:
         return HttpResponseBadRequest("ERROR: Invalid asset_id", content_type=consts.TEXT_PLAIN)
+
+    if launch_nonce_key:
+        presented_nonce = request.GET.get("launch_nonce", "")
+        stored_nonce = state.get(launch_nonce_key, "")
+        if not presented_nonce or not stored_nonce or not hmac.compare_digest(stored_nonce, presented_nonce):
+            return HttpResponseBadRequest("ERROR: Invalid or expired OAuth launch", content_type=consts.TEXT_PLAIN)
+        state.pop(launch_nonce_key, None)
+        _save_app_state(state, asset_id, None)
 
     url = state.get(key)
     if not url:
@@ -272,7 +280,11 @@ def _handle_rest_request(request, path_parts):
 
     # To handle authorize request in test connectivity action
     if call_type == "start_oauth":
-        return _handle_login_redirect(request, "app_authorization_url")
+        return _handle_login_redirect(
+            request,
+            "app_authorization_url",
+            consts.AZURE_DEVOPS_OAUTH_LAUNCH_NONCE,
+        )
 
     # To handle response from microsoft login page
     if call_type == "result":
@@ -830,6 +842,7 @@ class AzureDevopsConnector(BaseConnector):
         app_state["redirect_uri"] = redirect_uri
         oauth_state_nonce = secrets.token_hex(32)
         oauth_state = f"{self.get_asset_id()}_{oauth_state_nonce}"
+        oauth_launch_nonce = secrets.token_hex(32)
 
         self.save_progress(consts.AZURE_DEVOPS_OAUTH_URL_MESSAGE)
         self.save_progress(redirect_uri)
@@ -876,10 +889,11 @@ class AzureDevopsConnector(BaseConnector):
 
         app_state["app_authorization_url"] = app_authorization_url
         app_state[consts.AZURE_DEVOPS_OAUTH_STATE_NONCE] = oauth_state_nonce
+        app_state[consts.AZURE_DEVOPS_OAUTH_LAUNCH_NONCE] = oauth_launch_nonce
 
         # The URL that the user should open in a different tab.
         # This is pointing to a REST endpoint that points to the app
-        url_to_show = f"{app_rest_url}/start_oauth?asset_id={self.get_asset_id()}&"
+        url_to_show = f"{app_rest_url}/start_oauth?asset_id={self.get_asset_id()}&launch_nonce={oauth_launch_nonce}"
 
         # Save the state, will be used by the request handler
         _save_app_state(app_state, self.get_asset_id(), self)
