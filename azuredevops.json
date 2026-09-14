@@ -11,11 +11,11 @@
     "product_version_regex": ".*",
     "publisher": "Splunk",
     "license": "Copyright (c) 2022-2026 Splunk Inc.",
-    "app_version": "2.1.1",
+    "app_version": "2.1.2",
     "latest_tested_versions": [
         "Cloud 19 June 2023, API Version: 7.0"
     ],
-    "utctime_updated": "2025-09-05T16:26:24.917493Z",
+    "utctime_updated": "2026-09-14T21:32:01.352868Z",
     "package_name": "phantom_azuredevops",
     "main_module": "azuredevops_connector.py",
     "min_phantom_version": "6.0.0",
