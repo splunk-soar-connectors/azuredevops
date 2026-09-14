@@ -113,8 +113,9 @@ This app requires two params for the basic authentication which is username and 
 token(password). username will be email id. To generate the access token follow
 [this](https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows#create-a-pat)
 steps and select Entitlements - Read (vso.entitlements), User Profile -
-Read&Write(vso.memberentitlementmanagement_write) and work item - Read&Write(vso.work_full)
-scopes.
+Read&Write(vso.memberentitlementmanagement_write), and Work Items - Read & Write (vso.work)
+scopes. Do not grant broader Personal Access Token scopes unless another integration requires
+them.
 
 ### Configuration variables
 
@@ -638,7 +639,7 @@ ______________________________________________________________________
 
 Auto-generated Splunk SOAR Connector documentation.
 
-Copyright 2025 Splunk Inc.
+Copyright 2026 Splunk Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

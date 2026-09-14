@@ -1,6 +1,6 @@
 # File: azuredevops_consts.py
 #
-# Copyright (c) 2022-2025 Splunk Inc.
+# Copyright (c) 2022-2026 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,6 +40,13 @@ AZURE_DEVOPS_OAUTH_URL_MESSAGE = "Using OAuth URL:\n"
 AZURE_DEVOPS_CODE_GENERATION_SCOPE = "vso.entitlements vso.memberentitlementmanagement_write vso.work_full"
 PERMISSION_CODE = "0664"
 AZURE_DEVOPS_TC_STATUS_SLEEP = 2
+AZURE_DEVOPS_MAX_RESPONSE_BYTES = 10 * 1024 * 1024
+AZURE_DEVOPS_CONNECT_TIMEOUT_SECONDS = 15
+AZURE_DEVOPS_READ_TIMEOUT_SECONDS = 30
+AZURE_DEVOPS_RESPONSE_DEADLINE_SECONDS = 120
+AZURE_DEVOPS_MAX_PAGINATION_BYTES = 20 * 1024 * 1024
+AZURE_DEVOPS_MAX_PAGINATION_PAGES = 100
+AZURE_DEVOPS_MAX_PAGINATION_ITEMS = 10000
 
 
 # For encryption and decryption
@@ -48,6 +55,8 @@ AZURE_DEVOPS_DECRYPT_TOKEN = "Decrypting the {} token"
 AZURE_DEVOPS_ENCRYPTION_ERROR = "Error occurred while encrypting the state file"
 AZURE_DEVOPS_DECRYPTION_ERROR = "Error occurred while decrypting the state file"
 AZURE_DEVOPS_STATE_IS_ENCRYPTED = "is_encrypted"
+AZURE_DEVOPS_OAUTH_STATE_NONCE = "oauth_state_nonce"
+AZURE_DEVOPS_OAUTH_LAUNCH_NONCE = "oauth_launch_nonce"
 
 
 AZURE_DEVOPS_TOKEN_STRING = "token"

@@ -1,6 +1,6 @@
 # File: azuredevops_connector.py
 #
-# Copyright (c) 2022-2025 Splunk Inc.
+# Copyright (c) 2022-2026 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,10 +14,13 @@
 # and limitations under the License.
 
 import grp
+import hmac
 import json
 import os
 import pwd
+import secrets
 import sys
+import threading
 import time
 import urllib.parse as urlparse
 
@@ -31,6 +34,50 @@ from phantom.action_result import ActionResult
 from phantom.base_connector import BaseConnector
 
 import azuredevops_consts as consts
+
+
+def _quote_path_segment(value):
+    """Encode an action-supplied identifier as one URL path segment."""
+    return urlparse.quote(str(value), safe="").replace(".", "%2E")
+
+
+def _is_oauth_token_response(response):
+    """Return whether a response came from a configured OAuth token service."""
+    parsed_url = urlparse.urlparse(getattr(response, "url", ""))
+    host = (parsed_url.hostname or "").lower()
+    path = parsed_url.path.rstrip("/").lower()
+    legacy_token = host == "app.vssps.visualstudio.com" and path == "/oauth2/token"
+    entra_token = host == "login.microsoftonline.com" and path.endswith("/oauth2/v2.0/token")
+    return legacy_token or entra_token
+
+
+def _parse_work_item_id(value, action_result):
+    """Return a validated integer work-item identifier."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        action_result.set_status(phantom.APP_ERROR, "Work item ID must be an integer")
+        return None
+
+
+def _consume_oauth_state(oauth_state):
+    """Validate and consume the one-time OAuth state value."""
+    try:
+        asset_id, presented_nonce = oauth_state.rsplit("_", 1)
+    except (AttributeError, ValueError):
+        return None, None
+
+    if not asset_id.isalnum() or not presented_nonce:
+        return None, None
+
+    state = _load_app_state(asset_id)
+    stored_nonce = state.get(consts.AZURE_DEVOPS_OAUTH_STATE_NONCE)
+    if not stored_nonce or not hmac.compare_digest(stored_nonce, presented_nonce):
+        return None, None
+
+    state.pop(consts.AZURE_DEVOPS_OAUTH_STATE_NONCE, None)
+    _save_app_state(state, asset_id, None)
+    return asset_id, state
 
 
 def _save_app_state(state, asset_id, app_connector):
@@ -120,7 +167,7 @@ def _get_dir_name_from_app_name(app_name):
     return app_name
 
 
-def _handle_login_redirect(request, key):
+def _handle_login_redirect(request, key, launch_nonce_key=None):
     """This function is used to redirect login request to microsoft login page.
 
     :param request: Data given to REST endpoint
@@ -139,6 +186,14 @@ def _handle_login_redirect(request, key):
     if not state:
         return HttpResponseBadRequest("ERROR: Invalid asset_id", content_type=consts.TEXT_PLAIN)
 
+    if launch_nonce_key:
+        presented_nonce = request.GET.get("launch_nonce", "")
+        stored_nonce = state.get(launch_nonce_key, "")
+        if not presented_nonce or not stored_nonce or not hmac.compare_digest(stored_nonce, presented_nonce):
+            return HttpResponseBadRequest("ERROR: Invalid or expired OAuth launch", content_type=consts.TEXT_PLAIN)
+        state.pop(launch_nonce_key, None)
+        _save_app_state(state, asset_id, None)
+
     url = state.get(key)
     if not url:
         return HttpResponseBadRequest(
@@ -156,12 +211,13 @@ def _handle_login_response(request):
     :return: HttpResponse. The response displayed on authorization URL page
     """
 
-    asset_id = request.GET.get("state")
+    oauth_state = request.GET.get("state")
+    if not oauth_state:
+        return HttpResponseBadRequest("ERROR: OAuth state not found in URL", content_type=consts.TEXT_PLAIN)
+
+    asset_id, state = _consume_oauth_state(oauth_state)
     if not asset_id:
-        return HttpResponseBadRequest(  # nosemgrep
-            f"ERROR: Asset ID not found in URL, {request.GET}",
-            content_type=consts.TEXT_PLAIN,
-        )
+        return HttpResponseBadRequest("ERROR: Invalid or expired OAuth state", content_type=consts.TEXT_PLAIN)
 
     # Check for error in URL
     error = request.GET.get("error")
@@ -186,7 +242,6 @@ def _handle_login_response(request):
             content_type=consts.TEXT_PLAIN,
         )
 
-    state = _load_app_state(asset_id)
     try:
         state["code"] = AzureDevopsConnector().encrypt_state(code)
         state["is_encrypted"] = True
@@ -226,14 +281,19 @@ def _handle_rest_request(request, path_parts):
 
     # To handle authorize request in test connectivity action
     if call_type == "start_oauth":
-        return _handle_login_redirect(request, "app_authorization_url")
+        return _handle_login_redirect(
+            request,
+            "app_authorization_url",
+            consts.AZURE_DEVOPS_OAUTH_LAUNCH_NONCE,
+        )
 
     # To handle response from microsoft login page
     if call_type == "result":
         return_val = _handle_login_response(request)
 
-        asset_id = request.GET.get("state")  # nosemgrep
-        if asset_id and asset_id.isalnum():
+        oauth_state = request.GET.get("state", "")
+        asset_id = oauth_state.rsplit("_", 1)[0] if "_" in oauth_state else None
+        if return_val.status_code < 400 and asset_id and asset_id.isalnum():
             app_dir = os.path.dirname(os.path.abspath(__file__))
             auth_status_file_path = f"{app_dir}/{asset_id}_{consts.TC_FILE}"
             real_auth_status_file_path = os.path.abspath(auth_status_file_path)
@@ -285,6 +345,7 @@ class AzureDevopsConnector(BaseConnector):
         self._base_url = None
         self._auth_type = None
         self._tenant_id = None
+        self._last_response_size = 0
 
     def encrypt_state(self, encrypt_var):
         """Handle encryption of token.
@@ -367,8 +428,9 @@ class AzureDevopsConnector(BaseConnector):
         # store the r_text in debug data, it will get dumped in the logs if the action fails
         if hasattr(action_result, "add_debug_data"):
             action_result.add_debug_data({"r_status_code": r.status_code})
-            action_result.add_debug_data({"r_text": r.text})
-            action_result.add_debug_data({"r_headers": r.headers})
+            if not _is_oauth_token_response(r):
+                action_result.add_debug_data({"r_text": r.text})
+                action_result.add_debug_data({"r_headers": r.headers})
 
         # Process each 'Content-Type' of response separately
 
@@ -634,6 +696,14 @@ class AzureDevopsConnector(BaseConnector):
             url = f"{base_url}{endpoint}"
         if api_version:
             kwargs["params"].update({"api-version": api_version})
+        kwargs["stream"] = True
+        kwargs.setdefault(
+            "timeout",
+            (
+                consts.AZURE_DEVOPS_CONNECT_TIMEOUT_SECONDS,
+                consts.AZURE_DEVOPS_READ_TIMEOUT_SECONDS,
+            ),
+        )
 
         try:
             if self._auth_type == "Basic Auth":
@@ -661,6 +731,78 @@ class AzureDevopsConnector(BaseConnector):
                 ),
                 None,
             )
+
+        try:
+            content_length = int(r.headers.get("Content-Length", 0))
+        except (TypeError, ValueError):
+            content_length = 0
+        if content_length > consts.AZURE_DEVOPS_MAX_RESPONSE_BYTES:
+            r.close()
+            return RetVal(
+                action_result.set_status(
+                    phantom.APP_ERROR,
+                    f"Response exceeded {consts.AZURE_DEVOPS_MAX_RESPONSE_BYTES} bytes",
+                ),
+                None,
+            )
+
+        deadline_reached = threading.Event()
+
+        def expire_response():
+            deadline_reached.set()
+            r.close()
+
+        deadline_timer = threading.Timer(
+            consts.AZURE_DEVOPS_RESPONSE_DEADLINE_SECONDS,
+            expire_response,
+        )
+        deadline_timer.daemon = True
+        deadline_timer.start()
+
+        content = bytearray()
+        try:
+            for chunk in r.iter_content(chunk_size=64 * 1024):
+                content.extend(chunk)
+                if len(content) > consts.AZURE_DEVOPS_MAX_RESPONSE_BYTES:
+                    return RetVal(
+                        action_result.set_status(
+                            phantom.APP_ERROR,
+                            f"Response exceeded {consts.AZURE_DEVOPS_MAX_RESPONSE_BYTES} bytes",
+                        ),
+                        None,
+                    )
+        except Exception as e:
+            if deadline_reached.is_set():
+                return RetVal(
+                    action_result.set_status(
+                        phantom.APP_ERROR,
+                        f"Response did not complete within {consts.AZURE_DEVOPS_RESPONSE_DEADLINE_SECONDS} seconds",
+                    ),
+                    None,
+                )
+            return RetVal(
+                action_result.set_status(
+                    phantom.APP_ERROR,
+                    f"Unable to read response. Details: {e!s}",
+                ),
+                None,
+            )
+        finally:
+            deadline_timer.cancel()
+            r.close()
+
+        if deadline_reached.is_set():
+            return RetVal(
+                action_result.set_status(
+                    phantom.APP_ERROR,
+                    f"Response did not complete within {consts.AZURE_DEVOPS_RESPONSE_DEADLINE_SECONDS} seconds",
+                ),
+                None,
+            )
+
+        r._content = bytes(content)
+        r._content_consumed = True
+        self._last_response_size = len(content)
         return self._process_response(r, action_result)
 
     def _get_asset_name(self, action_result):
@@ -780,6 +922,9 @@ class AzureDevopsConnector(BaseConnector):
         # it later on
         redirect_uri = f"{app_rest_url}/result"
         app_state["redirect_uri"] = redirect_uri
+        oauth_state_nonce = secrets.token_hex(32)
+        oauth_state = f"{self.get_asset_id()}_{oauth_state_nonce}"
+        oauth_launch_nonce = secrets.token_hex(32)
 
         self.save_progress(consts.AZURE_DEVOPS_OAUTH_URL_MESSAGE)
         self.save_progress(redirect_uri)
@@ -797,7 +942,7 @@ class AzureDevopsConnector(BaseConnector):
                 "{base_url}?client_id={client_id}&state={state}&response_type={response_type}&scope={scope}&redirect_uri={redirect_uri}".format(
                     base_url=app_authorization_base_url,
                     client_id=self._client_id,
-                    state=self.get_asset_id(),
+                    state=oauth_state,
                     response_type="code",
                     scope=consts.AZURE_DEVOPS_DEFAULT_SCOPE,
                     redirect_uri=redirect_uri,
@@ -817,7 +962,7 @@ class AzureDevopsConnector(BaseConnector):
                 "{base_url}?client_id={client_id}&state={state}&response_type={response_type}&scope={scope}&redirect_uri={redirect_uri}".format(
                     base_url=app_authorization_base_url,
                     client_id=self._client_id,
-                    state=self.get_asset_id(),
+                    state=oauth_state,
                     response_type="Assertion",
                     scope=consts.AZURE_DEVOPS_CODE_GENERATION_SCOPE,
                     redirect_uri=redirect_uri,
@@ -825,10 +970,12 @@ class AzureDevopsConnector(BaseConnector):
             )
 
         app_state["app_authorization_url"] = app_authorization_url
+        app_state[consts.AZURE_DEVOPS_OAUTH_STATE_NONCE] = oauth_state_nonce
+        app_state[consts.AZURE_DEVOPS_OAUTH_LAUNCH_NONCE] = oauth_launch_nonce
 
         # The URL that the user should open in a different tab.
         # This is pointing to a REST endpoint that points to the app
-        url_to_show = f"{app_rest_url}/start_oauth?asset_id={self.get_asset_id()}&"
+        url_to_show = f"{app_rest_url}/start_oauth?asset_id={self.get_asset_id()}&launch_nonce={oauth_launch_nonce}"
 
         # Save the state, will be used by the request handler
         _save_app_state(app_state, self.get_asset_id(), self)
@@ -899,7 +1046,9 @@ class AzureDevopsConnector(BaseConnector):
 
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        work_item_id = param["work_item_id"]
+        work_item_id = _parse_work_item_id(param["work_item_id"], action_result)
+        if work_item_id is None:
+            return action_result.get_status()
         expand = param["expand"]
 
         asof = param.get("asof")
@@ -938,7 +1087,7 @@ class AzureDevopsConnector(BaseConnector):
 
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        work_item_type = param["work_item_type"]
+        work_item_type = _quote_path_segment(param["work_item_type"])
 
         params = self.get_work_item_optional_params(param)
 
@@ -1005,7 +1154,7 @@ class AzureDevopsConnector(BaseConnector):
             params = {}
 
         if team:
-            endpoint = consts.ITERATIONS_TEAM.format(team=team)
+            endpoint = consts.ITERATIONS_TEAM.format(team=_quote_path_segment(team))
         else:
             endpoint = consts.ITERATIONS
 
@@ -1032,7 +1181,9 @@ class AzureDevopsConnector(BaseConnector):
 
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        work_item_id = param["work_item_id"]
+        work_item_id = _parse_work_item_id(param["work_item_id"], action_result)
+        if work_item_id is None:
+            return action_result.get_status()
         comment = param["comment"]
 
         post_body = {"text": comment}
@@ -1078,27 +1229,58 @@ class AzureDevopsConnector(BaseConnector):
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
+        cumulative_response_bytes = self._last_response_size
         user_data["members"].extend(response.get("members", []))
         user_data["items"].extend(response.get("items", []))
+        page_count = 1
+        seen_continuation_tokens = set()
+        total_items = len(user_data["members"]) + len(user_data["items"])
+        if total_items > consts.AZURE_DEVOPS_MAX_PAGINATION_ITEMS:
+            return action_result.set_status(
+                phantom.APP_ERROR,
+                f"Pagination stopped before exceeding {consts.AZURE_DEVOPS_MAX_PAGINATION_ITEMS} users",
+            )
 
         while True:
             continuation_token = response.get("continuationToken", None)
             if not continuation_token:
                 break
-            else:
-                param["continuationToken"] = continuation_token
-                ret_val, response = self._make_rest_call_helper(
-                    consts.USER_ENTITLEMENTS,
-                    action_result,
-                    method="get",
-                    params=param,
+
+            if continuation_token in seen_continuation_tokens:
+                return action_result.set_status(phantom.APP_ERROR, "Pagination stopped because the server repeated a continuation token")
+            if page_count >= consts.AZURE_DEVOPS_MAX_PAGINATION_PAGES:
+                return action_result.set_status(
+                    phantom.APP_ERROR,
+                    f"Pagination stopped after {consts.AZURE_DEVOPS_MAX_PAGINATION_PAGES} pages",
                 )
 
-                if phantom.is_fail(ret_val):
-                    return action_result.get_status()
+            seen_continuation_tokens.add(continuation_token)
+            param["continuationToken"] = continuation_token
+            ret_val, response = self._make_rest_call_helper(
+                consts.USER_ENTITLEMENTS,
+                action_result,
+                method="get",
+                params=param,
+            )
 
-                user_data["members"].extend(response.get("members", []))
-                user_data["items"].extend(response.get("items", []))
+            if phantom.is_fail(ret_val):
+                return action_result.get_status()
+
+            page_count += 1
+            cumulative_response_bytes += self._last_response_size
+            if cumulative_response_bytes > consts.AZURE_DEVOPS_MAX_PAGINATION_BYTES:
+                return action_result.set_status(
+                    phantom.APP_ERROR,
+                    f"Pagination stopped before exceeding {consts.AZURE_DEVOPS_MAX_PAGINATION_BYTES} response bytes",
+                )
+            user_data["members"].extend(response.get("members", []))
+            user_data["items"].extend(response.get("items", []))
+            total_items = len(user_data["members"]) + len(user_data["items"])
+            if total_items > consts.AZURE_DEVOPS_MAX_PAGINATION_ITEMS:
+                return action_result.set_status(
+                    phantom.APP_ERROR,
+                    f"Pagination stopped before exceeding {consts.AZURE_DEVOPS_MAX_PAGINATION_ITEMS} users",
+                )
 
         action_result.add_data(user_data)
 
@@ -1119,7 +1301,7 @@ class AzureDevopsConnector(BaseConnector):
 
         action_result = self.add_action_result(ActionResult(dict(param)))
 
-        user_id = param["user_id"]
+        user_id = _quote_path_segment(param["user_id"])
 
         ret_val, resp = self._make_rest_call_helper(
             f"{consts.USER_ENTITLEMENTS}/{user_id}",
