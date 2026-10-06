@@ -106,3 +106,10 @@ steps and select Entitlements - Read (vso.entitlements), User Profile -
 Read&Write(vso.memberentitlementmanagement_write), and Work Items - Read & Write (vso.work)
 scopes. Do not grant broader Personal Access Token scopes unless another integration requires
 them.
+
+### Updating work items
+
+Use **update work item** with a work item ID and a JSON array of patch operations.
+For example, `[ {"op": "add", "path": "/fields/System.Title", "value": "Updated title"} ]`
+sets the title. The response contains the updated work item, with field-name dots
+replaced by dashes, consistent with get work item. Write permission is required.
