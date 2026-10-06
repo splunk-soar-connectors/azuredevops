@@ -2533,6 +2533,79 @@
                 "type": "table"
             },
             "versions": "EQ(*)"
+        },
+        {
+            "action": "update work item",
+            "identifier": "update_work_item",
+            "description": "Update fields on an existing work item using a JSON Patch body",
+            "type": "generic",
+            "read_only": false,
+            "parameters": {
+                "work_item_id": {
+                    "description": "ID of the work item to update",
+                    "data_type": "numeric",
+                    "required": true,
+                    "order": 0
+                },
+                "post_body": {
+                    "description": "JSON array of patch operations to apply (e.g. [{\"op\": \"add\", \"path\": \"/fields/System.Title\", \"value\": \"New title\"}])",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 1
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.parameter.work_item_id",
+                    "data_type": "numeric",
+                    "column_name": "Work Item ID",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.summary.status",
+                    "data_type": "string",
+                    "column_name": "Status",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "Result",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.data",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.id",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.data.*.fields.System-Title",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.post_body",
+                    "data_type": "string"
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
         }
     ],
     "pip39_dependencies": {
@@ -2540,5 +2613,10 @@
     },
     "pip313_dependencies": {
         "wheel": []
-    }
+    },
+    "contributors": [
+        {
+            "name": "Campbell Goodall"
+        }
+    ]
 }

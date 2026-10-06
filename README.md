@@ -117,6 +117,13 @@ Read&Write(vso.memberentitlementmanagement_write), and Work Items - Read & Write
 scopes. Do not grant broader Personal Access Token scopes unless another integration requires
 them.
 
+### Updating work items
+
+Use **update work item** with a work item ID and a JSON array of patch operations.
+For example, `[ {"op": "add", "path": "/fields/System.Title", "value": "Updated title"} ]`
+sets the title. The response contains the updated work item, with field-name dots
+replaced by dashes, consistent with get work item. Write permission is required.
+
 ### Configuration variables
 
 This table lists the configuration variables required to operate Azure DevOps. These variables are specified when configuring a Azure DevOps asset in Splunk SOAR.
@@ -143,7 +150,8 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 [add user](#action-add-user) - Add a user to a project <br>
 [delete user](#action-delete-user) - Delete a user <br>
 [search users](#action-search-users) - Search user(s) <br>
-[add attachment](#action-add-attachment) - Add an attachment to a project
+[add attachment](#action-add-attachment) - Add an attachment to a project <br>
+[update work item](#action-update-work-item) - Update fields on an existing work item using a JSON Patch body
 
 ## action: 'test connectivity'
 
@@ -634,6 +642,35 @@ action_result.summary | string | | |
 action_result.message | string | | |
 summary.total_objects | numeric | | 1 |
 summary.total_objects_successful | numeric | | 1 |
+
+## action: 'update work item'
+
+Update fields on an existing work item using a JSON Patch body
+
+Type: **generic** <br>
+Read only: **False**
+
+#### Action Parameters
+
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**work_item_id** | required | ID of the work item to update | numeric | |
+**post_body** | required | JSON array of patch operations to apply (e.g. [{"op": "add", "path": "/fields/System.Title", "value": "New title"}]) | string | |
+
+#### Action Output
+
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.parameter.work_item_id | numeric | | |
+action_result.summary.status | string | | |
+action_result.status | string | | |
+action_result.message | string | | |
+summary.total_objects | numeric | | |
+summary.total_objects_successful | numeric | | |
+action_result.data | string | | |
+action_result.data.\*.id | numeric | | |
+action_result.data.\*.fields.System-Title | string | | |
+action_result.parameter.post_body | string | | |
 
 ______________________________________________________________________
 

@@ -1407,6 +1407,7 @@ class AzureDevopsConnector(BaseConnector):
         :return str: base url string
         """
         action_to_url_mapping_dict = {
+            "update_work_item": self._base_url,
             "delete_user": self._user_entitlement_base_url,
             "search_users": self._user_entitlement_base_url,
             "add_user": self._user_entitlement_base_url,
@@ -1502,6 +1503,54 @@ class AzureDevopsConnector(BaseConnector):
         # For now return Error with a message, in case of success we don't set the message, but use the summary
         # return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
 
+    def _handle_update_work_item(self, param: dict):
+        self.save_progress(f"In action handler for: {self.get_action_identifier()}")
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        work_item_id = _parse_work_item_id(param["work_item_id"], action_result)
+        if work_item_id is None:
+            return action_result.get_status()
+        post_body = param["post_body"]
+
+        try:
+            patch_ops = json.loads(post_body)
+        except (ValueError, TypeError) as e:
+            return action_result.set_status(
+                phantom.APP_ERROR,
+                f"Invalid JSON in 'post_body': {e}",
+            )
+
+        if not isinstance(patch_ops, list):
+            return action_result.set_status(
+                phantom.APP_ERROR,
+                "'post_body' must be a JSON array of patch operations.",
+            )
+
+        ret_val, response = self._make_rest_call_helper(
+            f"{consts.WORK_ITEMS}/{work_item_id}",
+            action_result,
+            method="patch",
+            json=patch_ops,
+            headers={"Content-Type": consts.APPLICATION_JSON_PATCH_HEADER},
+        )
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+
+        if response is None:
+            return action_result.set_status(phantom.APP_ERROR, "Empty response from update work item endpoint")
+
+        temp_fields = {}
+        for key, val in response.get("fields", {}).items():
+            temp_fields[key.replace(".", "-")] = val
+        response["fields"] = temp_fields
+        action_result.add_data(response)
+
+        summary = action_result.update_summary({})
+        summary["status"] = f"Work item {work_item_id} updated successfully"
+
+        self.debug_print(f"Work item {work_item_id} updated successfully")
+        return action_result.set_status(phantom.APP_SUCCESS)
+
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
 
@@ -1533,6 +1582,9 @@ class AzureDevopsConnector(BaseConnector):
 
         if action_id == "add_attachment":
             ret_val = self._handle_add_attachment(param)
+
+        if action_id == "update_work_item":
+            ret_val = self._handle_update_work_item(param)
 
         if action_id == "test_connectivity":
             ret_val = self._handle_test_connectivity(param)
