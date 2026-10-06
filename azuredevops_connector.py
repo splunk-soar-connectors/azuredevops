@@ -1407,6 +1407,8 @@ class AzureDevopsConnector(BaseConnector):
         :return str: base url string
         """
         action_to_url_mapping_dict = {
+            "list_templates": self._base_url,
+            "get_template": self._base_url,
             "delete_user": self._user_entitlement_base_url,
             "search_users": self._user_entitlement_base_url,
             "add_user": self._user_entitlement_base_url,
@@ -1502,6 +1504,69 @@ class AzureDevopsConnector(BaseConnector):
         # For now return Error with a message, in case of success we don't set the message, but use the summary
         # return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
 
+    def _handle_get_template(self, param: dict):
+        self.save_progress(f"In action handler for: {self.get_action_identifier()}")
+
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        template_id = _quote_path_segment(param["template_id"])
+        team = _quote_path_segment(param["team"])
+        full_url = f"/{team}{consts.TEMPLATES}/{template_id}"
+
+        ret_val, response = self._make_rest_call_helper(
+            full_url,
+            action_result,
+            method="get",
+        )
+
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+
+        if response is None:
+            return action_result.set_status(phantom.APP_ERROR, "Empty template response")
+        action_result.add_data(response)
+
+        summary = action_result.update_summary({})
+        summary["template_id"] = template_id
+        summary["template_name"] = response.get("name", "Unknown")
+        summary["work_item_type"] = response.get("workItemTypeName", "Unknown")
+
+        self.debug_print(f"Template {template_id} retrieved successfully")
+
+        return action_result.set_status(phantom.APP_SUCCESS)
+
+    def _handle_list_templates(self, param):
+        # Implement the handler here
+        # use self.save_progress(...) to send progress messages back to the platform
+        self.save_progress(f"In action handler for: {self.get_action_identifier()}")
+
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        # Access action parameters passed in the 'param' dictionary
+
+        # Required values can be accessed directly
+        team = _quote_path_segment(param["team"])
+
+        full_url = f"/{team}{consts.TEMPLATES}"
+
+        # make rest call
+        ret_val, response = self._make_rest_call_helper(full_url, action_result, method="get")
+
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+
+        if response is None:
+            return action_result.set_status(phantom.APP_ERROR, "Empty template response")
+        action_result.add_data(response)
+
+        summary = action_result.update_summary({})
+        summary["total_templates"] = response.get("count", len(response.get("value", [])))
+
+        self.debug_print("Templates retrieved successfully")
+
+        return action_result.set_status(phantom.APP_SUCCESS)
+
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
 
@@ -1533,6 +1598,12 @@ class AzureDevopsConnector(BaseConnector):
 
         if action_id == "add_attachment":
             ret_val = self._handle_add_attachment(param)
+
+        if action_id == "get_template":
+            ret_val = self._handle_get_template(param)
+
+        if action_id == "list_templates":
+            ret_val = self._handle_list_templates(param)
 
         if action_id == "test_connectivity":
             ret_val = self._handle_test_connectivity(param)

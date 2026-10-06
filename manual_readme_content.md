@@ -106,3 +106,9 @@ steps and select Entitlements - Read (vso.entitlements), User Profile -
 Read&Write(vso.memberentitlementmanagement_write), and Work Items - Read & Write (vso.work)
 scopes. Do not grant broader Personal Access Token scopes unless another integration requires
 them.
+
+### Team work item templates
+
+Use **list templates** with a team ID or name to discover templates. Use **get template**
+with that team and a returned template ID to retrieve a template and its field values.
+Both actions are read-only and require work-item read permission.

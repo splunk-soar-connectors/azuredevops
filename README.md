@@ -117,6 +117,12 @@ Read&Write(vso.memberentitlementmanagement_write), and Work Items - Read & Write
 scopes. Do not grant broader Personal Access Token scopes unless another integration requires
 them.
 
+### Team work item templates
+
+Use **list templates** with a team ID or name to discover templates. Use **get template**
+with that team and a returned template ID to retrieve a template and its field values.
+Both actions are read-only and require work-item read permission.
+
 ### Configuration variables
 
 This table lists the configuration variables required to operate Azure DevOps. These variables are specified when configuring a Azure DevOps asset in Splunk SOAR.
@@ -143,7 +149,9 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 [add user](#action-add-user) - Add a user to a project <br>
 [delete user](#action-delete-user) - Delete a user <br>
 [search users](#action-search-users) - Search user(s) <br>
-[add attachment](#action-add-attachment) - Add an attachment to a project
+[add attachment](#action-add-attachment) - Add an attachment to a project <br>
+[get template](#action-get-template) - Retrieves the requested template <br>
+[list templates](#action-list-templates) - List templates for a specific team
 
 ## action: 'test connectivity'
 
@@ -634,6 +642,63 @@ action_result.summary | string | | |
 action_result.message | string | | |
 summary.total_objects | numeric | | 1 |
 summary.total_objects_successful | numeric | | 1 |
+
+## action: 'get template'
+
+Retrieves the requested template
+
+Type: **investigate** <br>
+Read only: **True**
+
+#### Action Parameters
+
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**template_id** | required | The template id | string | |
+**team** | required | Team name the template belongs to | string | |
+
+#### Action Output
+
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.parameter.template_id | string | | |
+action_result.parameter.team | string | | |
+action_result.status | string | | |
+action_result.message | string | | |
+summary.total_objects | numeric | | |
+summary.total_objects_successful | numeric | | |
+action_result.data | string | | |
+action_result.data.\*.id | string | | |
+action_result.data.\*.name | string | | |
+action_result.data.\*.workItemTypeName | string | | |
+action_result.summary.template_name | string | | |
+
+## action: 'list templates'
+
+List templates for a specific team
+
+Type: **investigate** <br>
+Read only: **True**
+
+#### Action Parameters
+
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**team** | required | The team that owns the templates | string | |
+
+#### Action Output
+
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.parameter.team | string | | |
+action_result.status | string | | |
+action_result.message | string | | |
+summary.total_objects | numeric | | |
+summary.total_objects_successful | numeric | | |
+action_result.data | string | | |
+action_result.data.\*.value.\*.id | string | | |
+action_result.data.\*.value.\*.name | string | | |
+action_result.summary.total_templates | numeric | | |
 
 ______________________________________________________________________
 
