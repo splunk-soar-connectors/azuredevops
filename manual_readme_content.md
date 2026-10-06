@@ -106,3 +106,16 @@ steps and select Entitlements - Read (vso.entitlements), User Profile -
 Read&Write(vso.memberentitlementmanagement_write), and Work Items - Read & Write (vso.work)
 scopes. Do not grant broader Personal Access Token scopes unless another integration requires
 them.
+
+### Querying work items with WIQL
+
+Use **query work items** with a WIQL query and optional comma-separated fields.
+For example: `SELECT [System.Id] FROM WorkItems WHERE [System.TeamProject] = @project`.
+Flat queries hydrate returned IDs; link/tree queries hydrate unique target IDs.
+The action returns work item details rather than the original relationship graph.
+Batch retrieval uses the WIQL response timestamp, including for historical ASOF queries.
+Field-name dots are replaced by dashes in the result.
+
+Results are fetched in batches of 200 and bounded to 10,000 items and 20 MiB of cumulative
+API response data. Narrow the query if a limit is exceeded. This action can be called
+from a scheduled playbook; it does not provide an on-poll ingestion action.

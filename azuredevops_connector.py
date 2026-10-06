@@ -1407,6 +1407,7 @@ class AzureDevopsConnector(BaseConnector):
         :return str: base url string
         """
         action_to_url_mapping_dict = {
+            "query_work_items": self._base_url,
             "delete_user": self._user_entitlement_base_url,
             "search_users": self._user_entitlement_base_url,
             "add_user": self._user_entitlement_base_url,
@@ -1502,6 +1503,101 @@ class AzureDevopsConnector(BaseConnector):
         # For now return Error with a message, in case of success we don't set the message, but use the summary
         # return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
 
+    def _get_work_item_batch(self, ids, action_result, fields=None, expand=None, asof=None, response_bytes=None):
+        """Hydrate IDs in bounded batches while retaining upstream response limits."""
+        if len(ids) > consts.AZURE_DEVOPS_MAX_PAGINATION_ITEMS:
+            return action_result.set_status(phantom.APP_ERROR, "Too many work items; narrow the query"), None
+        items = []
+        if response_bytes is None:
+            response_bytes = self._last_response_size
+        if response_bytes > consts.AZURE_DEVOPS_MAX_PAGINATION_BYTES:
+            return action_result.set_status(phantom.APP_ERROR, "Work item results exceeded the response byte limit"), None
+        for start in range(0, len(ids), 200):
+            body = {"ids": ids[start : start + 200]}
+            if asof:
+                body["asOf"] = asof
+            if fields:
+                body["fields"] = [field.strip() for field in fields.split(",") if field.strip()]
+            elif expand is not None:
+                body["$expand"] = expand
+            ret_val, response = self._make_rest_call_helper(consts.WORK_ITEMS_BATCH, action_result, method="post", json=body)
+            if phantom.is_fail(ret_val):
+                return action_result.get_status(), None
+            if response is None:
+                return action_result.set_status(phantom.APP_ERROR, "Empty work items batch response"), None
+            response_bytes += self._last_response_size
+            if response_bytes > consts.AZURE_DEVOPS_MAX_PAGINATION_BYTES:
+                return action_result.set_status(phantom.APP_ERROR, "Work item results exceeded the response byte limit"), None
+            for item in response.get("value", []):
+                item["fields"] = {key.replace(".", "-"): value for key, value in item.get("fields", {}).items()}
+                items.append(item)
+            if len(items) > consts.AZURE_DEVOPS_MAX_PAGINATION_ITEMS:
+                return action_result.set_status(phantom.APP_ERROR, "Work item results exceeded the item limit"), None
+        return phantom.APP_SUCCESS, items
+
+    def _handle_query_work_items(self, param: dict):
+        """Execute a raw WIQL query and return matching work items with their fields.
+
+        Accepts any valid WIQL string so callers (e.g. playbooks) can express arbitrary
+        filters — parent/child hierarchy, ChangedDate ranges, custom field conditions, etc. —
+        without being constrained by the fixed parameters of 'list work items'.
+
+        The action runs the WIQL query to obtain work item IDs, then batch-fetches full field
+        data in chunks of 200 (the workitemsbatch API limit). An optional 'fields' parameter
+        limits which fields are returned per item; without it all default fields are returned.
+        """
+        self.save_progress(f"In action handler for: {self.get_action_identifier()}")
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        wiql_query = param["wiql_query"].strip()
+        fields_param = param.get("fields")
+        if not wiql_query:
+            return action_result.set_status(phantom.APP_ERROR, "WIQL query must not be empty")
+
+        # Execute the WIQL query to get matching work item IDs.
+        ret_val, wiql_response = self._make_rest_call_helper(
+            consts.WIQL,
+            action_result,
+            method="post",
+            json={"query": wiql_query},
+        )
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+
+        if wiql_response is None:
+            return action_result.set_status(phantom.APP_ERROR, "Empty response from WIQL endpoint")
+
+        # WIQL returns either workItems (flat) or workItemRelations (tree/link queries).
+        # For WorkItemLinks / recursive queries the IDs live in the target of each relation.
+        raw_refs = wiql_response.get("workItems") or []
+        if not raw_refs:
+            relations = wiql_response.get("workItemRelations") or []
+            seen = set()
+            for rel in relations:
+                target = rel.get("target")
+                if target and target.get("id") and target["id"] not in seen:
+                    seen.add(target["id"])
+                    raw_refs.append(target)
+
+        if not raw_refs:
+            action_result.add_data({"workItems": [], "count": 0})
+            summary = action_result.update_summary({})
+            summary["total_work_items"] = 0
+            return action_result.set_status(phantom.APP_SUCCESS, "WIQL query returned no results")
+
+        ids = [item["id"] for item in raw_refs]
+
+        ret_val, all_items = self._get_work_item_batch(ids, action_result, fields_param, asof=wiql_response.get("asOf"))
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+
+        action_result.add_data({"workItems": all_items, "count": len(all_items)})
+        summary = action_result.update_summary({})
+        summary["total_work_items"] = len(all_items)
+
+        self.debug_print(f"query_work_items returned {len(all_items)} item(s)")
+        return action_result.set_status(phantom.APP_SUCCESS)
+
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
 
@@ -1533,6 +1629,9 @@ class AzureDevopsConnector(BaseConnector):
 
         if action_id == "add_attachment":
             ret_val = self._handle_add_attachment(param)
+
+        if action_id == "query_work_items":
+            ret_val = self._handle_query_work_items(param)
 
         if action_id == "test_connectivity":
             ret_val = self._handle_test_connectivity(param)
