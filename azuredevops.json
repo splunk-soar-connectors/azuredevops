@@ -2533,6 +2533,99 @@
                 "type": "table"
             },
             "versions": "EQ(*)"
+        },
+        {
+            "action": "get wiki pages",
+            "identifier": "get_wiki_pages",
+            "description": "Retrieves the wiki pages in the provided wiki",
+            "type": "investigate",
+            "read_only": true,
+            "parameters": {
+                "wikiidentifier": {
+                    "description": "Wiki Identifier",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 0
+                },
+                "recursionlevel": {
+                    "description": "Recursion level (none, oneLevel, full)",
+                    "data_type": "string",
+                    "required": false,
+                    "order": 1
+                },
+                "path": {
+                    "description": "Page path to retrieve",
+                    "data_type": "string",
+                    "required": false,
+                    "order": 2
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.parameter.wikiidentifier",
+                    "data_type": "string",
+                    "column_name": "wikiidentifier",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.parameter.recursionlevel",
+                    "data_type": "string",
+                    "column_name": "recursionlevel",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.parameter.path",
+                    "data_type": "string",
+                    "column_name": "path",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "status",
+                    "column_order": 3
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.data",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.id",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.data.*.path",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.content",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.subPages.*.path",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary.sub_page_count",
+                    "data_type": "numeric"
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
         }
     ],
     "pip39_dependencies": {
@@ -2540,5 +2633,10 @@
     },
     "pip313_dependencies": {
         "wheel": []
-    }
+    },
+    "contributors": [
+        {
+            "name": "Campbell Goodall"
+        }
+    ]
 }
