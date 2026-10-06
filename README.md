@@ -117,6 +117,15 @@ Read&Write(vso.memberentitlementmanagement_write), and Work Items - Read & Write
 scopes. Do not grant broader Personal Access Token scopes unless another integration requires
 them.
 
+### Wiki pages
+
+Use **get wiki pages** with a wiki ID or name. The page path defaults to `/` and
+recursion defaults to `oneLevel`; `none` and `full` are also supported. The action
+requests page content and returns the page response, including available subpages.
+Wiki read permission (`vso.wiki` for OAuth) is required in addition to permissions
+needed by the other actions. Existing registrations may need this permission and
+renewed consent before accessing a wiki.
+
 ### Configuration variables
 
 This table lists the configuration variables required to operate Azure DevOps. These variables are specified when configuring a Azure DevOps asset in Splunk SOAR.
@@ -143,7 +152,8 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 [add user](#action-add-user) - Add a user to a project <br>
 [delete user](#action-delete-user) - Delete a user <br>
 [search users](#action-search-users) - Search user(s) <br>
-[add attachment](#action-add-attachment) - Add an attachment to a project
+[add attachment](#action-add-attachment) - Add an attachment to a project <br>
+[get wiki pages](#action-get-wiki-pages) - Retrieves the wiki pages in the provided wiki
 
 ## action: 'test connectivity'
 
@@ -634,6 +644,39 @@ action_result.summary | string | | |
 action_result.message | string | | |
 summary.total_objects | numeric | | 1 |
 summary.total_objects_successful | numeric | | 1 |
+
+## action: 'get wiki pages'
+
+Retrieves the wiki pages in the provided wiki
+
+Type: **investigate** <br>
+Read only: **True**
+
+#### Action Parameters
+
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**wikiidentifier** | required | Wiki Identifier | string | |
+**recursionlevel** | optional | Recursion level (none, oneLevel, full) | string | |
+**path** | optional | Page path to retrieve | string | |
+
+#### Action Output
+
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.parameter.wikiidentifier | string | | |
+action_result.parameter.recursionlevel | string | | |
+action_result.parameter.path | string | | |
+action_result.status | string | | |
+action_result.message | string | | |
+summary.total_objects | numeric | | |
+summary.total_objects_successful | numeric | | |
+action_result.data | string | | |
+action_result.data.\*.id | numeric | | |
+action_result.data.\*.path | string | | |
+action_result.data.\*.content | string | | |
+action_result.data.\*.subPages.\*.path | string | | |
+action_result.summary.sub_page_count | numeric | | |
 
 ______________________________________________________________________
 

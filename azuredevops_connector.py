@@ -1407,6 +1407,7 @@ class AzureDevopsConnector(BaseConnector):
         :return str: base url string
         """
         action_to_url_mapping_dict = {
+            "get_wiki_pages": self._base_url,
             "delete_user": self._user_entitlement_base_url,
             "search_users": self._user_entitlement_base_url,
             "add_user": self._user_entitlement_base_url,
@@ -1502,6 +1503,50 @@ class AzureDevopsConnector(BaseConnector):
         # For now return Error with a message, in case of success we don't set the message, but use the summary
         # return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
 
+    def _handle_get_wiki_pages(self, param):
+        # Implement the handler here
+        # use self.save_progress(...) to send progress messages back to the platform
+        self.save_progress(f"In action handler for: {self.get_action_identifier()}")
+
+        # Add an action result object to self (BaseConnector) to represent the action for this param
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        wikiidentifier = _quote_path_segment(param["wikiidentifier"])
+        recursionLevel = param.get("recursionlevel", "oneLevel")
+        page_path = param.get("path", "/")
+
+        params = {
+            "path": page_path,
+            "recursionLevel": recursionLevel,
+            "includeContent": "true",
+        }
+
+        full_url = f"{consts.WIKI_PAGES}/{wikiidentifier}/pages"
+
+        # make rest call
+        ret_val, response = self._make_rest_call_helper(
+            full_url,
+            action_result,
+            method="get",
+            params=params,
+        )
+        if phantom.is_fail(ret_val):
+            # the call to the 3rd party device or service failed, action result should contain all the error details
+            # for now the return is commented out, but after implementation, return from here
+            return action_result.get_status()
+
+        # Add the response into the data section
+        if response is None:
+            return action_result.set_status(phantom.APP_ERROR, "Empty wiki page response")
+        action_result.add_data(response)
+
+        summary = action_result.update_summary({})
+        summary["page_path"] = response.get("path", page_path)
+        summary["page_id"] = response.get("id", "Unknown")
+        summary["sub_page_count"] = len(response.get("subPages", []))
+
+        return action_result.set_status(phantom.APP_SUCCESS)
+
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
 
@@ -1533,6 +1578,9 @@ class AzureDevopsConnector(BaseConnector):
 
         if action_id == "add_attachment":
             ret_val = self._handle_add_attachment(param)
+
+        if action_id == "get_wiki_pages":
+            ret_val = self._handle_get_wiki_pages(param)
 
         if action_id == "test_connectivity":
             ret_val = self._handle_test_connectivity(param)

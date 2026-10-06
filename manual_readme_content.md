@@ -106,3 +106,12 @@ steps and select Entitlements - Read (vso.entitlements), User Profile -
 Read&Write(vso.memberentitlementmanagement_write), and Work Items - Read & Write (vso.work)
 scopes. Do not grant broader Personal Access Token scopes unless another integration requires
 them.
+
+### Wiki pages
+
+Use **get wiki pages** with a wiki ID or name. The page path defaults to `/` and
+recursion defaults to `oneLevel`; `none` and `full` are also supported. The action
+requests page content and returns the page response, including available subpages.
+Wiki read permission (`vso.wiki` for OAuth) is required in addition to permissions
+needed by the other actions. Existing registrations may need this permission and
+renewed consent before accessing a wiki.
