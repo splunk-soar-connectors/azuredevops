@@ -23,6 +23,7 @@ import sys
 import threading
 import time
 import urllib.parse as urlparse
+from datetime import datetime, timezone
 
 import encryption_helper
 import phantom.app as phantom
@@ -1407,6 +1408,7 @@ class AzureDevopsConnector(BaseConnector):
         :return str: base url string
         """
         action_to_url_mapping_dict = {
+            "list_work_items": self._base_url,
             "delete_user": self._user_entitlement_base_url,
             "search_users": self._user_entitlement_base_url,
             "add_user": self._user_entitlement_base_url,
@@ -1502,6 +1504,174 @@ class AzureDevopsConnector(BaseConnector):
         # For now return Error with a message, in case of success we don't set the message, but use the summary
         # return action_result.set_status(phantom.APP_ERROR, "Action not yet implemented")
 
+    def _get_work_item_batch(self, ids, action_result, fields=None, expand=None, asof=None, response_bytes=None):
+        """Hydrate IDs in bounded batches while retaining upstream response limits."""
+        if len(ids) > consts.AZURE_DEVOPS_MAX_PAGINATION_ITEMS:
+            return action_result.set_status(phantom.APP_ERROR, "Too many work items; narrow the query"), None
+        items = []
+        if response_bytes is None:
+            response_bytes = self._last_response_size
+        if response_bytes > consts.AZURE_DEVOPS_MAX_PAGINATION_BYTES:
+            return action_result.set_status(phantom.APP_ERROR, "Work item results exceeded the response byte limit"), None
+        for start in range(0, len(ids), 200):
+            body = {"ids": ids[start : start + 200]}
+            if asof:
+                body["asOf"] = asof
+            if fields:
+                body["fields"] = [field.strip() for field in fields.split(",") if field.strip()]
+            elif expand is not None:
+                body["$expand"] = expand
+            ret_val, response = self._make_rest_call_helper(consts.WORK_ITEMS_BATCH, action_result, method="post", json=body)
+            if phantom.is_fail(ret_val):
+                return action_result.get_status(), None
+            if response is None:
+                return action_result.set_status(phantom.APP_ERROR, "Empty work items batch response"), None
+            response_bytes += self._last_response_size
+            if response_bytes > consts.AZURE_DEVOPS_MAX_PAGINATION_BYTES:
+                return action_result.set_status(phantom.APP_ERROR, "Work item results exceeded the response byte limit"), None
+            for item in response.get("value", []):
+                item["fields"] = {key.replace(".", "-"): value for key, value in item.get("fields", {}).items()}
+                items.append(item)
+            if len(items) > consts.AZURE_DEVOPS_MAX_PAGINATION_ITEMS:
+                return action_result.set_status(phantom.APP_ERROR, "Work item results exceeded the item limit"), None
+        return phantom.APP_SUCCESS, items
+
+    def _handle_list_work_items(self, param: dict):
+        self.save_progress(f"In action handler for: {self.get_action_identifier()}")
+
+        action_result = self.add_action_result(ActionResult(dict(param)))
+
+        team = param["team"]
+        iteration = param["iteration"]
+        work_item_type = param.get("work_item_type")
+        expand = param.get("expand")
+        if expand == "None":
+            expand = None
+        fields_param = param.get("fields")
+
+        if fields_param and expand is not None:
+            return action_result.set_status(
+                phantom.APP_ERROR,
+                "The 'fields' and 'expand' parameters are mutually exclusive. "
+                "Provide one or the other: use 'fields' to limit which fields are returned, "
+                "or 'expand' to include relations/links alongside all default fields.",
+            )
+
+        response_bytes = 0
+
+        # Resolve the iteration clause for the WIQL query
+        iteration_lower = iteration.strip().lower()
+        resolved_iteration_name = None
+        resolved_iteration_path = None
+        if iteration_lower == "current":
+            iteration_clause = f"[System.IterationPath] = @currentIteration('[{self._project.replace(chr(39), chr(39) * 2)}]\\{team.replace(chr(39), chr(39) * 2)}')"
+        elif iteration_lower in ("future", "past"):
+            endpoint = consts.ITERATIONS_TEAM.format(team=_quote_path_segment(team))
+            ret_val, iter_response = self._make_rest_call_helper(endpoint, action_result, method="get")
+            if phantom.is_fail(ret_val):
+                return action_result.get_status()
+
+            response_bytes += self._last_response_size
+            if iter_response is None:
+                return action_result.set_status(phantom.APP_ERROR, "Empty response from iterations endpoint")
+
+            now = datetime.now(timezone.utc)
+
+            def iteration_date(item, field):
+                value = item.get("attributes", {}).get(field)
+                if not value:
+                    return None
+                try:
+                    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+                except (TypeError, ValueError):
+                    return None
+                return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
+
+            all_iterations = iter_response.get("value", [])
+
+            if iteration_lower == "future":
+                candidates = [
+                    it for it in all_iterations if iteration_date(it, "startDate") is not None and iteration_date(it, "startDate") > now
+                ]
+                if not candidates:
+                    return action_result.set_status(phantom.APP_ERROR, "No future iterations found")
+                # Nearest upcoming — smallest startDate
+                candidates.sort(key=lambda it: iteration_date(it, "startDate"))
+                resolved_iter = candidates[0]
+            else:
+                candidates = [
+                    it for it in all_iterations if iteration_date(it, "finishDate") is not None and iteration_date(it, "finishDate") < now
+                ]
+                if not candidates:
+                    return action_result.set_status(phantom.APP_ERROR, "No past iterations found")
+                # Most recently completed — largest finishDate
+                candidates.sort(key=lambda it: iteration_date(it, "finishDate"), reverse=True)
+                resolved_iter = candidates[0]
+
+            resolved_iteration_path = resolved_iter.get("path", "")
+            resolved_iteration_name = resolved_iter.get("name", "")
+            if not resolved_iteration_path:
+                return action_result.set_status(phantom.APP_ERROR, f"Resolved {iteration_lower} iteration has no path")
+
+            safe_path = resolved_iteration_path.replace("'", "''")
+            iteration_clause = f"[System.IterationPath] = '{safe_path}'"
+        else:
+            safe_iteration = iteration.replace("'", "''")
+            iteration_clause = f"[System.IterationPath] = '{safe_iteration}'"
+
+        # Build WIQL query — escape single quotes in user-supplied values
+        where_clauses = ["[System.TeamProject] = @project", iteration_clause]
+        if work_item_type:
+            safe_type = work_item_type.replace("'", "''")
+            where_clauses.append(f"[System.WorkItemType] = '{safe_type}'")
+
+        wiql_query = "SELECT [System.Id] FROM WorkItems WHERE {} ORDER BY [System.Id]".format(" AND ".join(where_clauses))
+
+        ret_val, wiql_response = self._make_rest_call_helper(
+            f"/{_quote_path_segment(team)}{consts.WIQL}",
+            action_result,
+            method="post",
+            json={"query": wiql_query},
+        )
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+
+        if wiql_response is None:
+            return action_result.set_status(phantom.APP_ERROR, "Empty response from WIQL endpoint")
+
+        response_bytes += self._last_response_size
+        if response_bytes > consts.AZURE_DEVOPS_MAX_PAGINATION_BYTES:
+            return action_result.set_status(phantom.APP_ERROR, "Work item results exceeded the response byte limit")
+        work_item_refs = wiql_response.get("workItems", [])
+        if not work_item_refs:
+            action_result.add_data({"workItems": [], "count": 0})
+            summary = action_result.update_summary({})
+            summary["total_work_items"] = 0
+            if resolved_iteration_name is not None:
+                summary["resolved_iteration_name"] = resolved_iteration_name
+            if resolved_iteration_path is not None:
+                summary["resolved_iteration_path"] = resolved_iteration_path
+            return action_result.set_status(phantom.APP_SUCCESS)
+
+        ids = [item["id"] for item in work_item_refs]
+
+        ret_val, work_items = self._get_work_item_batch(ids, action_result, fields_param, expand, wiql_response.get("asOf"), response_bytes)
+        if phantom.is_fail(ret_val):
+            return action_result.get_status()
+
+        action_result.add_data({"workItems": work_items, "count": len(work_items)})
+
+        summary = action_result.update_summary({})
+        summary["total_work_items"] = len(work_items)
+        if resolved_iteration_name is not None:
+            summary["resolved_iteration_name"] = resolved_iteration_name
+        if resolved_iteration_path is not None:
+            summary["resolved_iteration_path"] = resolved_iteration_path
+
+        self.debug_print(f"Retrieved {len(work_items)} work items successfully")
+
+        return action_result.set_status(phantom.APP_SUCCESS)
+
     def handle_action(self, param):
         ret_val = phantom.APP_SUCCESS
 
@@ -1533,6 +1703,9 @@ class AzureDevopsConnector(BaseConnector):
 
         if action_id == "add_attachment":
             ret_val = self._handle_add_attachment(param)
+
+        if action_id == "list_work_items":
+            ret_val = self._handle_list_work_items(param)
 
         if action_id == "test_connectivity":
             ret_val = self._handle_test_connectivity(param)

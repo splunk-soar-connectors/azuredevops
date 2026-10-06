@@ -106,3 +106,15 @@ steps and select Entitlements - Read (vso.entitlements), User Profile -
 Read&Write(vso.memberentitlementmanagement_write), and Work Items - Read & Write (vso.work)
 scopes. Do not grant broader Personal Access Token scopes unless another integration requires
 them.
+
+### Listing work items by iteration
+
+Use **list work items** with a team and `current`, `future`, `past`, or an explicit
+iteration path. Future selects the nearest upcoming iteration; past selects the most
+recently completed iteration. Undated iterations are ignored for date-based selection.
+Optionally filter by work item type, select comma-separated fields, or expand details.
+Field selection and expansion are mutually exclusive; the default `None` expansion
+allows field selection. Resolved iteration names and paths appear in the summary.
+
+Results are fetched in batches of 200 and bounded to 10,000 items and 20 MiB of cumulative
+API response data. Narrow the selection if a limit is exceeded.

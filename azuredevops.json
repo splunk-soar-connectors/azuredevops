@@ -2533,6 +2533,235 @@
                 "type": "table"
             },
             "versions": "EQ(*)"
+        },
+        {
+            "action": "list work items",
+            "identifier": "list_work_items",
+            "description": "List work items in a specific iteration",
+            "type": "investigate",
+            "read_only": true,
+            "parameters": {
+                "team": {
+                    "description": "Team ID or team name",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 0
+                },
+                "iteration": {
+                    "description": "Iteration path, or 'current' for the active iteration, 'future' for the next upcoming iteration, or 'past' for the most recently completed iteration",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 1
+                },
+                "work_item_type": {
+                    "description": "Filter results by work item type (e.g. Bug, Task, User Story)",
+                    "data_type": "string",
+                    "required": false,
+                    "order": 2
+                },
+                "expand": {
+                    "description": "The expand parameters for work item attributes. Mutually exclusive with 'fields'.",
+                    "data_type": "string",
+                    "required": false,
+                    "value_list": [
+                        "None",
+                        "Relations",
+                        "Fields",
+                        "Links",
+                        "All"
+                    ],
+                    "order": 3
+                },
+                "fields": {
+                    "description": "Comma-separated list of fields to return for each work item (e.g. System.Id, System.Title, System.State). Mutually exclusive with 'expand'.",
+                    "data_type": "string",
+                    "required": false,
+                    "order": 4
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "example_values": [
+                        "success",
+                        "failed"
+                    ]
+                },
+                {
+                    "data_path": "action_result.parameter.team",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.iteration",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.work_item_type",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.expand",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.data.*.count",
+                    "data_type": "numeric",
+                    "example_values": [
+                        5
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.workItems.*.id",
+                    "data_type": "numeric",
+                    "column_name": "Work Item ID",
+                    "column_order": 0,
+                    "example_values": [
+                        42
+                    ],
+                    "contains": [
+                        "work item id"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.workItems.*.rev",
+                    "data_type": "numeric",
+                    "example_values": [
+                        3
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.workItems.*.url",
+                    "data_type": "string",
+                    "example_values": [
+                        "https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/_apis/wit/workItems/42"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.workItems.*.fields.System-Id",
+                    "data_type": "numeric",
+                    "example_values": [
+                        42
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.workItems.*.fields.System-Title",
+                    "data_type": "string",
+                    "column_name": "Title",
+                    "column_order": 1,
+                    "example_values": [
+                        "Fix login bug"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.workItems.*.fields.System-WorkItemType",
+                    "data_type": "string",
+                    "column_name": "Work Item Type",
+                    "column_order": 2,
+                    "example_values": [
+                        "Task"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.workItems.*.fields.System-State",
+                    "data_type": "string",
+                    "column_name": "State",
+                    "column_order": 3,
+                    "example_values": [
+                        "Active"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.workItems.*.fields.System-TeamProject",
+                    "data_type": "string",
+                    "example_values": [
+                        "test"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.workItems.*.fields.System-IterationPath",
+                    "data_type": "string",
+                    "example_values": [
+                        "test\\Sprint 1"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.workItems.*.fields.System-AreaPath",
+                    "data_type": "string",
+                    "example_values": [
+                        "test"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.workItems.*.fields.System-AssignedTo.displayName",
+                    "data_type": "string",
+                    "example_values": [
+                        "Jane Smith"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.workItems.*.fields.System-AssignedTo.uniqueName",
+                    "data_type": "string",
+                    "example_values": [
+                        "jane@example.com"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.workItems.*.fields.System-CreatedDate",
+                    "data_type": "string",
+                    "example_values": [
+                        "2026-01-10T09:00:00.000Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.data.*.workItems.*.fields.System-ChangedDate",
+                    "data_type": "string",
+                    "example_values": [
+                        "2026-01-15T14:30:00.000Z"
+                    ]
+                },
+                {
+                    "data_path": "action_result.summary",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.summary.total_work_items",
+                    "data_type": "numeric",
+                    "example_values": [
+                        5
+                    ]
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric",
+                    "example_values": [
+                        1
+                    ]
+                },
+                {
+                    "data_path": "action_result.data",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.fields",
+                    "data_type": "string"
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
         }
     ],
     "pip39_dependencies": {
@@ -2540,5 +2769,10 @@
     },
     "pip313_dependencies": {
         "wheel": []
-    }
+    },
+    "contributors": [
+        {
+            "name": "Campbell Goodall"
+        }
+    ]
 }

@@ -117,6 +117,18 @@ Read&Write(vso.memberentitlementmanagement_write), and Work Items - Read & Write
 scopes. Do not grant broader Personal Access Token scopes unless another integration requires
 them.
 
+### Listing work items by iteration
+
+Use **list work items** with a team and `current`, `future`, `past`, or an explicit
+iteration path. Future selects the nearest upcoming iteration; past selects the most
+recently completed iteration. Undated iterations are ignored for date-based selection.
+Optionally filter by work item type, select comma-separated fields, or expand details.
+Field selection and expansion are mutually exclusive; the default `None` expansion
+allows field selection. Resolved iteration names and paths appear in the summary.
+
+Results are fetched in batches of 200 and bounded to 10,000 items and 20 MiB of cumulative
+API response data. Narrow the selection if a limit is exceeded.
+
 ### Configuration variables
 
 This table lists the configuration variables required to operate Azure DevOps. These variables are specified when configuring a Azure DevOps asset in Splunk SOAR.
@@ -143,7 +155,8 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 [add user](#action-add-user) - Add a user to a project <br>
 [delete user](#action-delete-user) - Delete a user <br>
 [search users](#action-search-users) - Search user(s) <br>
-[add attachment](#action-add-attachment) - Add an attachment to a project
+[add attachment](#action-add-attachment) - Add an attachment to a project <br>
+[list work items](#action-list-work-items) - List work items in a specific iteration
 
 ## action: 'test connectivity'
 
@@ -634,6 +647,55 @@ action_result.summary | string | | |
 action_result.message | string | | |
 summary.total_objects | numeric | | 1 |
 summary.total_objects_successful | numeric | | 1 |
+
+## action: 'list work items'
+
+List work items in a specific iteration
+
+Type: **investigate** <br>
+Read only: **True**
+
+#### Action Parameters
+
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**team** | required | Team ID or team name | string | |
+**iteration** | required | Iteration path, or 'current' for the active iteration, 'future' for the next upcoming iteration, or 'past' for the most recently completed iteration | string | |
+**work_item_type** | optional | Filter results by work item type (e.g. Bug, Task, User Story) | string | |
+**expand** | optional | The expand parameters for work item attributes. Mutually exclusive with 'fields'. | string | |
+**fields** | optional | Comma-separated list of fields to return for each work item (e.g. System.Id, System.Title, System.State). Mutually exclusive with 'expand'. | string | |
+
+#### Action Output
+
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.status | string | | success failed |
+action_result.parameter.team | string | | |
+action_result.parameter.iteration | string | | |
+action_result.parameter.work_item_type | string | | |
+action_result.parameter.expand | string | | |
+action_result.data.\*.count | numeric | | 5 |
+action_result.data.\*.workItems.\*.id | numeric | `work item id` | 42 |
+action_result.data.\*.workItems.\*.rev | numeric | | 3 |
+action_result.data.\*.workItems.\*.url | string | | https://dev.azure.com/test0828/c24261f4-f968-445c-a9b6-3e0e2fcc3da9/\_apis/wit/workItems/42 |
+action_result.data.\*.workItems.\*.fields.System-Id | numeric | | 42 |
+action_result.data.\*.workItems.\*.fields.System-Title | string | | Fix login bug |
+action_result.data.\*.workItems.\*.fields.System-WorkItemType | string | | Task |
+action_result.data.\*.workItems.\*.fields.System-State | string | | Active |
+action_result.data.\*.workItems.\*.fields.System-TeamProject | string | | test |
+action_result.data.\*.workItems.\*.fields.System-IterationPath | string | | test\\Sprint 1 |
+action_result.data.\*.workItems.\*.fields.System-AreaPath | string | | test |
+action_result.data.\*.workItems.\*.fields.System-AssignedTo.displayName | string | | Jane Smith |
+action_result.data.\*.workItems.\*.fields.System-AssignedTo.uniqueName | string | | jane@example.com |
+action_result.data.\*.workItems.\*.fields.System-CreatedDate | string | | 2026-01-10T09:00:00.000Z |
+action_result.data.\*.workItems.\*.fields.System-ChangedDate | string | | 2026-01-15T14:30:00.000Z |
+action_result.summary | string | | |
+action_result.summary.total_work_items | numeric | | 5 |
+action_result.message | string | | |
+summary.total_objects | numeric | | 1 |
+summary.total_objects_successful | numeric | | 1 |
+action_result.data | string | | |
+action_result.parameter.fields | string | | |
 
 ______________________________________________________________________
 
