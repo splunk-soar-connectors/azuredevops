@@ -98,3 +98,6 @@ AUTH_TYPE_INTERACTIVE_OLD = "Interactive Auth"
 
 # Default scopes for Azure DevOps access
 AZURE_DEVOPS_DEFAULT_SCOPE = "https://app.vssps.visualstudio.com/.default offline_access"
+
+WIQL = "/_apis/wit/wiql"
+WORK_ITEMS_BATCH = "/_apis/wit/workitemsbatch"

@@ -2533,6 +2533,99 @@
                 "type": "table"
             },
             "versions": "EQ(*)"
+        },
+        {
+            "action": "query work items",
+            "identifier": "query_work_items",
+            "description": "Execute WIQL and retrieve matching work items",
+            "type": "investigate",
+            "read_only": true,
+            "parameters": {
+                "wiql_query": {
+                    "description": "A valid WIQL query string. Use 'FROM WorkItems' for flat queries or 'FROM WorkItemLinks ... MODE (Recursive)' for hierarchy queries. Example: SELECT [System.Id], [System.Title], [System.State] FROM WorkItemLinks WHERE [Source].[System.Id] = 123 AND [System.Links.LinkType] = 'System.LinkTypes.Hierarchy-Forward' MODE (Recursive)",
+                    "data_type": "string",
+                    "required": true,
+                    "order": 0
+                },
+                "fields": {
+                    "description": "Comma-separated list of field reference names to return for each work item (e.g. System.Id,System.Title,System.State,System.ChangedDate). If omitted, all default fields are returned.",
+                    "data_type": "string",
+                    "required": false,
+                    "order": 1
+                }
+            },
+            "output": [
+                {
+                    "data_path": "action_result.data.*.workItems.*.id",
+                    "data_type": "numeric",
+                    "column_name": "Work Item ID",
+                    "column_order": 0
+                },
+                {
+                    "data_path": "action_result.data.*.workItems.*.fields.System-WorkItemType",
+                    "data_type": "string",
+                    "column_name": "Type",
+                    "column_order": 1
+                },
+                {
+                    "data_path": "action_result.data.*.workItems.*.fields.System-Title",
+                    "data_type": "string",
+                    "column_name": "Title",
+                    "column_order": 2
+                },
+                {
+                    "data_path": "action_result.data.*.workItems.*.fields.System-State",
+                    "data_type": "string",
+                    "column_name": "State",
+                    "column_order": 3
+                },
+                {
+                    "data_path": "action_result.data.*.workItems.*.fields.System-ChangedDate",
+                    "data_type": "string",
+                    "column_name": "Changed Date",
+                    "column_order": 4
+                },
+                {
+                    "data_path": "action_result.summary.total_work_items",
+                    "data_type": "numeric",
+                    "column_name": "Total Work Items",
+                    "column_order": 5
+                },
+                {
+                    "data_path": "action_result.status",
+                    "data_type": "string",
+                    "column_name": "Result",
+                    "column_order": 6
+                },
+                {
+                    "data_path": "action_result.message",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "summary.total_objects",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "summary.total_objects_successful",
+                    "data_type": "numeric"
+                },
+                {
+                    "data_path": "action_result.data",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.wiql_query",
+                    "data_type": "string"
+                },
+                {
+                    "data_path": "action_result.parameter.fields",
+                    "data_type": "string"
+                }
+            ],
+            "render": {
+                "type": "table"
+            },
+            "versions": "EQ(*)"
         }
     ],
     "pip39_dependencies": {
@@ -2540,5 +2633,10 @@
     },
     "pip313_dependencies": {
         "wheel": []
-    }
+    },
+    "contributors": [
+        {
+            "name": "Campbell Goodall"
+        }
+    ]
 }

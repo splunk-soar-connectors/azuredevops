@@ -117,6 +117,19 @@ Read&Write(vso.memberentitlementmanagement_write), and Work Items - Read & Write
 scopes. Do not grant broader Personal Access Token scopes unless another integration requires
 them.
 
+### Querying work items with WIQL
+
+Use **query work items** with a WIQL query and optional comma-separated fields.
+For example: `SELECT [System.Id] FROM WorkItems WHERE [System.TeamProject] = @project`.
+Flat queries hydrate returned IDs; link/tree queries hydrate unique target IDs.
+The action returns work item details rather than the original relationship graph.
+Batch retrieval uses the WIQL response timestamp, including for historical ASOF queries.
+Field-name dots are replaced by dashes in the result.
+
+Results are fetched in batches of 200 and bounded to 10,000 items and 20 MiB of cumulative
+API response data. Narrow the query if a limit is exceeded. This action can be called
+from a scheduled playbook; it does not provide an on-poll ingestion action.
+
 ### Configuration variables
 
 This table lists the configuration variables required to operate Azure DevOps. These variables are specified when configuring a Azure DevOps asset in Splunk SOAR.
@@ -143,7 +156,8 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 [add user](#action-add-user) - Add a user to a project <br>
 [delete user](#action-delete-user) - Delete a user <br>
 [search users](#action-search-users) - Search user(s) <br>
-[add attachment](#action-add-attachment) - Add an attachment to a project
+[add attachment](#action-add-attachment) - Add an attachment to a project <br>
+[query work items](#action-query-work-items) - Execute WIQL and retrieve matching work items
 
 ## action: 'test connectivity'
 
@@ -634,6 +648,38 @@ action_result.summary | string | | |
 action_result.message | string | | |
 summary.total_objects | numeric | | 1 |
 summary.total_objects_successful | numeric | | 1 |
+
+## action: 'query work items'
+
+Execute WIQL and retrieve matching work items
+
+Type: **investigate** <br>
+Read only: **True**
+
+#### Action Parameters
+
+PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
+--------- | -------- | ----------- | ---- | --------
+**wiql_query** | required | A valid WIQL query string. Use 'FROM WorkItems' for flat queries or 'FROM WorkItemLinks ... MODE (Recursive)' for hierarchy queries. Example: SELECT [System.Id], [System.Title], [System.State] FROM WorkItemLinks WHERE [Source].[System.Id] = 123 AND [System.Links.LinkType] = 'System.LinkTypes.Hierarchy-Forward' MODE (Recursive) | string | |
+**fields** | optional | Comma-separated list of field reference names to return for each work item (e.g. System.Id,System.Title,System.State,System.ChangedDate). If omitted, all default fields are returned. | string | |
+
+#### Action Output
+
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.data.\*.workItems.\*.id | numeric | | |
+action_result.data.\*.workItems.\*.fields.System-WorkItemType | string | | |
+action_result.data.\*.workItems.\*.fields.System-Title | string | | |
+action_result.data.\*.workItems.\*.fields.System-State | string | | |
+action_result.data.\*.workItems.\*.fields.System-ChangedDate | string | | |
+action_result.summary.total_work_items | numeric | | |
+action_result.status | string | | |
+action_result.message | string | | |
+summary.total_objects | numeric | | |
+summary.total_objects_successful | numeric | | |
+action_result.data | string | | |
+action_result.parameter.wiql_query | string | | |
+action_result.parameter.fields | string | | |
 
 ______________________________________________________________________
 
