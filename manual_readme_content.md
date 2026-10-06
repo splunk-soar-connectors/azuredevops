@@ -106,3 +106,10 @@ steps and select Entitlements - Read (vso.entitlements), User Profile -
 Read&Write(vso.memberentitlementmanagement_write), and Work Items - Read & Write (vso.work)
 scopes. Do not grant broader Personal Access Token scopes unless another integration requires
 them.
+
+### OAuth token refresh
+
+For interactive authentication, a rejected access token (HTTP 401 or legacy HTTP 203)
+triggers a refresh using the stored refresh token and one retry of the original request.
+Basic authentication does not use this refresh path. If refresh fails, the action reports
+an error; run Test Connectivity again when interactive authorization is required.

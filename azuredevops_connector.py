@@ -346,6 +346,7 @@ class AzureDevopsConnector(BaseConnector):
         self._auth_type = None
         self._tenant_id = None
         self._last_response_size = 0
+        self._last_http_status = None
 
     def encrypt_state(self, encrypt_var):
         """Handle encryption of token.
@@ -425,6 +426,7 @@ class AzureDevopsConnector(BaseConnector):
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
 
     def _process_response(self, r, action_result):
+        self._last_http_status = r.status_code
         # store the r_text in debug data, it will get dumped in the logs if the action fails
         if hasattr(action_result, "add_debug_data"):
             action_result.add_debug_data({"r_status_code": r.status_code})
@@ -636,6 +638,7 @@ class AzureDevopsConnector(BaseConnector):
         if kwargs.get("params"):
             params.update(**kwargs.get("params"))
 
+        self._last_http_status = None
         ret_val, resp_json = self._make_rest_call(
             endpoint,
             action_result,
@@ -648,9 +651,11 @@ class AzureDevopsConnector(BaseConnector):
             skip_base_url=skip_base_url,
         )
 
-        if consts.BAD_TOKEN_MATCH_STRING in action_result.get_message():
-            self.save_progress("bad token")
-            self._get_token(action_result=action_result)
+        if not self._password and self._last_http_status in (203, 401):
+            self.save_progress("Access token rejected; refreshing token and retrying once")
+            token_ret_val = self._get_token(action_result=action_result)
+            if phantom.is_fail(token_ret_val):
+                return action_result.get_status(), None
             headers.update({"Authorization": f"Bearer {self._access_token}"})
             ret_val, resp_json = self._make_rest_call(
                 endpoint,
