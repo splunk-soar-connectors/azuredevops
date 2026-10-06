@@ -13,7 +13,7 @@
 # limitations under the License.
 import unittest
 
-from test_support import connector, responses
+from .test_support import connector, responses
 
 
 class WikiTests(unittest.TestCase):
