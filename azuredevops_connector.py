@@ -1058,7 +1058,7 @@ class AzureDevopsConnector(BaseConnector):
         if asof:
             params["asOf"] = asof
         if fields:
-            params["fields"] = fields
+            params["fields"] = ",".join(field.strip() for field in fields.split(","))
 
         ret_val, response = self._make_rest_call_helper(
             f"{consts.WORK_ITEMS}/{work_item_id}",
