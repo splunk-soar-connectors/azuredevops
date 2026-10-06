@@ -13,7 +13,7 @@
 # limitations under the License.
 import unittest
 
-from test_support import Result, connector
+from .test_support import Result, connector
 
 
 class RefreshTests(unittest.TestCase):
