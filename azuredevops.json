@@ -2540,5 +2540,10 @@
     },
     "pip313_dependencies": {
         "wheel": []
-    }
+    },
+    "contributors": [
+        {
+            "name": "Campbell Goodall"
+        }
+    ]
 }
